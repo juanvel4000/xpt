@@ -5,7 +5,16 @@
 #include <limits.h>
 #include <stdlib.h>
 
+#include <packages.h>
+#include <common.h>
+
 int extract_payload(const char *file, const char *destdir) {
+
+    if (!is_file(file)) {
+        fprintf(stderr, "%s does not exist\n", file);
+        return 1;
+    }
+
     struct archive *a;
     struct archive *ext;
     struct archive_entry *entry;
