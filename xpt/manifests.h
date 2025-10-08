@@ -1,11 +1,11 @@
 #ifndef MANIFESTS_H
     #define MANIFESTS_H
     typedef struct {
-        const char* str;
-        const char* version;
-        const char* desc;
-        const char* maintainer;
-        const char* arch;
+        char* name;
+        char* version;
+        char* desc;
+        char* maintainer;
+        char* arch;
     } PackageInfo;
 
     #define MAX_LINE 1024

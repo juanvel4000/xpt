@@ -6,6 +6,7 @@
 
 #include <common.h>
 #include <packages.h>
+#include <manifests.h>
 
 char* trim(char* s) {
     while (isspace((unsigned char)*s)) s++;

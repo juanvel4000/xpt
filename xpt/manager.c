@@ -24,7 +24,7 @@ int package_install(const char *file, const char *destdir) {
 
     char manifest[PATH_MAX];
 
-    snprintf(manifest, sizeof(manifest), "%s/manifest.xpt", destdir);
+    snprintf(manifest, sizeof(manifest), "%s/xpt.manifest", destdir);
     if (!is_file(manifest)) {
         fprintf(stderr, "%s does not have a manifest\n", file);
         return 1;
@@ -47,11 +47,10 @@ int package_install(const char *file, const char *destdir) {
         fprintf(stderr, "could not open database");
         return 1;
     }
-    if (fprintf(fp, "%s@%s\n", pi->name, pi->version) > 0) {
+    if (fprintf(fp, "%s@%s\n", pi->name, pi->version) == 0) {
+        fprintf(stderr, "couldn't write to database\n");
         delete_package_info(pi);
         fclose(fp);
-
-        fprintf(stderr, "couldn't to write to database");
         return 1;
     }
 

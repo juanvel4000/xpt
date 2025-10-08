@@ -1,6 +1,7 @@
 #include <archive.h>
 #include <archive_entry.h>
 
+#include <string.h>
 #include <stdio.h>
 #include <limits.h>
 #include <stdlib.h>
@@ -42,8 +43,7 @@ int extract_payload(const char *file, const char *destdir) {
         | ARCHIVE_EXTRACT_ACL
         | ARCHIVE_EXTRACT_FFLAGS
         | ARCHIVE_EXTRACT_OWNER
-        | ARCHIVE_EXTRACT_XATTR
-        | ARCHIVE_EXTRACT_SYMLINK);
+        | ARCHIVE_EXTRACT_XATTR);
    
     int hr;
     while ((hr = archive_read_next_header(a, &entry)) == ARCHIVE_OK) {

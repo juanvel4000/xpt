@@ -1,6 +1,6 @@
 #include <sys/stat.h>
-#include <stdio.h.>
-#include <sys/stat.h>
+#include <stdio.h>
+
 #include <sys/types.h>
 #include <errno.h>
 #include <string.h>
@@ -13,7 +13,7 @@ int is_file(const char *path) {
 }
 
 
-int mkdir_p(const char *path, mode_t mode) {
+int mkdir_p(const char *path) {
     char tmp[PATH_MAX];
     strncpy(tmp, path, sizeof(tmp));
     tmp[sizeof(tmp)-1] = '\0';
@@ -27,13 +27,13 @@ int mkdir_p(const char *path, mode_t mode) {
     for (char *p = tmp + 1; *p; p++) {
         if (*p == '/') {
             *p = '\0';
-            if (mkdir(tmp, mode) != 0) {
+            if (mkdir(tmp, 0775) != 0) {
                 if (errno != EEXIST) return -1;
             }
             *p = '/';
         }
     }
-    if (mkdir(tmp, mode) != 0) {
+    if (mkdir(tmp, 0775) != 0) {
         if (errno != EEXIST) return -1;
     }
     return 0;
