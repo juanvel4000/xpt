@@ -30,10 +30,11 @@ int extract_payload(const char *file, const char *destdir) {
         
         archive_read_close(a);
         archive_read_free(a);
-        return 0;
+        return 1;
     }
 
     ext = archive_write_disk_new();
+    archive_write_disk_set_standard_lookup(ext);
 
     archive_write_disk_set_options(ext,
         ARCHIVE_EXTRACT_TIME
@@ -43,23 +44,28 @@ int extract_payload(const char *file, const char *destdir) {
         | ARCHIVE_EXTRACT_OWNER
         | ARCHIVE_EXTRACT_XATTR
         | ARCHIVE_EXTRACT_SYMLINK);
-    
-    while (archive_read_next_header(a, &entry) == ARCHIVE_OK) {
+   
+    int hr;
+    while ((hr = archive_read_next_header(a, &entry)) == ARCHIVE_OK) {
         const char *cfil = archive_entry_pathname(entry);
+        if (strlen(cfil) >= 4 && strcmp(cfil + strlen(cfil) - 4, ".xpt") == 0)
+            continue;
         char target[PATH_MAX];
         snprintf(target, sizeof(target), "%s/%s", destdir, cfil);
 
         archive_entry_set_pathname(entry, target);
 
         r = archive_write_header(ext, entry);
+
         if (r != ARCHIVE_OK) {
             fprintf(stderr, "warning: %s\n", archive_error_string(ext));
         } else {
             const void *buff;
             size_t size;
             la_int64_t offset;
-            
-            while (archive_read_data_block(a, &buff, &size, &offset) == ARCHIVE_OK) {
+            int rr;
+
+            while ((rr = archive_read_data_block(a, &buff, &size, &offset)) == ARCHIVE_OK) {
                 if (archive_write_data_block(ext, buff, size, offset) != ARCHIVE_OK) {
                     fprintf(stderr, "write error: %s\n", archive_error_string(ext));
 
@@ -68,16 +74,35 @@ int extract_payload(const char *file, const char *destdir) {
                     archive_write_close(ext);
                     archive_write_free(ext);
 
-                    return 0;
+                    return 1;
                 }
+            }
+            if (rr != ARCHIVE_EOF) {
+                fprintf(stderr, "read error: %s\n", archive_error_string(a));
+
+                archive_read_close(a);
+                archive_read_free(a);
+                archive_write_close(ext);
+                archive_write_free(ext);
+                return 1;
             }
         }
         archive_write_finish_entry(ext);
     }
 
+    if (hr != ARCHIVE_EOF) {
+        fprintf(stderr, "read error: %s\n", archive_error_string(a));
+
+        archive_read_close(a);
+        archive_read_free(a);
+        archive_write_close(ext);
+        archive_write_free(ext);
+        return 1;
+    }   
+
     archive_read_close(a);
     archive_read_free(a);
     archive_write_close(ext);
     archive_write_free(ext);
-    return 1;
+    return 0;
 }
