@@ -1,64 +1,70 @@
 #include <manifests.h>
 #include <packages.h>
 #include <common.h>
+#include <database.h>
 
 #include <stdio.h>
 #include <limits.h>
 
-int package_install(const char *file, const char *destdir) {
+int package_install(const char *file, const char *destdir, int log) {
     if (!is_file(file)) {
         fprintf(stderr, "%s not found\n", file);
         return 1;
     }
-
-    char xptdir[PATH_MAX];
-    snprintf(xptdir, sizeof(xptdir), "%s/var/lib/xpt", destdir);
-    if (mkdir_p(xptdir) != 0) {
-        fprintf(stderr, "could not create %s\n", xptdir);
-        return 1;
-    }
+    if (log == LOG_OK)
+        printf("installing %s...\n", file);
+        
     if (extract_payload(file, destdir) != 0) {
         fprintf(stderr, "could not extract %s\n", file);
         return 1;
     }
 
+    char xptdir[PATH_MAX];
+    snprintf(xptdir, sizeof(xptdir), "%s/var/lib/xpt", destdir);
+
+    if (mkdir_p(xptdir) != 0)
+        return 1;
     char manifest[PATH_MAX];
+    char tree[PATH_MAX];
 
     snprintf(manifest, sizeof(manifest), "%s/xpt.manifest", destdir);
-    if (!is_file(manifest)) {
-        fprintf(stderr, "%s does not have a manifest\n", file);
+    snprintf(tree, sizeof(tree), "%s/xpt.tree", destdir);
+    if (!is_file(tree) || !is_file(manifest)) {
+        fprintf(stderr, "either the manifest OR the treefile doesn't exist\n");
         return 1;
     }
-
     PackageInfo *pi = parse_manifest(manifest);
 
     if (!pi) {
         fprintf(stderr, "invalid manifest: %s\n", manifest);
         return 1;
     }
-
-
-    char db[PATH_MAX];
-    snprintf(db, sizeof(db), "%s/database", xptdir);
-
-    FILE *fp = fopen(db, "a");
-    if (!fp) {
+    
+    if (database_exists(pi->name, destdir) == 0) {
+        fprintf(stderr, "this package is already installed\n");
         delete_package_info(pi);
-        fprintf(stderr, "could not open database");
-        return 1;
-    }
-    if (fprintf(fp, "%s@%s\n", pi->name, pi->version) == 0) {
-        fprintf(stderr, "couldn't write to database\n");
-        delete_package_info(pi);
-        fclose(fp);
         return 1;
     }
 
-    delete_package_info(pi);
-    fclose(fp);
+    char treedest[PATH_MAX];
+    snprintf(treedest, sizeof(treedest), "%s/var/lib/xpt/%s.tree", destdir, pi->name);
+
+    if (rename(tree, treedest) != 0) {
+        fprintf(stderr, "couldn't save %s\n", treedest);
+        delete_package_info(pi);
+        return 1;
+    }
 
     if (remove(manifest) != 0) {
         fprintf(stderr, "failed to delete %s\n", manifest);
     }
+
+    if (database_add(pi->name, pi->version, destdir) != 0) {
+        fprintf(stderr, "error adding %s to database\n", pi->name);
+        return 1;
+    }
+    if (log == LOG_OK)
+        printf("installed %s.\n", pi->name);
+    delete_package_info(pi);
     return 0;
 }

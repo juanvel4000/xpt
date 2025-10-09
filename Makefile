@@ -4,22 +4,24 @@ MAIN_C     = xpt/main.c
 COMMON_C   = xpt/common.c
 MANAGER_C  = xpt/manager.c
 PACKAGES_C = xpt/packages.c
-MANIFESTS_C= xpt/manifests.o
+DATABASE_C = xpt/database.c
+MANIFESTS_C= xpt/manifests.c
 
 MAIN_O     = xpt/main.o
 COMMON_O   = xpt/common.o
 MANAGER_O  = xpt/manager.o
 PACKAGES_O = xpt/packages.o
+DATABASE_O = xpt/database.o
 MANIFESTS_O= xpt/manifests.o
 
 CFLAGS ?=
 CFLAGS += -Ixpt $(shell pkg-config --cflags libarchive)
 
 LDFLAGS ?=
-LDFLAGS += -larchive
+LDFLAGS += -larchive -lgdbm
 
 TARGET  = xpt/xpt
-TARGETS = $(COMMON_O) $(MANAGER_O) $(PACKAGES_O) $(MANIFESTS_O) $(MAIN_O)
+TARGETS = $(COMMON_O) $(DATABASE_O) $(MANAGER_O) $(PACKAGES_O) $(MANIFESTS_O) $(MAIN_O) 
 
 %.o: %.c
 	$(CC) $(CFLAGS) -c $< -o $@
@@ -30,6 +32,6 @@ $(TARGET): $(TARGETS)
 all: $(TARGET)
 
 clean:
-	rm $(TARGET)
-	rm $(TARGETS)
-.PHONY: all
+	rm -f $(TARGET)
+	rm -f $(TARGETS)
+.PHONY: all clean
