@@ -5,17 +5,29 @@
 #include <limits.h>
 #include <common.h>
 #include <database.h>
+
+#ifndef XPT_VERSION
+    #define XPT_VERSION "v0.1.0"
+#endif
+
 int main(int argc, char *argv[]) {
+    char *xptver;
+    if (XPT_VERSION[0] == 'v') {
+        xptver = XPT_VERSION + 1;
+    } else {
+        xptver = XPT_VERSION;
+    }
     int opt;
     char *filename = NULL;
     char *package = NULL;
-    int action = 0; /* 0 = none; 1 = install; 2 = get ver */
+    int action = 0; /* 0 = none; 1 = install; 2 = get ver; 3 = remove */
     char destdir[PATH_MAX] = "/";
+    int loglevel = LOG_OK;
     if (argc == 1) {
         fprintf(stderr, "usage: %s <cmd> [opts]\n", argv[0]);
         return 1;
     }
-    while ((opt = getopt(argc, argv, "ighrf:p:d:")) != -1) {
+    while ((opt = getopt(argc, argv, "iqVghrf:p:d:")) != -1) {
         switch (opt) {
             case 'f':
                 filename = optarg;
@@ -26,17 +38,23 @@ int main(int argc, char *argv[]) {
             case 'p':
                 package = optarg;
                 break;
+            case 'q':
+                loglevel = LOG_NO;
+                break;
             case 'g':
                 action = 2;
                 break;
             case 'r':
                 action = 3;
                 break;
+            case 'V':
+                printf("xpt version %s\n", xptver);
+                return 0;
             case 'd':
                 snprintf(destdir, sizeof(destdir), "%s", optarg);
                 break;
             case 'h':
-                printf("xpt - the px package tool\n");
+                printf("the Xpt Package Tool v%s\n", xptver);
                 printf("usage: %s <cmd> [opts]\n", argv[0]);
                 printf("commands\n");
                 printf(" -i         install <file> (requires specifying file with -f)\n");
@@ -47,6 +65,7 @@ int main(int argc, char *argv[]) {
                 printf(" -f <file>  specify a file\n");
                 printf(" -p <pkg>   specify an installed package name\n");
                 printf(" -d <dir>   specify a destination directory for the operations\n");
+                printf(" -q         make the output of most operations quiet (doesn't hide errors)\n");
 
                 printf("xpt is licensed with the 3-clause BSD license\n");
                 return 0;
@@ -57,7 +76,7 @@ int main(int argc, char *argv[]) {
             fprintf(stderr, "please specify a file with -f <file>\n");
             return 1;
         }
-        return package_install(filename, destdir, LOG_OK);
+        return package_install(filename, destdir, loglevel);
     }else if (action == 2) {
         if (package == NULL) {
             fprintf(stderr, "please specify a package with -p <pkg>\n");
@@ -75,7 +94,7 @@ int main(int argc, char *argv[]) {
             fprintf(stderr, "please specify a package with -p <pkg>\n");
             return 1;
         }
-        return package_uninstall(package, destdir, LOG_OK);
+        return package_uninstall(package, destdir, loglevel);
     } else {
         fprintf(stderr, "no action specified\n");
         return 1;
