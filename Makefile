@@ -27,19 +27,22 @@ VERSION ?= $(shell git describe --tags --abbrev=0 2>/dev/null || echo "0.1.0")
 CFLAGS += -DXPT_VERSION=\"$(VERSION)\"
 
 %.o: %.c
-	@echo "CC $<"
-	$(CC) $(CFLAGS) -c $< -o $@
+	@echo " CC $@"
+	@$(CC) $(CFLAGS) -c $< -o $@
 
 $(TARGET): $(TARGETS)
-	@echo "LD $@"
-	$(CC) $(CFLAGS) $(LDFLAGS) -o $(TARGET) $(TARGETS)
+	@echo " LD $@"
+	@$(CC) $(CFLAGS) $(LDFLAGS) -o $(TARGET) $(TARGETS)
 
 all: $(TARGET)
 
 clean:
-	rm -f $(TARGET)
-	rm -f $(TARGETS)
-	rm -f $(TARGETS:.o=.d)
+	@echo " RM $(TARGET)"
+	@rm -f $(TARGET)
+	@echo " RM $(TARGETS)"
+	@rm -f $(TARGETS)
+	@echo " RM $(TARGETS:.o=.d)"
+	@rm -f $(TARGETS:.o=.d)
 
 debug: CFLAGS += -g -O0 -Wall -Wextra -Wpedantic
 debug: clean all
