@@ -1,4 +1,5 @@
 *.o
 *.d
 xpt/xpt
+xpt-make/xpt-make
 
