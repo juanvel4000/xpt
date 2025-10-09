@@ -5,6 +5,7 @@
 
 #include <stdio.h>
 #include <limits.h>
+#include <string.h>
 
 int package_install(const char *file, const char *destdir, int log) {
     if (!is_file(file)) {
@@ -66,5 +67,48 @@ int package_install(const char *file, const char *destdir, int log) {
     if (log == LOG_OK)
         printf("installed %s.\n", pi->name);
     delete_package_info(pi);
+    return 0;
+}
+
+int package_uninstall(const char* name, const char* destdir, int log) {
+    if (database_exists(name, destdir) != 0) {
+        fprintf(stderr, "package %s is not installed\n", name);
+        return 1;
+    }
+    if (log == LOG_OK)
+        printf("uninstalling %s...\n", name);
+    char tree[PATH_MAX];
+    snprintf(tree, sizeof(tree), "%s/var/lib/xpt/%s.tree", destdir, name);
+
+    if (!is_file(tree)) {
+        fprintf(stderr, "treefile %s does not exist\n", tree);
+        return 1;
+    }
+    
+    FILE* fp = fopen(tree, "r");
+    if (!fp) {
+        perror("fopen");
+        return 1;
+    }
+    char item[PATH_MAX];
+    while (fgets(item, sizeof(item), fp)) {
+        item[strcspn(item, "\n")] = '\0';
+        if (!item_exists(item))
+            continue;
+        if (is_file(item)) {
+            if (remove(item) != 0) {
+                fprintf(stderr, "warning: could not remove %s\n", item);
+                continue;
+            }
+        }
+    }
+    fclose(fp);
+    remove(tree);
+
+    if (database_delete(name, destdir) != 0) {
+        fprintf(stderr, "an error ocurred removing %s from the database.\n", name);
+    }
+    if (log == LOG_OK)
+        printf("uninstalled %s.\n", name);
     return 0;
 }

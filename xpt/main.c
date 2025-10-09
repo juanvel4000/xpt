@@ -15,7 +15,7 @@ int main(int argc, char *argv[]) {
         fprintf(stderr, "usage: %s <cmd> [opts]\n", argv[0]);
         return 1;
     }
-    while ((opt = getopt(argc, argv, "ighf:p:d:")) != -1) {
+    while ((opt = getopt(argc, argv, "ighrf:p:d:")) != -1) {
         switch (opt) {
             case 'f':
                 filename = optarg;
@@ -29,6 +29,9 @@ int main(int argc, char *argv[]) {
             case 'g':
                 action = 2;
                 break;
+            case 'r':
+                action = 3;
+                break;
             case 'd':
                 snprintf(destdir, sizeof(destdir), "%s", optarg);
                 break;
@@ -39,6 +42,7 @@ int main(int argc, char *argv[]) {
                 printf(" -i         install <file> (requires specifying file with -f)\n");
                 printf(" -g         get the version of an installed package\n");
                 printf(" -h         show this message\n");
+                printf(" -r         remove a package\n");
                 printf("options\n");
                 printf(" -f <file>  specify a file\n");
                 printf(" -p <pkg>   specify an installed package name\n");
@@ -54,7 +58,7 @@ int main(int argc, char *argv[]) {
             return 1;
         }
         return package_install(filename, destdir, LOG_OK);
-    } else if (action == 2) {
+    }else if (action == 2) {
         if (package == NULL) {
             fprintf(stderr, "please specify a package with -p <pkg>\n");
             return 1;
@@ -66,6 +70,12 @@ int main(int argc, char *argv[]) {
         }
         printf("%s\n", version);
         return 0;
+    } else if (action == 3) {
+        if (package == NULL) {
+            fprintf(stderr, "please specify a package with -p <pkg>\n");
+            return 1;
+        }
+        return package_uninstall(package, destdir, LOG_OK);
     } else {
         fprintf(stderr, "no action specified\n");
         return 1;

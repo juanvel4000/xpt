@@ -1,6 +1,6 @@
 #include <sys/stat.h>
 #include <stdio.h>
-
+#include <unistd.h>
 #include <sys/types.h>
 #include <errno.h>
 #include <string.h>
@@ -10,6 +10,11 @@
 int is_file(const char *path) {
     struct stat buf;
     return (stat(path, &buf) == 0 && (buf.st_mode & S_IFREG));
+}
+
+
+int item_exists(const char *path) {
+    return access(path, F_OK) == 0;
 }
 
 
