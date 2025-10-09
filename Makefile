@@ -14,7 +14,7 @@ PACKAGES_O = xpt/packages.o
 DATABASE_O = xpt/database.o
 MANIFESTS_O= xpt/manifests.o
 
-CFLAGS ?=
+CFLAGS ?= -MMD -MP 
 CFLAGS += -Ixpt $(shell pkg-config --cflags libarchive)
 
 LDFLAGS ?=
@@ -24,9 +24,11 @@ TARGET  = xpt/xpt
 TARGETS = $(COMMON_O) $(DATABASE_O) $(MANAGER_O) $(PACKAGES_O) $(MANIFESTS_O) $(MAIN_O) 
 
 %.o: %.c
+	@echo "CC $<"
 	$(CC) $(CFLAGS) -c $< -o $@
 
 $(TARGET): $(TARGETS)
+	@echo "LD $@"
 	$(CC) $(CFLAGS) $(LDFLAGS) -o $(TARGET) $(TARGETS)
 
 all: $(TARGET)
@@ -34,4 +36,10 @@ all: $(TARGET)
 clean:
 	rm -f $(TARGET)
 	rm -f $(TARGETS)
-.PHONY: all clean
+	rm -f $(TARGETS:.o=.d)
+
+debug: CFLAGS += -g -O0 -Wall -Wextra -Wpedantic
+debug: clean all
+
+-include $(TARGETS:.o=.d)
+.PHONY: all clean debug

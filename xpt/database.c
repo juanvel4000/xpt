@@ -20,7 +20,7 @@ int database_exists(const char* package, const char* destdir) {
         return 1;
     }
     datum pkg;
-    pkg.dptr = package;
+    pkg.dptr = (char*)package;
     pkg.dsize = strlen(package);
     datum v = gdbm_fetch(dbf, pkg);
     if (v.dptr == NULL)
@@ -53,10 +53,10 @@ int database_add(const char* package, const char* version, const char* destdir) 
     
     datum name, ver;
 
-    name.dptr = package;
+    name.dptr = (char*)package;
     name.dsize = strlen(package);
 
-    ver.dptr = version;
+    ver.dptr = (char*)version;
     ver.dsize = strlen(version);
 
     if (gdbm_store(dbf, name, ver, GDBM_INSERT) == -1) {
@@ -84,7 +84,7 @@ char* database_getver(const char* package, const char* destdir) {
         return NULL;
     }
     datum pkg;
-    pkg.dptr = package;
+    pkg.dptr = (char*)package;
     pkg.dsize = strlen(package);
     datum v = gdbm_fetch(dbf, pkg);
     if (v.dptr == NULL) {
@@ -116,10 +116,10 @@ int database_update(const char* package, const char* version, const char* destdi
     
     datum name, ver;
 
-    name.dptr = package;
+    name.dptr = (char*)package;
     name.dsize = strlen(package);
 
-    ver.dptr = version;
+    ver.dptr = (char*)version;
     ver.dsize = strlen(version);
 
     if (gdbm_store(dbf, name, ver, GDBM_REPLACE) == -1) {
@@ -150,7 +150,7 @@ int database_delete(const char* package, const char* destdir) {
     
     datum name;
 
-    name.dptr = package;
+    name.dptr = (char*)package;
     name.dsize = strlen(package);
 
     if (gdbm_delete(dbf, name) == -1) {
