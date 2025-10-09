@@ -93,7 +93,7 @@ int package_uninstall(const char* name, const char* destdir, int log) {
     char item[PATH_MAX];
     while (fgets(item, sizeof(item), fp)) {
         item[strcspn(item, "\n")] = '\0';
-        if (!item_exists(item))
+        if (item_exists(item) == 1)
             continue;
         if (is_file(item)) {
             if (remove(item) != 0) {
@@ -103,11 +103,13 @@ int package_uninstall(const char* name, const char* destdir, int log) {
         }
     }
     fclose(fp);
-    remove(tree);
 
-    if (database_delete(name, destdir) != 0) {
+    if (remove(tree) != 0)
+        perror("remove");
+
+    if (database_delete(name, destdir) == 1)
         fprintf(stderr, "an error ocurred removing %s from the database.\n", name);
-    }
+ 
     if (log == LOG_OK)
         printf("uninstalled %s.\n", name);
     return 0;

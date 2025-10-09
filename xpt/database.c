@@ -23,8 +23,11 @@ int database_exists(const char* package, const char* destdir) {
     pkg.dptr = (char*)package;
     pkg.dsize = strlen(package);
     datum v = gdbm_fetch(dbf, pkg);
-    if (v.dptr == NULL)
+    if (v.dptr == NULL) {
+        free(v.dptr);
+        gdbm_close(dbf);
         return 1;
+    }
     free(v.dptr);
 
     gdbm_close(dbf);
@@ -38,12 +41,7 @@ int database_add(const char* package, const char* version, const char* destdir) 
     snprintf(db, sizeof(db), "%s/xpt.db", xptdir);
     
     if (mkdir_p(xptdir) != 0)
-        return 1;
-    
-    if (database_exists(package, destdir) == 0) {
-        fprintf(stderr, "%s already exists, use 'update' to update it\n");
-        return 1;
-    }
+        return 1; 
 
     GDBM_FILE dbf = gdbm_open(db, 512, GDBM_WRCREAT, 0644, NULL);
     if (!dbf) {

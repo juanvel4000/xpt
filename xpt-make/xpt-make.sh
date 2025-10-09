@@ -1,6 +1,5 @@
 #!/bin/sh
 set -e
-set -o pipefail
 # xpt-make
 #  create .xpt packages easily
 
@@ -9,10 +8,20 @@ createTreefile() {
         echo "directory $1 does not exist" >&2
         return 1 
     fi
-    dir="$1"
-    rm -f "$dir/xpt.tree"
 
-    (cd "$dir" && find . \( -type f -o -type l \) | sed 's|^\./||') > "$dir/xpt.tree"
+    dir="$1"
+    tmpd=""
+
+    rm -f "$dir/xpt.tree"
+    if [ -f "$dir/xpt.manifest" ]; then
+        tmpd=$(mktemp)
+        mv "$dir/xpt.manifest" "$tmpd"
+    fi
+    tree=$(cd "$dir" && find . \( -type f -o -type l \) | sed 's|^\./||')
+    echo "$tree" > "$dir/xpt.tree"
+    if [ -n "$tmpd" ] && [ -f "$tmpd" ]; then
+        mv "$tmpd" "$dir/xpt.manifest"
+    fi
     echo "successfully created a treefile for $dir"
 }
 
@@ -26,11 +35,16 @@ createManifest() {
 
     echo "xpt.manifest creator"
     echo "========================"
-    read -p "package name: "        name
-    read -p "package version: "     version
-    read -p "short description: "   desc
-    read -p "architecture: "        arch
-    read -p "maintainer: "          maintainer
+    printf "package name: "
+    read name
+    printf "package version: "
+    read version
+    printf "short description: "
+    read desc
+    printf "architecture: "
+    read arch
+    printf "maintainer: "
+    read maintainer
 
     echo "name=$name"              > "$dir/xpt.manifest"
     echo "version=$version"       >> "$dir/xpt.manifest"
@@ -58,28 +72,60 @@ createTarball() {
     PKG_NAME=$(grep '^name=' "$dir/xpt.manifest" | cut -d= -f2)
     PKG_VER=$(grep '^version=' "$dir/xpt.manifest" | cut -d= -f2)
 
-    tar -czf $(PKG_NAME)-$(PKG_VER).xpt -C "$dir" .
+    tar -czf "${PKG_NAME}-${PKG_VER}.xpt" -C "$dir" .
 }
+
+dir="$2"
+dir="$(printf '%s' "$dir" | sed 's/^[[:space:]]*//;s/[[:space:]]*$//')"
 case "$1" in
     -h)
         echo "xpt-make - package creator for xpt"
         echo "usage: $0 <cmd>"
         echo "commands"
-        echo " -c <dir>  create a new xpt package"
+        echo " -c <dir>     create a new xpt package based on <dir>"
+        echo " -t <dir>     create a treefile for <dir>"
+        echo " -m <dir>     create a manifest for <dir>"
         echo "xpt-make is licensed under the 3-clause BSD license"
         exit 0
         
         ;;
     -c)
-        if [ ! -d "$2" ]; then
-            echo "directory $2 does not exist"
+        if [ -z "$dir" ]; then
+            echo "usage: $0 -c <dir>"
             exit 1
         fi
-        createTreefile "$2"
-        createManifest "$2"
-        createTarball  "$2"
+        if [ ! -d "$dir" ]; then
+            echo "directory $dir does not exist"
+            exit 1
+        fi
+        createTreefile "$dir"
+        createManifest "$dir"
+        createTarball  "$dir"
         exit 0
         
+        ;;
+
+    -t)
+        if [ -z "$dir" ]; then
+            echo "usage: $0 -t <dir>"
+            exit 1
+        fi
+        if [ ! -d "$dir" ]; then
+            echo "directory $dir does not exist"
+            exit 1
+        fi
+        createTreefile "$dir"
+        ;;
+    -m)
+        if [ -z "$dir" ]; then
+            echo "usage: $0 -m <dir>"
+            exit 1
+        fi
+        if [ ! -d "$dir" ]; then
+            echo "directory $dir does not exist"
+            exit 1
+        fi
+        createManifest "$dir"
         ;;
     *)
         echo "usage: $0 <cmd>" >&2

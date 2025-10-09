@@ -14,7 +14,10 @@ int is_file(const char *path) {
 
 
 int item_exists(const char *path) {
-    return access(path, F_OK) == 0;
+    if (access(path, F_OK) == 0)
+        return 0;
+    else
+        return 1;
 }
 
 
