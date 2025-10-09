@@ -66,7 +66,6 @@ int main(int argc, char *argv[]) {
                 printf(" -p <pkg>   specify an installed package name\n");
                 printf(" -d <dir>   specify a destination directory for the operations\n");
                 printf(" -q         make the output of most operations quiet (doesn't hide errors)\n");
-
                 printf("xpt is licensed with the 3-clause BSD license\n");
                 return 0;
         }

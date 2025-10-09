@@ -26,6 +26,8 @@ TARGETS = $(COMMON_O) $(DATABASE_O) $(MANAGER_O) $(PACKAGES_O) $(MANIFESTS_O) $(
 VERSION ?= $(shell git describe --tags --abbrev=0 2>/dev/null || echo "0.1.0")
 CFLAGS += -DXPT_VERSION=\"$(VERSION)\"
 
+DISTDIR = xpt-$(VERSION)
+DISTFILE = $(DISTDIR).tar.gz
 %.o: %.c
 	@echo " CC $@"
 	@$(CC) $(CFLAGS) -c $< -o $@
@@ -47,5 +49,22 @@ clean:
 debug: CFLAGS += -g -O0 -Wall -Wextra -Wpedantic
 debug: clean all
 
+static: CFLAGS += -Os
+static: LDFLAGS += -static
+static: all
+
+dist: clean
+	@echo " RM $(DISTDIR)"
+	@rm -rf $(DISTDIR)
+	@echo " MKDIR $(DISTDIR)"
+	@mkdir -p $(DISTDIR)
+	@echo " CP ./xpt Makefile LICENSE"
+	@cp -a ./xpt Makefile LICENSE $(DISTDIR)
+	@echo " SED $(DISTDIR)/Makefile"
+	@sed -i 's/^VERSION .*/VERSION ?= $(VERSION)/' $(DISTDIR)/Makefile
+	@echo " TAR $(DISTFILE)"
+	@tar -czf $(DISTFILE) $(DISTDIR)
+	@echo " RM $(DISTDIR)"
+	@rm -rf $(DISTDIR)
 -include $(TARGETS:.o=.d)
 .PHONY: all clean debug
