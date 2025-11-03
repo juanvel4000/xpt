@@ -32,7 +32,8 @@ int mkdir_p(const char *path) {
     if (tmp[len - 1] == '/')
         tmp[len - 1] = '\0';
 
-    for (char *p = tmp + 1; *p; p++) {
+    char *p;
+    for (p = tmp + 1; *p; p++) {
         if (*p == '/') {
             *p = '\0';
             if (mkdir(tmp, 0775) != 0) {
