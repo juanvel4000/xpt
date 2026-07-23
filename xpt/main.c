@@ -126,7 +126,7 @@ int main(int argc, char *argv[]) {
         }
         return package_uninstall(package, destdir, loglevel);
     } else if (action == 4) {
-        return database_list(destdir@);
+        return database_list(destdir);
     }
     return 0;
 }
