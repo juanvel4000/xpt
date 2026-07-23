@@ -42,7 +42,7 @@ BINDIR ?= $(PREFIX)/bin
 
 $(TARGET): $(TARGETS)
 	@echo " LD $@"
-	@$(CC) $(CFLAGS) $(LDFLAGS) -o $(TARGET) $(TARGETS)
+	@$(CC) $(CFLAGS) -o $(TARGET) $(TARGETS) $(LDFLAGS)
 
 all: $(TARGET)
 

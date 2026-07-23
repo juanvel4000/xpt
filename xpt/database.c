@@ -39,16 +39,16 @@ int database_add(const char* package, const char* version, const char* destdir) 
 
     snprintf(xptdir, sizeof(xptdir), "%s/var/lib/xpt", destdir);
     snprintf(db, sizeof(db), "%s/xpt.db", xptdir);
-    
+
     if (mkdir_p(xptdir) != 0)
-        return 1; 
+        return 1;
 
     GDBM_FILE dbf = gdbm_open(db, 512, GDBM_WRCREAT, 0644, NULL);
     if (!dbf) {
         perror("gdbm_open");
         return 1;
     }
-    
+
     datum name, ver;
 
     name.dptr = (char*)package;
@@ -111,7 +111,7 @@ int database_update(const char* package, const char* version, const char* destdi
         perror("gdbm_open");
         return 1;
     }
-    
+
     datum name, ver;
 
     name.dptr = (char*)package;
@@ -121,7 +121,7 @@ int database_update(const char* package, const char* version, const char* destdi
     ver.dsize = strlen(version);
 
     if (gdbm_store(dbf, name, ver, GDBM_REPLACE) == -1) {
-        perror("gdbm_store"); 
+        perror("gdbm_store");
         gdbm_close(dbf);
         return 1;
     }
@@ -145,18 +145,57 @@ int database_delete(const char* package, const char* destdir) {
         perror("gdbm_open");
         return 1;
     }
-    
+
     datum name;
 
     name.dptr = (char*)package;
     name.dsize = strlen(package);
 
     if (gdbm_delete(dbf, name) == -1) {
-        perror("gdbm_delete"); 
+        perror("gdbm_delete");
         gdbm_close(dbf);
         return 1;
     }
 
     gdbm_close(dbf);
+    return 0;
+}
+
+int database_list(const char* destdir) {
+    char db[PATH_MAX];
+    char xptdir[PATH_MAX];
+    snprintf(xptdir, sizeof(xptdir), "%s/var/lib/xpt", destdir);
+    snprintf(db, sizeof(db), "%s/xpt.db", xptdir);
+
+    GDBM_FILE dbf = gdbm_open(db, 512, GDBM_WRCREAT, 0644, NULL);;
+    if (!dbf) {
+        perror("gdbm_open");
+        return 1;
+    }
+
+    datum key, nextkey, content;
+
+    key = gdbm_firstkey(dbf);
+
+    printf("%-20s %s\n", "PACKAGE", "VERSION");
+    printf("------------------------------\n");
+    int pkgcount = 0;
+
+    while (key.dptr != NULL) {
+        content = gdbm_fetch(dbf, key);
+
+        printf("%-20.*s %.*s\n", (int)key.dsize, key.dptr, (int)content.dsize, content.dptr);
+
+        free(content.dptr);
+
+        nextkey = gdbm_nextkey(dbf, key);
+
+        free(key.dptr);
+        key = nextkey;
+        pkgcount++;
+    }
+
+    gdbm_close(dbf);
+    printf("\n%d packages installed", pkgcount);
     return 0;
 }

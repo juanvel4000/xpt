@@ -3,9 +3,11 @@
 #include <common.h>
 #include <database.h>
 
+#include <libgen.h>
 #include <stdio.h>
 #include <limits.h>
 #include <string.h>
+#include <unistd.h>
 
 int package_install(const char *file, const char *destdir, int log) {
     if (!is_file(file)) {
@@ -14,7 +16,7 @@ int package_install(const char *file, const char *destdir, int log) {
     }
     if (log == LOG_OK)
         printf("installing %s...\n", file);
-        
+
     if (extract_payload(file, destdir) != 0) {
         fprintf(stderr, "could not extract %s\n", file);
         return 1;
@@ -40,7 +42,7 @@ int package_install(const char *file, const char *destdir, int log) {
         fprintf(stderr, "invalid manifest: %s\n", manifest);
         return 1;
     }
-    
+
     if (database_exists(pi->name, destdir) == 0) {
         fprintf(stderr, "this package is already installed\n");
         delete_package_info(pi);
@@ -70,6 +72,24 @@ int package_install(const char *file, const char *destdir, int log) {
     return 0;
 }
 
+void prune_empty_dirs(const char* file_path, const char* root_dir) {
+    char path_buf[PATH_MAX];
+    char *dir;
+
+    snprintf(path_buf, sizeof(path_buf), "%s", file_path);
+
+    dir = dirname(path_buf);
+
+    while (dir != NULL && strcmp(dir, ".") != 0 && strcmp(dir, "/") != 0) {
+        if (strcmp(dir, root_dir) == 0) break;
+
+        if (rmdir(dir) != 0) {
+            break;
+        }
+        dir = dirname(dir);
+    }
+}
+
 int package_uninstall(const char* name, const char* destdir, int log) {
     if (database_exists(name, destdir) != 0) {
         fprintf(stderr, "package %s is not installed\n", name);
@@ -84,22 +104,31 @@ int package_uninstall(const char* name, const char* destdir, int log) {
         fprintf(stderr, "treefile %s does not exist\n", tree);
         return 1;
     }
-    
+
     FILE* fp = fopen(tree, "r");
     if (!fp) {
         perror("fopen");
         return 1;
     }
+
     char item[PATH_MAX];
+    char full_path[PATH_MAX];
+
     while (fgets(item, sizeof(item), fp)) {
         item[strcspn(item, "\n")] = '\0';
-        if (item_exists(item) == 1)
+        snprintf(full_path, sizeof(full_path), "%s/%s", destdir, item);
+
+        if (item_exists(full_path) == 1) {
             continue;
-        if (is_file(item)) {
-            if (remove(item) != 0) {
+        }
+
+        if (is_file(full_path)) {
+            if (remove(full_path) != 0) {
                 fprintf(stderr, "warning: could not remove %s\n", item);
+                perror("remove");
                 continue;
             }
+            prune_empty_dirs(full_path, destdir);
         }
     }
     fclose(fp);
@@ -109,8 +138,9 @@ int package_uninstall(const char* name, const char* destdir, int log) {
 
     if (database_delete(name, destdir) == 1)
         fprintf(stderr, "an error ocurred removing %s from the database.\n", name);
- 
+
     if (log == LOG_OK)
         printf("uninstalled %s.\n", name);
+
     return 0;
 }
