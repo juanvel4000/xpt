@@ -21,6 +21,7 @@ static struct option long_options[] = {
     {"version", no_argument,       0, 'V'},
     {"get-version", no_argument,   0, 'g'},
     {"list-packages", no_argument, 0, 'l'},
+    {"package-tree", no_argument,  0, 't'},
     {0, 0, 0, 0}
 };
 
@@ -40,6 +41,7 @@ int main(int argc, char *argv[]) {
      * 2: get ver
      * 3: remove
      * 4: list
+     * 5: package tree
      * */
     int action = 0;
     char destdir[PATH_MAX] = "/";
@@ -50,7 +52,7 @@ int main(int argc, char *argv[]) {
         return 1;
     }
     int option_index = 0;
-    while ((opt = getopt_long(argc, argv, "iqVghlrf:p:d:", long_options, &option_index)) != -1) {
+    while ((opt = getopt_long(argc, argv, "iqVghltrf:p:d:", long_options, &option_index)) != -1) {
         switch (opt) {
             case 'f':
                 filename = optarg;
@@ -73,6 +75,9 @@ int main(int argc, char *argv[]) {
             case 'l':
                 action = 4;
                 break;
+            case 't':
+                action = 5;
+                break;
             case 'V':
                 printf("xpt (xpt package tool) %s\n", xptver);
                 printf("copyright (c) 2025-2026 juanvel400.\n");
@@ -92,6 +97,7 @@ int main(int argc, char *argv[]) {
                 printf("  %-22s %s\n", "-h, --help", "show this message");
                 printf("  %-22s %s\n", "-r, --remove", "remove a package");
                 printf("  %-22s %s\n\n", "-l, --list-packages", "list the packages installed in the system");
+                printf("  %-22s %s\n\n", "-t, --package-tree", "show the files used by a package");
 
                 printf("options:\n");
                 printf("  %-22s %s\n", "-f, --file", "<file>  specify a file");
@@ -127,6 +133,12 @@ int main(int argc, char *argv[]) {
         return package_uninstall(package, destdir, loglevel);
     } else if (action == 4) {
         return database_list(destdir);
+    } else if (action == 5) {
+        if (package == NULL) {
+            fprintf(stderr, "please specify a package with -p <pkg>\n");
+            return 1;
+        }
+        return package_listfiles(package, destdir);
     }
     return 0;
 }

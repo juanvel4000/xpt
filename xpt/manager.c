@@ -144,3 +144,34 @@ int package_uninstall(const char* name, const char* destdir, int log) {
 
     return 0;
 }
+
+int package_listfiles(const char* name, const char* destdir) {
+    if (database_exists(name, destdir) != 0) {
+        fprintf(stderr, "package %s is not installed\n", name);
+        return 1;
+    }
+
+    char tree[PATH_MAX];
+    snprintf(tree, sizeof(tree), "%s/var/lib/xpt/%s.tree", destdir, name);
+
+    if (!is_file(tree)) {
+        fprintf(stderr, "treefile %s does not exist\n", tree);
+        return 1;
+    }
+
+    FILE* fp = fopen(tree, "r");
+    if (!fp) {
+        perror("fopen");
+        return 1;
+    }
+
+    char item[PATH_MAX];
+    char full_path[PATH_MAX];
+
+    while (fgets(item, sizeof(item), fp)) {
+        item[strcspn(item, "\n")] = '\0';
+        printf("%s\n", item);
+    }
+
+    return 0;
+}
