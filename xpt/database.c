@@ -196,6 +196,6 @@ int database_list(const char* destdir) {
     }
 
     gdbm_close(dbf);
-    printf("\n%d packages installed", pkgcount);
+    printf("\n%d packages installed\n", pkgcount);
     return 0;
 }

@@ -18,10 +18,10 @@ CFLAGS ?=
 CFLAGS += -Ixpt $(shell pkg-config --cflags libarchive) -MMD -MP
 
 LDFLAGS ?=
-LDFLAGS += -larchive -lgdbm
+LDFLAGS += -larchive -lgdbm -lz
 
 TARGET  = xpt/xpt
-TARGETS = $(COMMON_O) $(DATABASE_O) $(MANAGER_O) $(PACKAGES_O) $(MANIFESTS_O) $(MAIN_O) 
+TARGETS = $(COMMON_O) $(DATABASE_O) $(MANAGER_O) $(PACKAGES_O) $(MANIFESTS_O) $(MAIN_O)
 
 VERSION ?= $(shell git describe --tags --abbrev=0 2>/dev/null || echo "0.1.0")
 CFLAGS += -DXPT_VERSION=\"$(VERSION)\"
