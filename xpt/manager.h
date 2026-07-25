@@ -4,5 +4,5 @@
     int package_uninstall(const char* name, const char* destdir, int log);
     void prune_empty_dirs(const char* file_path, const char* root_dir);
     int package_listfiles(const char* name, const char* destdir);
-
+    int package_install_from_repo(const char *name, const char *destdir, int log);
 #endif /* MANAGER_H */

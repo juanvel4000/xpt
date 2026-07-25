@@ -3,6 +3,7 @@
 #include <common.h>
 #include <database.h>
 #include <resolver.h>
+#include <repo.h>
 
 #include <libgen.h>
 #include <stdio.h>
@@ -188,4 +189,47 @@ int package_listfiles(const char* name, const char* destdir) {
     }
 
     return 0;
+}
+
+int package_install_from_repo(const char *name, const char *destdir, int log) {
+    char cachefile[PATH_MAX];
+    char destfile[PATH_MAX];
+    char destdir_copy[PATH_MAX];
+
+    snprintf(cachefile, sizeof(cachefile), "%s/var/cache/xpt.repositories", destdir);
+
+    RepoPackage *rp = repo_index_lookup(cachefile, name);
+    if (!rp) {
+        fprintf(stderr, "package %s not found in any repository\n", name);
+        return 1;
+    }
+
+
+    snprintf(destfile, sizeof(destfile), "%s/var/cache/xpt.packages/%s-%s.xpt",
+             destdir, rp->name, rp->version);
+
+    snprintf(destdir_copy, sizeof(destdir_copy), "%s", destfile);
+
+    if (mkdir_p(dirname(destdir_copy)) != 0) {
+        fprintf(stderr, "could not create cache directory for %s\n", destfile);
+        repo_package_free(rp);
+        return 1;
+    }
+
+    if (log == LOG_OK)
+        printf("fetching %s...\n", rp->name);
+
+    if (repo_download(rp->url, destfile) != 0) {
+        fprintf(stderr, "could not download %s\n", rp->url);
+        repo_package_free(rp);
+        return 1;
+    }
+
+    repo_package_free(rp);
+
+    int ret = package_install(destfile, destdir, LOG_NO);
+    if (ret == 0 && log == LOG_OK)
+        printf("installed %s.\n", name);
+
+    return ret;
 }

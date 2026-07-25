@@ -93,7 +93,7 @@ int resolve_package(NodeContainer *container, const char *name, PackageInfo *pkg
     if (resolver_add_seen(container, name))
         return 1;
 
-    int i;
+    size_t i;
     for (i = 0; i < pkg->depends_count; i++) {
         if (database_exists(pkg->depends[i], destdir) != 0) {
             fprintf(stderr, "missing dependency: %s\n", pkg->depends[i]);
