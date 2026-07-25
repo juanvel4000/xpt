@@ -11,7 +11,9 @@
 #include <string.h>
 #include <unistd.h>
 
-int package_install(const char *file, const char *destdir, int log, int netinstall_deps) {
+int package_install(const char *file, const char *destdir, int log,
+                    int netinstall_deps)
+{
     if (!is_file(file)) {
         fprintf(stderr, "%s not found\n", file);
         return 1;
@@ -54,7 +56,8 @@ int package_install(const char *file, const char *destdir, int log, int netinsta
     }
 
     char treedest[PATH_MAX];
-    snprintf(treedest, sizeof(treedest), "%s/var/lib/xpt/%s.tree", destdir, pi->name);
+    snprintf(treedest, sizeof(treedest), "%s/var/lib/xpt/%s.tree", destdir,
+             pi->name);
 
     if (rename(tree, treedest) != 0) {
         fprintf(stderr, "couldn't save %s\n", treedest);
@@ -67,7 +70,8 @@ int package_install(const char *file, const char *destdir, int log, int netinsta
     }
 
     NodeContainer container = {0};
-    if (resolve_package(&container, pi->name, pi, destdir, netinstall_deps, log) != 0) {
+    if (resolve_package(&container, pi->name, pi, destdir, netinstall_deps,
+                        log) != 0) {
         fprintf(stderr, "dependency resolution failed for %s\n", pi->name);
         resolver_free(&container);
         delete_package_info(pi);
@@ -85,7 +89,8 @@ int package_install(const char *file, const char *destdir, int log, int netinsta
     return 0;
 }
 
-void prune_empty_dirs(const char* file_path, const char* root_dir) {
+void prune_empty_dirs(const char *file_path, const char *root_dir)
+{
     char path_buf[PATH_MAX];
     char *dir;
 
@@ -94,7 +99,8 @@ void prune_empty_dirs(const char* file_path, const char* root_dir) {
     dir = dirname(path_buf);
 
     while (dir != NULL && strcmp(dir, ".") != 0 && strcmp(dir, "/") != 0) {
-        if (strcmp(dir, root_dir) == 0) break;
+        if (strcmp(dir, root_dir) == 0)
+            break;
 
         if (rmdir(dir) != 0) {
             break;
@@ -103,7 +109,8 @@ void prune_empty_dirs(const char* file_path, const char* root_dir) {
     }
 }
 
-int package_uninstall(const char* name, const char* destdir, int log) {
+int package_uninstall(const char *name, const char *destdir, int log)
+{
     if (database_exists(name, destdir) != 0) {
         fprintf(stderr, "package %s is not installed\n", name);
         return 1;
@@ -118,7 +125,7 @@ int package_uninstall(const char* name, const char* destdir, int log) {
         return 1;
     }
 
-    FILE* fp = fopen(tree, "r");
+    FILE *fp = fopen(tree, "r");
     if (!fp) {
         perror("fopen");
         return 1;
@@ -129,7 +136,8 @@ int package_uninstall(const char* name, const char* destdir, int log) {
 
     while (fgets(item, sizeof(item), fp)) {
         item[strcspn(item, "\n")] = '\0';
-        int ret = snprintf(full_path, sizeof(full_path), "%s/%s", destdir, item);
+        int ret =
+            snprintf(full_path, sizeof(full_path), "%s/%s", destdir, item);
 
         if (ret < 0 || (size_t)ret >= sizeof(full_path)) {
             fprintf(stderr, "path too long: %s/%s\n", destdir, item);
@@ -155,7 +163,8 @@ int package_uninstall(const char* name, const char* destdir, int log) {
         perror("remove");
 
     if (database_delete(name, destdir) == 1)
-        fprintf(stderr, "an error ocurred removing %s from the database.\n", name);
+        fprintf(stderr, "an error ocurred removing %s from the database.\n",
+                name);
 
     if (log == LOG_OK)
         printf("uninstalled %s.\n", name);
@@ -163,7 +172,8 @@ int package_uninstall(const char* name, const char* destdir, int log) {
     return 0;
 }
 
-int package_listfiles(const char* name, const char* destdir) {
+int package_listfiles(const char *name, const char *destdir)
+{
     if (database_exists(name, destdir) != 0) {
         fprintf(stderr, "package %s is not installed\n", name);
         return 1;
@@ -177,7 +187,7 @@ int package_listfiles(const char* name, const char* destdir) {
         return 1;
     }
 
-    FILE* fp = fopen(tree, "r");
+    FILE *fp = fopen(tree, "r");
     if (!fp) {
         perror("fopen");
         return 1;
@@ -193,19 +203,20 @@ int package_listfiles(const char* name, const char* destdir) {
     return 0;
 }
 
-int package_install_from_repo(const char *name, const char *destdir, int log) {
+int package_install_from_repo(const char *name, const char *destdir, int log)
+{
     char cachefile[PATH_MAX];
     char destfile[PATH_MAX];
     char destdir_copy[PATH_MAX];
 
-    snprintf(cachefile, sizeof(cachefile), "%s/var/cache/xpt.repositories", destdir);
+    snprintf(cachefile, sizeof(cachefile), "%s/var/cache/xpt.repositories",
+             destdir);
 
     RepoPackage *rp = repo_index_lookup(cachefile, name);
     if (!rp) {
         fprintf(stderr, "package %s not found in any repository\n", name);
         return 1;
     }
-
 
     snprintf(destfile, sizeof(destfile), "%s/var/cache/xpt.packages/%s-%s.xpt",
              destdir, rp->name, rp->version);

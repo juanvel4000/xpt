@@ -1,3 +1,6 @@
+#include <packages.h>
+#include <common.h>
+
 #include <archive.h>
 #include <archive_entry.h>
 
@@ -6,10 +9,8 @@
 #include <limits.h>
 #include <stdlib.h>
 
-#include <packages.h>
-#include <common.h>
-
-int extract_payload(const char *file, const char *destdir) {
+int extract_payload(const char *file, const char *destdir)
+{
 
     if (!is_file(file)) {
         fprintf(stderr, "%s does not exist\n", file);
@@ -27,8 +28,9 @@ int extract_payload(const char *file, const char *destdir) {
     archive_read_support_format_tar(a);
 
     if ((r = archive_read_open_filename(a, file, 10240))) {
-        fprintf(stderr, "could not open %s: %s\n", file, archive_error_string(a));
-        
+        fprintf(stderr, "could not open %s: %s\n", file,
+                archive_error_string(a));
+
         archive_read_close(a);
         archive_read_free(a);
         return 1;
@@ -37,14 +39,11 @@ int extract_payload(const char *file, const char *destdir) {
     ext = archive_write_disk_new();
     archive_write_disk_set_standard_lookup(ext);
 
-    archive_write_disk_set_options(ext,
-        ARCHIVE_EXTRACT_TIME
-        | ARCHIVE_EXTRACT_PERM
-        | ARCHIVE_EXTRACT_ACL
-        | ARCHIVE_EXTRACT_FFLAGS
-        | ARCHIVE_EXTRACT_OWNER
-        | ARCHIVE_EXTRACT_XATTR);
-   
+    archive_write_disk_set_options(
+        ext, ARCHIVE_EXTRACT_TIME | ARCHIVE_EXTRACT_PERM | ARCHIVE_EXTRACT_ACL |
+                 ARCHIVE_EXTRACT_FFLAGS | ARCHIVE_EXTRACT_OWNER |
+                 ARCHIVE_EXTRACT_XATTR);
+
     int hr;
     while ((hr = archive_read_next_header(a, &entry)) == ARCHIVE_OK) {
         const char *cfil = archive_entry_pathname(entry);
@@ -65,9 +64,12 @@ int extract_payload(const char *file, const char *destdir) {
             la_int64_t offset;
             int rr;
 
-            while ((rr = archive_read_data_block(a, &buff, &size, &offset)) == ARCHIVE_OK) {
-                if (archive_write_data_block(ext, buff, size, offset) != ARCHIVE_OK) {
-                    fprintf(stderr, "write error: %s\n", archive_error_string(ext));
+            while ((rr = archive_read_data_block(a, &buff, &size, &offset)) ==
+                   ARCHIVE_OK) {
+                if (archive_write_data_block(ext, buff, size, offset) !=
+                    ARCHIVE_OK) {
+                    fprintf(stderr, "write error: %s\n",
+                            archive_error_string(ext));
 
                     archive_read_close(a);
                     archive_read_free(a);
@@ -98,7 +100,7 @@ int extract_payload(const char *file, const char *destdir) {
         archive_write_close(ext);
         archive_write_free(ext);
         return 1;
-    }   
+    }
 
     archive_read_close(a);
     archive_read_free(a);

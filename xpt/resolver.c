@@ -1,13 +1,15 @@
-#include <stdlib.h>
-#include <string.h>
+#include <manager.h>
 #include <resolver.h>
 #include <database.h>
 #include <manifests.h>
 #include <common.h>
-#include <stdio.h>
-#include <manager.h>
 
-int resolver_seen(NodeContainer *container, const char *name) {
+#include <stdlib.h>
+#include <string.h>
+#include <stdio.h>
+
+int resolver_seen(NodeContainer *container, const char *name)
+{
     PackageNode *node = container->seen;
 
     while (node != NULL) {
@@ -20,7 +22,8 @@ int resolver_seen(NodeContainer *container, const char *name) {
     return 0;
 }
 
-int resolver_add_seen(NodeContainer *container, const char *name) {
+int resolver_add_seen(NodeContainer *container, const char *name)
+{
     PackageNode *node = malloc(sizeof(PackageNode));
 
     if (!node)
@@ -39,7 +42,8 @@ int resolver_add_seen(NodeContainer *container, const char *name) {
     return 0;
 }
 
-int resolver_add_resolved(NodeContainer *container, const char *name) {
+int resolver_add_resolved(NodeContainer *container, const char *name)
+{
     PackageNode *node = malloc(sizeof(PackageNode));
 
     if (!node)
@@ -47,7 +51,7 @@ int resolver_add_resolved(NodeContainer *container, const char *name) {
 
     node->name = strdup(name);
 
-    if (!node->name){
+    if (!node->name) {
         free(node);
         return 1;
     }
@@ -69,7 +73,8 @@ int resolver_add_resolved(NodeContainer *container, const char *name) {
     return 0;
 }
 
-void resolver_free(NodeContainer *container) {
+void resolver_free(NodeContainer *container)
+{
     PackageNode *node;
     while (container->seen) {
         node = container->seen;
@@ -88,7 +93,10 @@ void resolver_free(NodeContainer *container) {
     }
 }
 
-int resolve_package(NodeContainer *container, const char *name, PackageInfo *pkg, const char *destdir, int netinstall_deps, int log) {
+int resolve_package(NodeContainer *container, const char *name,
+                    PackageInfo *pkg, const char *destdir, int netinstall_deps,
+                    int log)
+{
     if (resolver_seen(container, name))
         return 0;
 
@@ -99,8 +107,10 @@ int resolve_package(NodeContainer *container, const char *name, PackageInfo *pkg
     for (i = 0; i < pkg->depends_count; i++) {
         if (database_exists(pkg->depends[i], destdir) != 0) {
             if (netinstall_deps) {
-                if (package_install_from_repo(pkg->depends[i], destdir, log) != 0) {
-                    fprintf(stderr, "failed to install dependency: %s\n", pkg->depends[i]);
+                if (package_install_from_repo(pkg->depends[i], destdir, log) !=
+                    0) {
+                    fprintf(stderr, "failed to install dependency: %s\n",
+                            pkg->depends[i]);
                     return 1;
                 }
             } else {

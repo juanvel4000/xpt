@@ -1,24 +1,29 @@
+#include <repo.h>
+
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
 #include <ctype.h>
-
+#include <limits.h>
 #include <curl/curl.h>
-#include <repo.h>
 
-static char* rtrim(char* s) {
-    while (isspace((unsigned char)*s)) s++;
+static char *rtrim(char *s)
+{
+    while (isspace((unsigned char)*s))
+        s++;
     if (!*s)
         return s;
 
-    char* e = s + strlen(s) - 1;
-    while (e > s && isspace((unsigned char)*e)) e--;
+    char *e = s + strlen(s) - 1;
+    while (e > s && isspace((unsigned char)*e))
+        e--;
     *(e + 1) = 0;
 
     return s;
 }
 
-static int parse_depends(RepoPackage *rp, const char *value) {
+static int parse_depends(RepoPackage *rp, const char *value)
+{
     if (value[0] == '\0')
         return 0;
 
@@ -29,8 +34,8 @@ static int parse_depends(RepoPackage *rp, const char *value) {
     char *tok = strtok(copy, ",");
 
     while (tok) {
-        char **tmp = realloc(rp->depends,
-            (rp->depends_count + 1) * sizeof(char *));
+        char **tmp =
+            realloc(rp->depends, (rp->depends_count + 1) * sizeof(char *));
 
         if (!tmp) {
             free(copy);
@@ -53,7 +58,8 @@ static int parse_depends(RepoPackage *rp, const char *value) {
     return 0;
 }
 
-void repo_package_free(RepoPackage *rp) {
+void repo_package_free(RepoPackage *rp)
+{
     if (!rp)
         return;
 
@@ -70,7 +76,8 @@ void repo_package_free(RepoPackage *rp) {
     free(rp);
 }
 
-RepoPackage* repo_index_lookup(const char *indexfile, const char *name) {
+RepoPackage *repo_index_lookup(const char *indexfile, const char *name)
+{
     FILE *fp = fopen(indexfile, "r");
     if (!fp) {
         perror("fopen");
@@ -117,11 +124,11 @@ RepoPackage* repo_index_lookup(const char *indexfile, const char *name) {
 
         memset(rp, 0, sizeof(RepoPackage));
 
-        rp->name    = strdup(fields[0]);
+        rp->name = strdup(fields[0]);
         rp->version = strdup(fields[1]);
-        rp->arch    = strdup(fields[2]);
-        rp->url     = strdup(fields[4]);
-        rp->sha256  = strdup(fields[5]);
+        rp->arch = strdup(fields[2]);
+        rp->url = strdup(fields[4]);
+        rp->sha256 = strdup(fields[5]);
 
         if (!rp->name || !rp->version || !rp->arch || !rp->url || !rp->sha256) {
             perror("strdup");
@@ -145,7 +152,8 @@ RepoPackage* repo_index_lookup(const char *indexfile, const char *name) {
     return NULL;
 }
 
-int repo_download(const char *url, const char *dest) {
+int repo_download(const char *url, const char *dest)
+{
     CURL *curl = curl_easy_init();
     if (!curl) {
         fprintf(stderr, "curl_easy_init failed\n");
@@ -181,7 +189,8 @@ int repo_download(const char *url, const char *dest) {
     return 0;
 }
 
-int repo_fetch_index(const char *base_url, const char *cachefile) {
+int repo_fetch_index(const char *base_url, const char *cachefile)
+{
     char url[MAX_REPO_LINE];
     int ret = snprintf(url, sizeof(url), "%s/xpt.index", base_url);
 
@@ -193,13 +202,15 @@ int repo_fetch_index(const char *base_url, const char *cachefile) {
     return repo_download(url, cachefile);
 }
 
-int repos_sync(const char *destdir) {
+int repos_sync(const char *destdir)
+{
     char indexfile[PATH_MAX];
     char cachefile[PATH_MAX];
-    char tmpfile[PATH_MAX];
+    char tmpfile[PATH_MAX + 5];
 
     snprintf(indexfile, sizeof(indexfile), "%s/etc/xpt.d/index", destdir);
-    snprintf(cachefile, sizeof(cachefile), "%s/var/cache/xpt.repositories", destdir);
+    snprintf(cachefile, sizeof(cachefile), "%s/var/cache/xpt.repositories",
+             destdir);
 
     FILE *fp = fopen(indexfile, "r");
     if (!fp) {
@@ -239,8 +250,10 @@ int repos_sync(const char *destdir) {
             while ((n = fread(buf, 1, sizeof(buf), src)) > 0)
                 fwrite(buf, 1, n, dst);
         }
-        if (src) fclose(src);
-        if (dst) fclose(dst);
+        if (src)
+            fclose(src);
+        if (dst)
+            fclose(dst);
         remove(tmpfile);
     }
 

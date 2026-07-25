@@ -1,26 +1,29 @@
+#include <common.h>
+#include <packages.h>
+#include <manifests.h>
+
 #include <stdio.h>
 #include <stdlib.h>
 
 #include <ctype.h>
 #include <string.h>
-
-#include <common.h>
-#include <packages.h>
-#include <manifests.h>
-
-char* trim(char* s) {
-    while (isspace((unsigned char)*s)) s++;
+char *trim(char *s)
+{
+    while (isspace((unsigned char)*s))
+        s++;
     if (!*s)
         return s;
 
-    char* e = s + strlen(s) - 1;
-    while (e > s && isspace((unsigned char)*e)) e--;
+    char *e = s + strlen(s) - 1;
+    while (e > s && isspace((unsigned char)*e))
+        e--;
     *(e + 1) = 0;
 
     return s;
 }
 
-static int parse_depends(PackageInfo *pi, const char *value) {
+static int parse_depends(PackageInfo *pi, const char *value)
+{
     char *copy = strdup(value);
     if (!copy)
         return 1;
@@ -28,9 +31,8 @@ static int parse_depends(PackageInfo *pi, const char *value) {
     char *tok = strtok(copy, ",");
 
     while (tok) {
-        char **tmp = realloc(pi->depends,
-            (pi->depends_count + 1) * sizeof(char *)
-        );
+        char **tmp =
+            realloc(pi->depends, (pi->depends_count + 1) * sizeof(char *));
 
         if (!tmp) {
             free(copy);
@@ -54,7 +56,8 @@ static int parse_depends(PackageInfo *pi, const char *value) {
     return 0;
 }
 
-int verify_package_info(PackageInfo* pi) {
+int verify_package_info(PackageInfo *pi)
+{
     if (pi->name == NULL) {
         return 1;
     } else if (pi->desc == NULL) {
@@ -70,7 +73,8 @@ int verify_package_info(PackageInfo* pi) {
     }
 }
 
-void delete_package_info(PackageInfo* pi) {
+void delete_package_info(PackageInfo *pi)
+{
     free(pi->name);
     free(pi->desc);
     free(pi->version);
@@ -84,7 +88,8 @@ void delete_package_info(PackageInfo* pi) {
 
     free(pi);
 }
-int safe_strdup(char **dst, const char *src) {
+int safe_strdup(char **dst, const char *src)
+{
     *dst = strdup(src);
     if (!*dst) {
         perror("strdup");
@@ -92,13 +97,14 @@ int safe_strdup(char **dst, const char *src) {
     }
     return 0;
 }
-PackageInfo* parse_manifest(const char* file) {
+PackageInfo *parse_manifest(const char *file)
+{
     if (!is_file(file)) {
         fprintf(stderr, "%s does not exist\n", file);
         return NULL;
     }
 
-    PackageInfo* pi = malloc(sizeof(PackageInfo));
+    PackageInfo *pi = malloc(sizeof(PackageInfo));
     if (!pi) {
         perror("malloc");
         return NULL;

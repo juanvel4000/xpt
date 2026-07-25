@@ -1,24 +1,24 @@
 #ifndef REPO_H
-    #define REPO_H
-    #include <stdio.h>
+#define REPO_H
+#include <stdio.h>
 
-    typedef struct {
-        char *name;
-        char *version;
-        char *arch;
-        char *url;
-        char *sha256;
+typedef struct {
+    char *name;
+    char *version;
+    char *arch;
+    char *url;
+    char *sha256;
 
-        char **depends;
-        size_t depends_count;
-    } RepoPackage;
+    char **depends;
+    size_t depends_count;
+} RepoPackage;
 
-    #define MAX_REPO_LINE 1024
+#define MAX_REPO_LINE 1024
 
-    int repo_download(const char *url, const char *dest);
-    int repo_fetch_index(const char *base_url, const char *cachefile);
+int repo_download(const char *url, const char *dest);
+int repo_fetch_index(const char *base_url, const char *cachefile);
 
-    RepoPackage* repo_index_lookup(const char *indexfile, const char *name);
-    void repo_package_free(RepoPackage *rp);
-    int repos_sync(const char *destdir);
+RepoPackage *repo_index_lookup(const char *indexfile, const char *name);
+void repo_package_free(RepoPackage *rp);
+int repos_sync(const char *destdir);
 #endif /* REPO_H */
