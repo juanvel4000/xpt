@@ -19,6 +19,41 @@ char* trim(char* s) {
 
     return s;
 }
+
+static int parse_depends(PackageInfo *pi, const char *value) {
+    char *copy = strdup(value);
+    if (!copy)
+        return 1;
+
+    char *tok = strtok(copy, ",");
+
+    while (tok) {
+        char **tmp = realloc(pi->depends,
+            (pi->depends_count + 1) * sizeof(char *)
+        );
+
+        if (!tmp) {
+            free(copy);
+            return 1;
+        }
+
+        pi->depends = tmp;
+
+        pi->depends[pi->depends_count] = strdup(trim(tok));
+        if (!pi->depends[pi->depends_count]) {
+            free(copy);
+            return 1;
+        }
+
+        pi->depends_count++;
+
+        tok = strtok(NULL, ",");
+    }
+
+    free(copy);
+    return 0;
+}
+
 int verify_package_info(PackageInfo* pi) {
     if (pi->name == NULL) {
         return 1;
@@ -34,12 +69,19 @@ int verify_package_info(PackageInfo* pi) {
         return 0;
     }
 }
+
 void delete_package_info(PackageInfo* pi) {
     free(pi->name);
     free(pi->desc);
     free(pi->version);
     free(pi->arch);
     free(pi->maintainer);
+
+    for (size_t i = 0; i < pi->depends_count; i++)
+        free(pi->depends[i]);
+
+    free(pi->depends);
+
     free(pi);
 }
 int safe_strdup(char **dst, const char *src) {
@@ -114,6 +156,12 @@ PackageInfo* parse_manifest(const char* file) {
             }
         } else if (strcmp(key, "maintainer") == 0) {
             if (safe_strdup(&pi->maintainer, val) == 1) {
+                fclose(fp);
+                delete_package_info(pi);
+                return NULL;
+            }
+        } else if (strcmp(key, "depends") == 0) {
+            if (parse_depends(pi, val) != 0) {
                 fclose(fp);
                 delete_package_info(pi);
                 return NULL;

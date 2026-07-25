@@ -6,7 +6,7 @@ set -e
 createTreefile() {
     if [ ! -d "$1" ]; then
         echo "directory $1 does not exist" >&2
-        return 1 
+        return 1
     fi
 
     dir="$1"
@@ -28,7 +28,7 @@ createTreefile() {
 createManifest() {
     if [ ! -d "$1" ]; then
         echo "directory $1 does not exist" >&2
-        return 1 
+        return 1
     fi
     dir="$1"
     rm -f "$dir/xpt.manifest"
@@ -45,19 +45,22 @@ createManifest() {
     read arch
     printf "maintainer: "
     read maintainer
+    printf "dependencies (comma-separated list): "
+    read dependencies
 
     echo "name=$name"              > "$dir/xpt.manifest"
     echo "version=$version"       >> "$dir/xpt.manifest"
     echo "desc=$desc"             >> "$dir/xpt.manifest"
     echo "arch=$arch"             >> "$dir/xpt.manifest"
     echo "maintainer=$maintainer" >> "$dir/xpt.manifest"
+    echo "depends=$dependencies" >> "$dir/xpt.manifest"
     echo "successfully created a xpt.manifest for $dir"
 }
 
 createTarball() {
     if [ ! -d "$1" ]; then
         echo "directory $1 does not exist" >&2
-        return 1 
+        return 1
     fi
     dir="$1"
 
@@ -87,7 +90,7 @@ case "$1" in
         echo " -m <dir>     create a manifest for <dir>"
         echo "xpt-make is licensed under the 3-clause BSD license"
         exit 0
-        
+
         ;;
     -c)
         if [ -z "$dir" ]; then
@@ -102,7 +105,7 @@ case "$1" in
         createManifest "$dir"
         createTarball  "$dir"
         exit 0
-        
+
         ;;
 
     -t)

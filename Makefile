@@ -6,6 +6,7 @@ MANAGER_C  = xpt/manager.c
 PACKAGES_C = xpt/packages.c
 DATABASE_C = xpt/database.c
 MANIFESTS_C= xpt/manifests.c
+RESOLVER_C= xpt/resolver.c
 
 MAIN_O     = xpt/main.o
 COMMON_O   = xpt/common.o
@@ -13,6 +14,7 @@ MANAGER_O  = xpt/manager.o
 PACKAGES_O = xpt/packages.o
 DATABASE_O = xpt/database.o
 MANIFESTS_O= xpt/manifests.o
+RESOLVER_O = xpt/resolver.o
 
 CFLAGS ?=
 CFLAGS += -Ixpt $(shell pkg-config --cflags libarchive) -MMD -MP
@@ -21,7 +23,7 @@ LDFLAGS ?=
 LDFLAGS += -larchive -lgdbm -lz
 
 TARGET  = xpt/xpt
-TARGETS = $(COMMON_O) $(DATABASE_O) $(MANAGER_O) $(PACKAGES_O) $(MANIFESTS_O) $(MAIN_O)
+TARGETS = $(COMMON_O) $(DATABASE_O) $(MANAGER_O) $(PACKAGES_O) $(MANIFESTS_O) $(RESOLVER_O) $(MAIN_O)
 
 VERSION ?= $(shell git describe --tags --abbrev=0 2>/dev/null || echo "0.1.0")
 CFLAGS += -DXPT_VERSION=\"$(VERSION)\"

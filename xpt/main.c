@@ -1,10 +1,11 @@
 #include <stdio.h>
-#include <manager.h>
 #include <unistd.h>
 #include <limits.h>
+#include <getopt.h>
+
+#include <manager.h>
 #include <common.h>
 #include <database.h>
-#include <getopt.h>
 
 #ifndef XPT_VERSION
     #define XPT_VERSION "v0.1.0"

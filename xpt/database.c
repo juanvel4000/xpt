@@ -6,11 +6,31 @@
 #include <stdlib.h>
 #include <database.h>
 
+static int make_paths(char *db, size_t db_size, char *xptdir, size_t xptdir_size, const char *destdir) {
+    int ret;
+
+    ret = snprintf(xptdir, xptdir_size,
+                   "%s/var/lib/xpt", destdir);
+
+    if (ret < 0 || (size_t)ret >= xptdir_size)
+        return -1;
+
+    ret = snprintf(db, db_size,
+                   "%s/xpt.db", xptdir);
+
+    if (ret < 0 || (size_t)ret >= db_size)
+        return -1;
+
+    return 0;
+}
+
 int database_exists(const char* package, const char* destdir) {
     char db[PATH_MAX];
     char xptdir[PATH_MAX];
-    snprintf(xptdir, sizeof(xptdir), "%s/var/lib/xpt", destdir);
-    snprintf(db, sizeof(db), "%s/xpt.db", xptdir);
+
+    if (make_paths(db, sizeof(db), xptdir, sizeof(xptdir), destdir) != 0) {
+        return 1;
+    }
 
     if (mkdir_p(xptdir) != 0)
         return 1;
@@ -24,7 +44,6 @@ int database_exists(const char* package, const char* destdir) {
     pkg.dsize = strlen(package);
     datum v = gdbm_fetch(dbf, pkg);
     if (v.dptr == NULL) {
-        free(v.dptr);
         gdbm_close(dbf);
         return 1;
     }
@@ -33,13 +52,14 @@ int database_exists(const char* package, const char* destdir) {
     gdbm_close(dbf);
     return 0;
 }
+
 int database_add(const char* package, const char* version, const char* destdir) {
     char db[PATH_MAX];
     char xptdir[PATH_MAX];
 
-    snprintf(xptdir, sizeof(xptdir), "%s/var/lib/xpt", destdir);
-    snprintf(db, sizeof(db), "%s/xpt.db", xptdir);
-
+    if (make_paths(db, sizeof(db), xptdir, sizeof(xptdir), destdir) != 0) {
+        return 1;
+    }
     if (mkdir_p(xptdir) != 0)
         return 1;
 
@@ -70,8 +90,10 @@ int database_add(const char* package, const char* version, const char* destdir) 
 char* database_getver(const char* package, const char* destdir) {
     char db[PATH_MAX];
     char xptdir[PATH_MAX];
-    snprintf(xptdir, sizeof(xptdir), "%s/var/lib/xpt", destdir);
-    snprintf(db, sizeof(db), "%s/xpt.db", xptdir);
+
+    if (make_paths(db, sizeof(db), xptdir, sizeof(xptdir), destdir) != 0) {
+        return NULL;
+    }
 
     if (mkdir_p(xptdir) != 0) {
         return NULL;
@@ -86,6 +108,7 @@ char* database_getver(const char* package, const char* destdir) {
     pkg.dsize = strlen(package);
     datum v = gdbm_fetch(dbf, pkg);
     if (v.dptr == NULL) {
+        gdbm_close(dbf);
         return NULL;
     }
     gdbm_close(dbf);
@@ -100,8 +123,9 @@ int database_update(const char* package, const char* version, const char* destdi
     char db[PATH_MAX];
     char xptdir[PATH_MAX];
 
-    snprintf(xptdir, sizeof(xptdir), "%s/var/lib/xpt", destdir);
-    snprintf(db, sizeof(db), "%s/xpt.db", xptdir);
+    if (make_paths(db, sizeof(db), xptdir, sizeof(xptdir), destdir) != 0) {
+        return 1;
+    }
 
     if (mkdir_p(xptdir) != 0)
         return 1;
@@ -134,8 +158,9 @@ int database_delete(const char* package, const char* destdir) {
     char db[PATH_MAX];
     char xptdir[PATH_MAX];
 
-    snprintf(xptdir, sizeof(xptdir), "%s/var/lib/xpt", destdir);
-    snprintf(db, sizeof(db), "%s/xpt.db", xptdir);
+    if (make_paths(db, sizeof(db), xptdir, sizeof(xptdir), destdir) != 0) {
+        return 1;
+    }
 
     if (mkdir_p(xptdir) != 0)
         return 1;
@@ -164,8 +189,10 @@ int database_delete(const char* package, const char* destdir) {
 int database_list(const char* destdir) {
     char db[PATH_MAX];
     char xptdir[PATH_MAX];
-    snprintf(xptdir, sizeof(xptdir), "%s/var/lib/xpt", destdir);
-    snprintf(db, sizeof(db), "%s/xpt.db", xptdir);
+
+    if (make_paths(db, sizeof(db), xptdir, sizeof(xptdir), destdir) != 0) {
+        return 1;
+    }
 
     GDBM_FILE dbf = gdbm_open(db, 512, GDBM_WRCREAT, 0644, NULL);;
     if (!dbf) {

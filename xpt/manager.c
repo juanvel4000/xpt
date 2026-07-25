@@ -2,6 +2,7 @@
 #include <packages.h>
 #include <common.h>
 #include <database.h>
+#include <resolver.h>
 
 #include <libgen.h>
 #include <stdio.h>
@@ -42,6 +43,15 @@ int package_install(const char *file, const char *destdir, int log) {
         fprintf(stderr, "invalid manifest: %s\n", manifest);
         return 1;
     }
+
+    NodeContainer container = {0};
+    if (resolve_package(&container, pi->name, pi, destdir) != 0) {
+        fprintf(stderr, "dependency resolution failed for %s\n", pi->name);
+        resolver_free(&container);
+        delete_package_info(pi);
+        return 1;
+    }
+    resolver_free(&container);
 
     if (database_exists(pi->name, destdir) == 0) {
         fprintf(stderr, "this package is already installed\n");
@@ -116,7 +126,12 @@ int package_uninstall(const char* name, const char* destdir, int log) {
 
     while (fgets(item, sizeof(item), fp)) {
         item[strcspn(item, "\n")] = '\0';
-        snprintf(full_path, sizeof(full_path), "%s/%s", destdir, item);
+        int ret = snprintf(full_path, sizeof(full_path), "%s/%s", destdir, item);
+
+        if (ret < 0 || (size_t)ret >= sizeof(full_path)) {
+            fprintf(stderr, "path too long: %s/%s\n", destdir, item);
+            return 1;
+        }
 
         if (item_exists(full_path) == 1) {
             continue;
@@ -166,7 +181,6 @@ int package_listfiles(const char* name, const char* destdir) {
     }
 
     char item[PATH_MAX];
-    char full_path[PATH_MAX];
 
     while (fgets(item, sizeof(item), fp)) {
         item[strcspn(item, "\n")] = '\0';
