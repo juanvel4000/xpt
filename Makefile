@@ -6,7 +6,7 @@ CFLAGS ?= -Wall -Wextra
 CFLAGS += -Ixpt $(shell pkg-config --cflags libarchive) -MMD -MP
 
 LDFLAGS ?=
-LDFLAGS += -larchive -lgdbm -lz -lcurl
+LDFLAGS += -larchive -lgdbm -lz -lcurl -lssl -lcrypto
 
 TARGET  = xpt/xpt
 SOURCES = \
