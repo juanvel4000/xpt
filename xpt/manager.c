@@ -11,13 +11,11 @@
 #include <string.h>
 #include <unistd.h>
 
-int package_install(const char *file, const char *destdir, int log) {
+int package_install(const char *file, const char *destdir, int log, int netinstall_deps) {
     if (!is_file(file)) {
         fprintf(stderr, "%s not found\n", file);
         return 1;
     }
-    if (log == LOG_OK)
-        printf("installing %s...\n", file);
 
     if (extract_payload(file, destdir) != 0) {
         fprintf(stderr, "could not extract %s\n", file);
@@ -29,6 +27,7 @@ int package_install(const char *file, const char *destdir, int log) {
 
     if (mkdir_p(xptdir) != 0)
         return 1;
+
     char manifest[PATH_MAX];
     char tree[PATH_MAX];
 
@@ -38,21 +37,15 @@ int package_install(const char *file, const char *destdir, int log) {
         fprintf(stderr, "either the manifest OR the treefile doesn't exist\n");
         return 1;
     }
-    PackageInfo *pi = parse_manifest(manifest);
 
+    PackageInfo *pi = parse_manifest(manifest);
     if (!pi) {
         fprintf(stderr, "invalid manifest: %s\n", manifest);
         return 1;
     }
 
-    NodeContainer container = {0};
-    if (resolve_package(&container, pi->name, pi, destdir) != 0) {
-        fprintf(stderr, "dependency resolution failed for %s\n", pi->name);
-        resolver_free(&container);
-        delete_package_info(pi);
-        return 1;
-    }
-    resolver_free(&container);
+    if (log == LOG_OK)
+        printf("installing %s...\n", pi->name);
 
     if (database_exists(pi->name, destdir) == 0) {
         fprintf(stderr, "this package is already installed\n");
@@ -72,6 +65,15 @@ int package_install(const char *file, const char *destdir, int log) {
     if (remove(manifest) != 0) {
         fprintf(stderr, "failed to delete %s\n", manifest);
     }
+
+    NodeContainer container = {0};
+    if (resolve_package(&container, pi->name, pi, destdir, netinstall_deps, log) != 0) {
+        fprintf(stderr, "dependency resolution failed for %s\n", pi->name);
+        resolver_free(&container);
+        delete_package_info(pi);
+        return 1;
+    }
+    resolver_free(&container);
 
     if (database_add(pi->name, pi->version, destdir) != 0) {
         fprintf(stderr, "error adding %s to database\n", pi->name);
@@ -216,9 +218,6 @@ int package_install_from_repo(const char *name, const char *destdir, int log) {
         return 1;
     }
 
-    if (log == LOG_OK)
-        printf("fetching %s...\n", rp->name);
-
     if (repo_download(rp->url, destfile) != 0) {
         fprintf(stderr, "could not download %s\n", rp->url);
         repo_package_free(rp);
@@ -227,9 +226,7 @@ int package_install_from_repo(const char *name, const char *destdir, int log) {
 
     repo_package_free(rp);
 
-    int ret = package_install(destfile, destdir, LOG_NO);
-    if (ret == 0 && log == LOG_OK)
-        printf("installed %s.\n", name);
+    int ret = package_install(destfile, destdir, log, 1);
 
     return ret;
 }

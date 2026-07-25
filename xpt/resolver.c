@@ -3,7 +3,9 @@
 #include <resolver.h>
 #include <database.h>
 #include <manifests.h>
+#include <common.h>
 #include <stdio.h>
+#include <manager.h>
 
 int resolver_seen(NodeContainer *container, const char *name) {
     PackageNode *node = container->seen;
@@ -86,7 +88,7 @@ void resolver_free(NodeContainer *container) {
     }
 }
 
-int resolve_package(NodeContainer *container, const char *name, PackageInfo *pkg, const char *destdir) {
+int resolve_package(NodeContainer *container, const char *name, PackageInfo *pkg, const char *destdir, int netinstall_deps, int log) {
     if (resolver_seen(container, name))
         return 0;
 
@@ -96,8 +98,15 @@ int resolve_package(NodeContainer *container, const char *name, PackageInfo *pkg
     size_t i;
     for (i = 0; i < pkg->depends_count; i++) {
         if (database_exists(pkg->depends[i], destdir) != 0) {
-            fprintf(stderr, "missing dependency: %s\n", pkg->depends[i]);
-            return 1;
+            if (netinstall_deps) {
+                if (package_install_from_repo(pkg->depends[i], destdir, log) != 0) {
+                    fprintf(stderr, "failed to install dependency: %s\n", pkg->depends[i]);
+                    return 1;
+                }
+            } else {
+                fprintf(stderr, "missing dependency: %s\n", pkg->depends[i]);
+                return 1;
+            }
         }
     }
 

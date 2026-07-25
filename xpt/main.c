@@ -126,7 +126,7 @@ int main(int argc, char *argv[]) {
             return 1;
         }
         if (filename) {
-            return package_install(filename, destdir, loglevel);
+            return package_install(filename, destdir, loglevel, 0);
         } else if (net_package) {
             return package_install_from_repo(net_package, destdir, loglevel);
         } else {
