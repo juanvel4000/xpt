@@ -115,7 +115,7 @@ int main(int argc, char *argv[])
                    "list the packages installed in the system");
             printf("  %-22s %s\n", "-t, --package-tree",
                    "show the files used by a package");
-            printf("  %-22s %s\n\n", "-s --sync",
+            printf("  %-22s %s\n\n", "-s, --sync",
                    "download the repository indexes.");
 
             printf("options:\n");
