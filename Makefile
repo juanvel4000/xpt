@@ -21,7 +21,7 @@ SOURCES = \
 
 TARGETS = $(SOURCES:.c=.o)
 
-VERSION ?= $(shell git describe --tags --abbrev=0 2>/dev/null || echo "0.1.0")
+VERSION ?= $(shell git describe --tags --abbrev=0 2>/dev/null || echo "0.3.0")
 CFLAGS += -DXPT_VERSION=\"$(VERSION)\"
 
 DISTDIR = xpt-$(VERSION)
