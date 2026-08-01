@@ -1,7 +1,7 @@
-#include <manager.h>
-#include <common.h>
-#include <database.h>
-#include <repo.h>
+#include <xpt/manager.h>
+#include <xpt/common.h>
+#include <xpt/database.h>
+#include <xpt/repo.h>
 
 #include <stdio.h>
 #include <unistd.h>

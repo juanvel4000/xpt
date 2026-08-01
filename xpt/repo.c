@@ -1,4 +1,4 @@
-#include <repo.h>
+#include <xpt/repo.h>
 
 #include <stdio.h>
 #include <stdlib.h>

@@ -1,6 +1,6 @@
-#include <common.h>
-#include <packages.h>
-#include <manifests.h>
+#include <xpt/common.h>
+#include <xpt/packages.h>
+#include <xpt/manifests.h>
 
 #include <stdio.h>
 #include <stdlib.h>

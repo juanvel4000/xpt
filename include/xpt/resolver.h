@@ -1,6 +1,6 @@
 #ifndef RESOLVER_H
 #define RESOLVER_H
-#include <manifests.h>
+#include <xpt/manifests.h>
 
 typedef struct PackageNode PackageNode;
 

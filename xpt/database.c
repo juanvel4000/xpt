@@ -1,5 +1,5 @@
-#include <database.h>
-#include <common.h>
+#include <xpt/database.h>
+#include <xpt/common.h>
 
 #include <gdbm.h>
 #include <stdio.h>

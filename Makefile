@@ -3,7 +3,7 @@
 CC ?= gcc
 
 CFLAGS ?= -Wall -Wextra
-CFLAGS += -Ixpt $(shell pkg-config --cflags libarchive) -MMD -MP
+CFLAGS += -Iinclude $(shell pkg-config --cflags libarchive) -MMD -MP
 
 LDFLAGS ?=
 LDFLAGS += -larchive -lgdbm -lz -lcurl -lssl -lcrypto
