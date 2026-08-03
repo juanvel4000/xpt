@@ -1,6 +1,6 @@
 *.o
 *.d
 *.a
-*.tar.gz
+*.gz
 
 xpt/xpt

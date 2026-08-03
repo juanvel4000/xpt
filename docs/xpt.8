@@ -1,0 +1,67 @@
+.Dd August 3, 2026
+.Dt XPT 8
+.Os
+
+.Sh NAME
+
+.Nm xpt
+.Nd package manager utility
+
+.Sh SYNOPSIS
+
+.Nm
+.Fl V | Fl i | Fl g | Fl h | Fl r | Fl l | Fl t | Fl s
+.Op Fl f Ar file | Fl p Ar package | Fl n Ar net-package
+.Op Fl q
+.Op Fl d Ar dir
+
+.Sh DESCRIPTION
+
+.Nm
+is a package management utility designed to install, remove and administer
+.Pa .xpt
+packages.
+it is designed as both a high-level and a medium-level interface for package management.
+
+.Sh COMMANDS
+.Bl -tag -width Ds
+.It Fl V , Fl -version
+show the current
+.Nm
+version.
+.It Fl i , Fl -install
+install a package, specified by one of the package reference flags.
+.It Fl g , Fl -get-version
+get the version of an installed package.
+.It Fl h , Fl -help
+show the help message.
+.It Fl r , Fl -remove
+remove an installed package.
+.It Fl l , Fl -list-packages
+list the installed packages.
+.It Fl t , Fl -package-tree
+show the files used by a package.
+.It Fl s , Fl -sync
+download the repository indexes.
+.El
+
+.Sh OPTIONS
+
+.Bl -tag -width Ds
+.It Fl f , Fl -file
+specify a
+.Pa .xpt
+package file.
+
+.It Fl p , Fl -package
+specify an installed package name.
+
+.It Fl d , Fl -destdir
+specify a destination directory for the operations.
+
+.It Fl n , Fl -net-package
+specify a package from one of the repositories.
+
+.It Fl q , Fl -quiet
+make the output of most operations quiet (doesn't hide errors).
+.El

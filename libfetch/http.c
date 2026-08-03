@@ -1233,8 +1233,7 @@ struct index_parser {
     enum http_states state;
 };
 
-static ssize_t parse_index(struct index_parser *parser, char *buf,
-                           size_t len)
+static ssize_t parse_index(struct index_parser *parser, char *buf, size_t len)
 {
     char *end_attr, p = *buf;
 

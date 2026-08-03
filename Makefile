@@ -27,24 +27,28 @@ CFLAGS += -DXPT_VERSION=\"$(VERSION)\"
 DISTDIR = xpt-$(VERSION)
 DISTFILE = $(DISTDIR).tar.gz
 DESTDIR ?=
-PREFIX ?= /usr
+PREFIX ?= /usr/local
 BINDIR ?= $(PREFIX)/bin
+
+DOCS ?= 1
 
 %.o: %.c
 	@echo " CC $@"
 	@$(CC) $(CFLAGS) -c $< -o $@
 
-xpt/repo.o: libfetch/libfetch.a
 libfetch/libfetch.a:
-	make -C libfetch all
+	$(MAKE) -C libfetch all
 
-$(TARGET): $(TARGETS)
+$(TARGET): $(TARGETS) libfetch/libfetch.a
 	@mkdir -p $(dir $@)
 	@echo " LD $@"
 	@$(CC) $(CFLAGS) -o $@ $^ $(LDFLAGS)
-
+	
 
 all: $(TARGET)
+	@if [ "$(DOCS)" = "1" ]; then \
+		$(MAKE) -C docs all; \
+	fi
 
 clean:
 	@echo " RM $(TARGET)"
@@ -53,7 +57,9 @@ clean:
 	@rm -f $(TARGETS)
 	@echo " RM $(TARGETS:.o=.d)"
 	@rm -f $(TARGETS:.o=.d)
-	make -C libfetch clean
+	$(MAKE) -C libfetch clean
+	$(MAKE) -C docs clean
+
 debug: CFLAGS += -g -O0 -Wpedantic
 debug: clean all
 
@@ -78,8 +84,15 @@ dist: clean
 	@rm -rf $(DISTDIR)
 
 install: all
+	@echo " INSTALL $(TARGET)"
 	@install -dm755 $(DESTDIR)$(BINDIR)
 	@install -m755 $(TARGET) $(DESTDIR)$(BINDIR)/xpt
+	@if [ "$(DOCS)" = "1" ]; then \
+		$(MAKE) -C docs install; \
+	fi
+
+install-docs:
+	$(MAKE) -C docs install
 
 -include $(TARGETS:.o=.d)
-.PHONY: all clean debug install dist static
+.PHONY: all clean debug install dist static install-docs
