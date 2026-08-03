@@ -5,7 +5,7 @@
 #include <string.h>
 #include <ctype.h>
 #include <limits.h>
-#include <curl/curl.h>
+#include <fetch.h>
 
 static char *rtrim(char *s)
 {
@@ -154,37 +154,30 @@ RepoPackage *repo_index_lookup(const char *indexfile, const char *name)
 
 int repo_download(const char *url, const char *dest)
 {
-    CURL *curl = curl_easy_init();
-    if (!curl) {
-        fprintf(stderr, "curl_easy_init failed\n");
+    fetchIO *src;
+    FILE *dst;
+
+    src = fetchXGetURL(url, NULL, "");
+    if (!src) {
+        fprintf(stderr, "download failed: %d\n", fetchLastErrCode.code);
         return 1;
     }
 
-    FILE *fp = fopen(dest, "wb");
-    if (!fp) {
+    dst = fopen(dest, "wb");
+    if (!dst) {
         perror("fopen");
-        curl_easy_cleanup(curl);
+        fetchIO_close(src);
         return 1;
     }
 
-    curl_easy_setopt(curl, CURLOPT_URL, url);
-    curl_easy_setopt(curl, CURLOPT_WRITEDATA, fp);
-    curl_easy_setopt(curl, CURLOPT_FOLLOWLOCATION, 1L);
-    curl_easy_setopt(curl, CURLOPT_FAILONERROR, 1L);
-    curl_easy_setopt(curl, CURLOPT_NOSIGNAL, 1L);
-    curl_easy_setopt(curl, CURLOPT_CONNECTTIMEOUT, 15L);
-    curl_easy_setopt(curl, CURLOPT_TIMEOUT, 300L);
+    char buf[4096];
+    ssize_t n;
 
-    CURLcode res = curl_easy_perform(curl);
+    while ((n = fetchIO_read(src, buf, sizeof(buf))) > 0)
+        fwrite(buf, 1, n, dst);
 
-    fclose(fp);
-    curl_easy_cleanup(curl);
-
-    if (res != CURLE_OK) {
-        fprintf(stderr, "download failed: %s\n", curl_easy_strerror(res));
-        remove(dest);
-        return 1;
-    }
+    fetchIO_close(src);
+    fclose(dst);
 
     return 0;
 }

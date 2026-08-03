@@ -3,10 +3,10 @@
 CC ?= gcc
 
 CFLAGS ?= -Wall -Wextra
-CFLAGS += -Iinclude $(shell pkg-config --cflags libarchive) -MMD -MP
+CFLAGS += -Iinclude -Ilibfetch $(shell pkg-config --cflags libarchive) -MMD -MP
 
 LDFLAGS ?=
-LDFLAGS += -larchive -lgdbm -lz -lcurl -lssl -lcrypto
+LDFLAGS += -Llibfetch -larchive -lgdbm -lz -lssl -lcrypto -lfetch
 
 TARGET  = xpt/xpt
 SOURCES = \
@@ -34,10 +34,15 @@ BINDIR ?= $(PREFIX)/bin
 	@echo " CC $@"
 	@$(CC) $(CFLAGS) -c $< -o $@
 
+xpt/repo.o: libfetch/libfetch.a
+libfetch/libfetch.a:
+	make -C libfetch all
+
 $(TARGET): $(TARGETS)
 	@mkdir -p $(dir $@)
 	@echo " LD $@"
 	@$(CC) $(CFLAGS) -o $@ $^ $(LDFLAGS)
+
 
 all: $(TARGET)
 
@@ -48,6 +53,7 @@ clean:
 	@rm -f $(TARGETS)
 	@echo " RM $(TARGETS:.o=.d)"
 	@rm -f $(TARGETS:.o=.d)
+	make -C libfetch clean
 debug: CFLAGS += -g -O0 -Wpedantic
 debug: clean all
 
