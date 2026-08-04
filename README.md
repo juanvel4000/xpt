@@ -35,7 +35,7 @@ run
 > ```sh
 > $ man 8 xpt
 > ```
-> you will need a manpage viewer (such as mandoc or man-db)
+> you will need a manpage viewer such as mandoc or man-db.
 
 ## license
 

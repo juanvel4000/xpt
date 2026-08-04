@@ -64,6 +64,9 @@ install: all
 	@echo " INSTALL $(TARGET)"
 	@install -dm755 $(DESTDIR)$(BINDIR)
 	@install -m755 $(TARGET) $(DESTDIR)$(BINDIR)/xpt
+	@install -dm644 $(DESTDIR)/var/lib/xpt
+	@install -dm644 $(DESTDIR)/var/cache/xpt.repositories
+	@install -dm644 $(DESTDIR)/var/cache/xpt.packages
 
 -include $(TARGETS:.o=.d)
 .PHONY: all clean debug install static
