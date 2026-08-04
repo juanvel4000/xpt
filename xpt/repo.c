@@ -263,7 +263,7 @@ int verify_sha256(const char *file, const char *expected_hex)
         perror("fopen");
         return 1;
     }
-    
+
     EVP_MD_CTX *ctx = EVP_MD_CTX_new();
     EVP_DigestInit_ex(ctx, EVP_sha256(), NULL);
 

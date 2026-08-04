@@ -11,4 +11,10 @@ int database_exists(const char *package, const char *destdir);
 int database_delete(const char *package, const char *destdir);
 int database_list(const char *destdir);
 int database_printinfo(const char *package, const char *destdir);
+int database_files_add(const char *pkgname, const char *treefile,
+                       const char *destdir);
+
+typedef int (*database_file_callback)(const char *path, void *userdata);
+int database_foreach_file(const char *pkgname, const char *destdir,
+                          database_file_callback cb, void *userdata);
 #endif /* DATABASE_H */

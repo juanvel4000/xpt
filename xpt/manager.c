@@ -55,16 +55,6 @@ int package_install(const char *file, const char *destdir, int log,
         return 1;
     }
 
-    char treedest[PATH_MAX];
-    snprintf(treedest, sizeof(treedest), "%s/var/lib/xpt/%s.tree", destdir,
-             pi->name);
-
-    if (rename(tree, treedest) != 0) {
-        fprintf(stderr, "couldn't save %s\n", treedest);
-        delete_package_info(pi);
-        return 1;
-    }
-
     if (remove(manifest) != 0) {
         fprintf(stderr, "failed to delete %s\n", manifest);
     }
@@ -83,6 +73,14 @@ int package_install(const char *file, const char *destdir, int log,
         fprintf(stderr, "error adding %s to database\n", pi->name);
         return 1;
     }
+
+    if (database_files_add(pi->name, tree, destdir) != 0) {
+        fprintf(stderr, "error saving file list for %s\n", pi->name);
+        database_delete(pi->name, destdir);
+        delete_package_info(pi);
+        return 1;
+    }
+
     if (log == LOG_OK)
         printf("installed %s.\n", pi->name);
     delete_package_info(pi);
@@ -109,6 +107,27 @@ void prune_empty_dirs(const char *file_path, const char *root_dir)
     }
 }
 
+struct uninstall_ctx {
+    const char *destdir;
+};
+
+static int uninstall_file(const char *path, void *userdata)
+{
+
+    struct uninstall_ctx *ctx = userdata;
+
+    char full[PATH_MAX];
+
+    snprintf(full, sizeof(full), "%s/%s", ctx->destdir, path);
+
+    if (is_file(full) != 0) {
+        remove(full);
+        prune_empty_dirs(full, ctx->destdir);
+    }
+
+    return 0;
+}
+
 int package_uninstall(const char *name, const char *destdir, int log)
 {
     if (database_exists(name, destdir) != 0) {
@@ -117,50 +136,13 @@ int package_uninstall(const char *name, const char *destdir, int log)
     }
     if (log == LOG_OK)
         printf("uninstalling %s...\n", name);
-    char tree[PATH_MAX];
-    snprintf(tree, sizeof(tree), "%s/var/lib/xpt/%s.tree", destdir, name);
 
-    if (!is_file(tree)) {
-        fprintf(stderr, "treefile %s does not exist\n", tree);
+    struct uninstall_ctx ctx = {.destdir = destdir};
+
+    if (database_foreach_file(name, destdir, uninstall_file, &ctx) != 0) {
+        fprintf(stderr, "failed to enumerate files for %s\n", name);
         return 1;
     }
-
-    FILE *fp = fopen(tree, "r");
-    if (!fp) {
-        perror("fopen");
-        return 1;
-    }
-
-    char item[PATH_MAX];
-    char full_path[PATH_MAX];
-
-    while (fgets(item, sizeof(item), fp)) {
-        item[strcspn(item, "\n")] = '\0';
-        int ret =
-            snprintf(full_path, sizeof(full_path), "%s/%s", destdir, item);
-
-        if (ret < 0 || (size_t)ret >= sizeof(full_path)) {
-            fprintf(stderr, "path too long: %s/%s\n", destdir, item);
-            return 1;
-        }
-
-        if (item_exists(full_path) == 1) {
-            continue;
-        }
-
-        if (is_file(full_path)) {
-            if (remove(full_path) != 0) {
-                fprintf(stderr, "warning: could not remove %s\n", item);
-                perror("remove");
-                continue;
-            }
-            prune_empty_dirs(full_path, destdir);
-        }
-    }
-    fclose(fp);
-
-    if (remove(tree) != 0)
-        perror("remove");
 
     if (database_delete(name, destdir) == 1)
         fprintf(stderr, "an error ocurred removing %s from the database.\n",
@@ -172,6 +154,15 @@ int package_uninstall(const char *name, const char *destdir, int log)
     return 0;
 }
 
+static int print_file(const char *path, void *userdata)
+{
+    (void)userdata;
+
+    puts(path);
+
+    return 0;
+}
+
 int package_listfiles(const char *name, const char *destdir)
 {
     if (database_exists(name, destdir) != 0) {
@@ -179,28 +170,7 @@ int package_listfiles(const char *name, const char *destdir)
         return 1;
     }
 
-    char tree[PATH_MAX];
-    snprintf(tree, sizeof(tree), "%s/var/lib/xpt/%s.tree", destdir, name);
-
-    if (!is_file(tree)) {
-        fprintf(stderr, "treefile %s does not exist\n", tree);
-        return 1;
-    }
-
-    FILE *fp = fopen(tree, "r");
-    if (!fp) {
-        perror("fopen");
-        return 1;
-    }
-
-    char item[PATH_MAX];
-
-    while (fgets(item, sizeof(item), fp)) {
-        item[strcspn(item, "\n")] = '\0';
-        printf("%s\n", item);
-    }
-
-    return 0;
+    return database_foreach_file(name, destdir, print_file, NULL);
 }
 
 int package_install_from_repo(const char *name, const char *destdir, int log)

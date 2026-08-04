@@ -104,7 +104,7 @@ int main(int argc, char *argv[])
             printf("  %-10s %s\n", "-r", "remove a package");
             printf("  %-10s %s\n", "-l",
                    "list the packages installed in the system");
-            printf("  %-10s %s\n", "-t", "show the files usage by a package");
+            printf("  %-10s %s\n", "-t", "show the files used by a package");
             printf("  %-10s %s\n", "-s", "download the repository indexes");
             printf("  %-10s %s\n\n", "-I", "show metadata about a package");
 

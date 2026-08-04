@@ -42,13 +42,21 @@ static sqlite3 *open_db(const char *destdir)
         fprintf(stderr, "could not open database: %s\n", sqlite3_errmsg(conn));
     }
 
-    const char *schema = "CREATE TABLE IF NOT EXISTS packages ("
-                         "  name TEXT PRIMARY KEY,"
-                         "  version TEXT NOT NULL,"
-                         "  desc    TEXT NOT NULL,"
-                         "  maintainer TEXT NOT NULL,"
-                         "  arch       TEXT NOT NULL"
-                         ");";
+    sqlite3_exec(conn, "PRAGMA foreign_keys = ON;", NULL, NULL, NULL);
+    const char *schema =
+        "CREATE TABLE IF NOT EXISTS packages ("
+        "  name TEXT PRIMARY KEY,"
+        "  version TEXT NOT NULL,"
+        "  desc TEXT NOT NULL,"
+        "  maintainer TEXT NOT NULL,"
+        "  arch TEXT NOT NULL"
+        ");"
+        "CREATE TABLE IF NOT EXISTS files ("
+        "  path TEXT NOT NULL,"
+        "  pkgname TEXT NOT NULL,"
+        "  FOREIGN KEY (pkgname) REFERENCES packages(name) ON DELETE CASCADE,"
+        "  UNIQUE (pkgname, path)"
+        ");";
 
     char *errmsg = NULL;
     if (sqlite3_exec(conn, schema, NULL, NULL, &errmsg) != SQLITE_OK) {
@@ -266,4 +274,78 @@ int database_printinfo(const char *package, const char *destdir)
     sqlite3_finalize(stmt);
     sqlite3_close(conn);
     return (rc == SQLITE_ROW) ? 0 : 1;
+}
+
+int database_files_add(const char *pkgname, const char *treefile,
+                       const char *destdir)
+{
+    sqlite3 *conn = open_db(destdir);
+    if (!conn)
+        return 1;
+
+    FILE *fp = fopen(treefile, "r");
+    if (!fp) {
+        perror("fopen");
+        sqlite3_close(conn);
+        return 1;
+    }
+
+    sqlite3_stmt *stmt;
+
+    sqlite3_prepare_v2(conn, "INSERT INTO files (path, pkgname) VALUES (?, ?);",
+                       -1, &stmt, NULL);
+
+    char line[PATH_MAX];
+    while (fgets(line, sizeof(line), fp) != NULL) {
+        line[strcspn(line, "\n")] = '\0';
+
+        if (line[0] == '\0')
+            continue;
+
+        sqlite3_bind_text(stmt, 1, line, -1, SQLITE_TRANSIENT);
+        sqlite3_bind_text(stmt, 2, pkgname, -1, SQLITE_TRANSIENT);
+
+        if (sqlite3_step(stmt) != SQLITE_DONE) {
+            fprintf(stderr, "warning: failed to save %s (%s): %s\n", line,
+                    pkgname, sqlite3_errmsg(conn));
+            continue;
+        }
+
+        sqlite3_reset(stmt);
+    }
+
+    sqlite3_finalize(stmt);
+    sqlite3_close(conn);
+    return 0;
+}
+
+int database_foreach_file(const char *pkgname, const char *destdir,
+                          database_file_callback cb, void *userdata)
+{
+    sqlite3 *conn = open_db(destdir);
+    if (!conn)
+        return 1;
+
+    sqlite3_stmt *stmt;
+
+    const char *sql = "SELECT path FROM files WHERE pkgname = ? ORDER BY path;";
+
+    if (sqlite3_prepare_v2(conn, sql, -1, &stmt, NULL) != SQLITE_OK) {
+        sqlite3_close(conn);
+        return 1;
+    }
+
+    sqlite3_bind_text(stmt, 1, pkgname, -1, SQLITE_STATIC);
+
+    while (sqlite3_step(stmt) == SQLITE_ROW) {
+        const char *path = (const char *)sqlite3_column_text(stmt, 0);
+
+        if (cb(path, userdata) != 0)
+            break;
+    }
+
+    sqlite3_finalize(stmt);
+    sqlite3_close(conn);
+
+    return 0;
 }
