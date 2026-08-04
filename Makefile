@@ -1,6 +1,6 @@
 .DEFAULT_GOAL := all
 
-VERSION ?= $(shell git describe --tags --abbrev=0 2>/dev/null || echo "0.4.0")
+VERSION ?= $(shell git describe --tags --abbrev=0 2>/dev/null || echo "0.4.1")
 DISTDIR = xpt-$(VERSION)
 DISTFILE = $(DISTDIR).tar.gz
 

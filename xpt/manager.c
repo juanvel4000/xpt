@@ -235,6 +235,13 @@ int package_install_from_repo(const char *name, const char *destdir, int log)
         return 1;
     }
 
+    if (verify_sha256(destfile, rp->sha256) != 0) {
+        fprintf(stderr, "checksum mismatch for %s\n", destfile);
+        remove(destfile);
+        repo_package_free(rp);
+        return 1;
+    }
+
     repo_package_free(rp);
 
     int ret = package_install(destfile, destdir, log, 1);

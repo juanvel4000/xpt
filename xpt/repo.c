@@ -7,6 +7,8 @@
 #include <limits.h>
 #include <fetch.h>
 
+#include <openssl/evp.h>
+
 static char *rtrim(char *s)
 {
     while (isspace((unsigned char)*s))
@@ -252,4 +254,37 @@ int repos_sync(const char *destdir)
 
     fclose(fp);
     return had_error;
+}
+
+int verify_sha256(const char *file, const char *expected_hex)
+{
+    FILE *fp = fopen(file, "rb");
+    if (!fp) {
+        perror("fopen");
+        return 1;
+    }
+    
+    EVP_MD_CTX *ctx = EVP_MD_CTX_new();
+    EVP_DigestInit_ex(ctx, EVP_sha256(), NULL);
+
+    unsigned char buf[4096];
+
+    size_t n;
+    while ((n = fread(buf, 1, sizeof(buf), fp)) > 0)
+        EVP_DigestUpdate(ctx, buf, n);
+    fclose(fp);
+
+    unsigned char hash[EVP_MAX_MD_SIZE];
+    unsigned int hash_len;
+
+    EVP_DigestFinal_ex(ctx, hash, &hash_len);
+    EVP_MD_CTX_free(ctx);
+
+    char hex[EVP_MAX_MD_SIZE * 2 + 1];
+    unsigned int i;
+    for (i = 0; i < hash_len; i++)
+        sprintf(hex + i * 2, "%02x", hash[i]);
+    hex[hash_len * 2] = '\0';
+
+    return strcasecmp(hex, expected_hex) == 0 ? 0 : 1;
 }
