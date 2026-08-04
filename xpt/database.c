@@ -1,7 +1,7 @@
 #include <xpt/database.h>
 #include <xpt/common.h>
 
-#include <gdbm.h>
+#include <sqlite3.h>
 #include <stdio.h>
 #include <limits.h>
 #include <string.h>
@@ -25,215 +25,197 @@ static int make_paths(char *db, size_t db_size, char *xptdir,
     return 0;
 }
 
-int database_exists(const char *package, const char *destdir)
+static sqlite3 *open_db(const char *destdir)
 {
     char db[PATH_MAX];
     char xptdir[PATH_MAX];
 
-    if (make_paths(db, sizeof(db), xptdir, sizeof(xptdir), destdir) != 0) {
-        return 1;
-    }
+    if (make_paths(db, sizeof(db), xptdir, sizeof(xptdir), destdir) != 0)
+        return NULL;
 
     if (mkdir_p(xptdir) != 0)
+        return NULL;
+
+    sqlite3 *conn;
+    if (sqlite3_open(db, &conn) != SQLITE_OK) {
+        fprintf(stderr, "could not open database: %s\n", sqlite3_errmsg(conn));
+    }
+
+    const char *schema =
+        "CREATE TABLE IF NOT EXISTS packages ("
+        "  name TEXT PRIMARY KEY,"
+        "  version TEXT NOT NULL"
+        ");";
+
+    char *errmsg = NULL;
+    if (sqlite3_exec(conn, schema, NULL, NULL, &errmsg) != SQLITE_OK) {
+        fprintf(stderr, "could not create schema: %s\n", sqlite3_errmsg(conn));
+        sqlite3_free(errmsg);
+        sqlite3_close(conn);
+        return NULL;
+    }
+
+    return conn;
+}
+
+int database_exists(const char *package, const char *destdir)
+{
+    sqlite3 *conn = open_db(destdir);
+    if (!conn)
         return 1;
 
-    GDBM_FILE dbf = gdbm_open(db, 512, GDBM_READER, 0644, NULL);
-    if (!dbf) {
+    sqlite3_stmt *stmt;
+    const char *sql = "SELECT 1 FROM packages WHERE name = ?;";
+    if (sqlite3_prepare_v2(conn, sql, -1, &stmt, NULL) != SQLITE_OK) {
+        sqlite3_close(conn);
         return 1;
     }
-    datum pkg;
-    pkg.dptr = (char *)package;
-    pkg.dsize = strlen(package);
-    datum v = gdbm_fetch(dbf, pkg);
-    if (v.dptr == NULL) {
-        gdbm_close(dbf);
-        return 1;
-    }
-    free(v.dptr);
 
-    gdbm_close(dbf);
-    return 0;
+    sqlite3_bind_text(stmt, 1, package, -1, SQLITE_STATIC);
+    int found = (sqlite3_step(stmt) == SQLITE_ROW);
+
+    sqlite3_finalize(stmt);
+    sqlite3_close(conn);
+    return found ? 0 : 1;
 }
 
 int database_add(const char *package, const char *version, const char *destdir)
 {
-    char db[PATH_MAX];
-    char xptdir[PATH_MAX];
-
-    if (make_paths(db, sizeof(db), xptdir, sizeof(xptdir), destdir) != 0) {
-        return 1;
-    }
-    if (mkdir_p(xptdir) != 0)
+    sqlite3 *conn = open_db(destdir);
+    if (!conn)
         return 1;
 
-    GDBM_FILE dbf = gdbm_open(db, 512, GDBM_WRCREAT, 0644, NULL);
-    if (!dbf) {
-        perror("gdbm_open");
+    sqlite3_stmt *stmt;
+    const char *sql = "INSERT INTO packages (name, version) VALUES (?, ?);";
+    if (sqlite3_prepare_v2(conn, sql, -1, &stmt, NULL) != SQLITE_OK) {
+        fprintf(stderr, "could not add package to database: %s\n", sqlite3_errmsg(conn));
+        sqlite3_close(conn);
         return 1;
     }
 
-    datum name, ver;
+    sqlite3_bind_text(stmt, 1, package, -1, SQLITE_STATIC);
+    sqlite3_bind_text(stmt, 2, version, -1, SQLITE_STATIC);
 
-    name.dptr = (char *)package;
-    name.dsize = strlen(package);
-
-    ver.dptr = (char *)version;
-    ver.dsize = strlen(version);
-
-    if (gdbm_store(dbf, name, ver, GDBM_INSERT) == -1) {
-        perror("gdbm_store");
-        gdbm_close(dbf);
-        return 1;
+    int ret = 0;
+    if (sqlite3_step(stmt) != SQLITE_DONE) {
+        fprintf(stderr, "could not add package to database: %s\n", sqlite3_errmsg(conn));
+        ret = 1;
     }
 
-    gdbm_close(dbf);
-    return 0;
+    sqlite3_finalize(stmt);
+    sqlite3_close(conn);
+    return ret;
 }
 
 char *database_getver(const char *package, const char *destdir)
 {
-    char db[PATH_MAX];
-    char xptdir[PATH_MAX];
+    sqlite3 *conn = open_db(destdir);
+    if (!conn)
+        return NULL;
 
-    if (make_paths(db, sizeof(db), xptdir, sizeof(xptdir), destdir) != 0) {
+    sqlite3_stmt *stmt;
+    const char *sql = "SELECT version FROM packages WHERE name = ?;";
+    if (sqlite3_prepare_v2(conn, sql, -1, &stmt, NULL) != SQLITE_OK) {
+        sqlite3_close(conn);
         return NULL;
     }
 
-    if (mkdir_p(xptdir) != 0) {
-        return NULL;
+    sqlite3_bind_text(stmt, 1, package, -1, SQLITE_STATIC);
+
+    char *version = NULL;
+    if (sqlite3_step(stmt) == SQLITE_ROW) {
+        const unsigned char *text = sqlite3_column_text(stmt, 0);
+        version = strdup((const char *)text);
     }
 
-    GDBM_FILE dbf = gdbm_open(db, 512, GDBM_READER, 0644, NULL);
-    if (!dbf) {
-        return NULL;
-    }
-    datum pkg;
-    pkg.dptr = (char *)package;
-    pkg.dsize = strlen(package);
-    datum v = gdbm_fetch(dbf, pkg);
-    if (v.dptr == NULL) {
-        gdbm_close(dbf);
-        return NULL;
-    }
-    gdbm_close(dbf);
-
-    char *version = strdup(v.dptr);
-
-    free(v.dptr);
+    sqlite3_finalize(stmt);
+    sqlite3_close(conn);
     return version;
 }
 
 int database_update(const char *package, const char *version,
                     const char *destdir)
 {
-    char db[PATH_MAX];
-    char xptdir[PATH_MAX];
+    sqlite3 *conn = open_db(destdir);
+    if (!conn)
+        return 1;
 
-    if (make_paths(db, sizeof(db), xptdir, sizeof(xptdir), destdir) != 0) {
+    sqlite3_stmt *stmt;
+    const char *sql = "UPDATE packages SET version = ? WHERE name = ?;";
+    if (sqlite3_prepare_v2(conn, sql, -1, &stmt, NULL) != SQLITE_OK) {
+        fprintf(stderr, "could not update the package: %s\n", sqlite3_errmsg(conn));
+        sqlite3_close(conn);
         return 1;
     }
 
-    if (mkdir_p(xptdir) != 0)
-        return 1;
+    sqlite3_bind_text(stmt, 1, version, -1, SQLITE_STATIC);
+    sqlite3_bind_text(stmt, 2, package, -1, SQLITE_STATIC);
 
-    GDBM_FILE dbf = gdbm_open(db, 512, GDBM_WRCREAT, 0644, NULL);
-    ;
-    if (!dbf) {
-        perror("gdbm_open");
-        return 1;
+    int ret = 0;
+    if (sqlite3_step(stmt) != SQLITE_DONE) {
+        fprintf(stderr, "could not update the package: %s\n", sqlite3_errmsg(conn));
+        ret = 1;
     }
 
-    datum name, ver;
-
-    name.dptr = (char *)package;
-    name.dsize = strlen(package);
-
-    ver.dptr = (char *)version;
-    ver.dsize = strlen(version);
-
-    if (gdbm_store(dbf, name, ver, GDBM_REPLACE) == -1) {
-        perror("gdbm_store");
-        gdbm_close(dbf);
-        return 1;
-    }
-
-    gdbm_close(dbf);
-    return 0;
+    sqlite3_finalize(stmt);
+    sqlite3_close(conn);
+    return ret;
 }
 
 int database_delete(const char *package, const char *destdir)
 {
-    char db[PATH_MAX];
-    char xptdir[PATH_MAX];
+    sqlite3 *conn = open_db(destdir);
+    if (!conn)
+        return 1;
 
-    if (make_paths(db, sizeof(db), xptdir, sizeof(xptdir), destdir) != 0) {
+    sqlite3_stmt *stmt;
+    const char *sql = "DELETE FROM packages WHERE name = ?;";
+    if (sqlite3_prepare_v2(conn, sql, -1, &stmt, NULL) != SQLITE_OK) {
+        fprintf(stderr, "could not delete package: %s\n", sqlite3_errmsg(conn));
+        sqlite3_close(conn);
         return 1;
     }
 
-    if (mkdir_p(xptdir) != 0)
-        return 1;
+    sqlite3_bind_text(stmt, 1, package, -1, SQLITE_STATIC);
 
-    GDBM_FILE dbf = gdbm_open(db, 512, GDBM_WRCREAT, 0644, NULL);
-    if (!dbf) {
-        perror("gdbm_open");
-        return 1;
+    int ret = 0;
+    if (sqlite3_step(stmt) != SQLITE_DONE) {
+        fprintf(stderr, "could not delete package: %s\n", sqlite3_errmsg(conn));
+        ret = 1;
     }
 
-    datum name;
-
-    name.dptr = (char *)package;
-    name.dsize = strlen(package);
-
-    if (gdbm_delete(dbf, name) == -1) {
-        perror("gdbm_delete");
-        gdbm_close(dbf);
-        return 1;
-    }
-
-    gdbm_close(dbf);
-    return 0;
+    sqlite3_finalize(stmt);
+    sqlite3_close(conn);
+    return ret;
 }
 
 int database_list(const char *destdir)
 {
-    char db[PATH_MAX];
-    char xptdir[PATH_MAX];
+    sqlite3 *conn = open_db(destdir);
+    if (!conn)
+        return 1;
 
-    if (make_paths(db, sizeof(db), xptdir, sizeof(xptdir), destdir) != 0) {
+    sqlite3_stmt *stmt;
+    const char *sql = "SELECT name, version FROM packages ORDER BY name;";
+    if (sqlite3_prepare_v2(conn, sql, -1, &stmt, NULL) != SQLITE_OK) {
+        fprintf(stderr, "could not list packages: %s\n", sqlite3_errmsg(conn));
+        sqlite3_close(conn);
         return 1;
     }
 
-    GDBM_FILE dbf = gdbm_open(db, 512, GDBM_WRCREAT, 0644, NULL);
-    ;
-    if (!dbf) {
-        perror("gdbm_open");
-        return 1;
-    }
-
-    datum key, nextkey, content;
-
-    key = gdbm_firstkey(dbf);
-
-    printf("%-20s %s\n", "PACKAGE", "VERSION");
+    printf("%-20s %s\n", "package", "version");
     printf("------------------------------\n");
     int pkgcount = 0;
 
-    while (key.dptr != NULL) {
-        content = gdbm_fetch(dbf, key);
-
-        printf("%-20.*s %.*s\n", (int)key.dsize, key.dptr, (int)content.dsize,
-               content.dptr);
-
-        free(content.dptr);
-
-        nextkey = gdbm_nextkey(dbf, key);
-
-        free(key.dptr);
-        key = nextkey;
+    while (sqlite3_step(stmt) == SQLITE_ROW) {
+        const unsigned char *name = sqlite3_column_text(stmt, 0);
+        const unsigned char *version = sqlite3_column_text(stmt, 1);
+        printf("%-20s %s\n", name, version);
         pkgcount++;
     }
 
-    gdbm_close(dbf);
+    sqlite3_finalize(stmt);
+    sqlite3_close(conn);
     printf("\n%d packages installed\n", pkgcount);
     return 0;
 }

@@ -6,7 +6,7 @@ CFLAGS ?= -Wall -Wextra
 CFLAGS += -I../include -I../libfetch $(shell pkg-config --cflags libarchive) -MMD -MP
 
 LDFLAGS ?=
-LDFLAGS += -L../libfetch -larchive -lgdbm -lz -lssl -lcrypto -lfetch
+LDFLAGS += -L../libfetch -larchive -lsqlite3 -lz -lssl -lcrypto -lfetch
 
 TARGET  = xpt
 SOURCES = \
