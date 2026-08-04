@@ -11,6 +11,7 @@ LDFLAGS += -L../libfetch -larchive -lgdbm -lz -lssl -lcrypto -lfetch
 TARGET  = xpt
 SOURCES = \
 	common.c \
+	lockfile.c \
 	database.c \
 	manager.c \
 	packages.c \

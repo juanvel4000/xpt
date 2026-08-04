@@ -2,11 +2,11 @@
 #include <xpt/common.h>
 #include <xpt/database.h>
 #include <xpt/repo.h>
+#include <xpt/lockfile.h>
 
 #include <stdio.h>
 #include <unistd.h>
 #include <limits.h>
-
 
 #ifndef XPT_VERSION
 #define XPT_VERSION "v0.3.2"
@@ -36,13 +36,14 @@ int main(int argc, char *argv[])
     int action = 0;
     char destdir[PATH_MAX] = "/";
     int loglevel = LOG_OK;
-    
+
     if (argc == 1) {
-        fprintf(stderr, "usage: xpt <action> [-q] [-d dir] [-f file | -p package | -n net-package]\n");
+        fprintf(stderr, "usage: xpt <action> [-q] [-d dir] [-f file | -p "
+                        "package | -n net-package]\n");
         fprintf(stderr, "try 'xpt -h' for more information.\n");
         return 1;
     }
-    
+
     while ((opt = getopt(argc, argv, "iqsVghltrf:p:n:d:")) != -1) {
         switch (opt) {
         case 'f':
@@ -85,12 +86,11 @@ int main(int argc, char *argv[])
             snprintf(destdir, sizeof(destdir), "%s", optarg);
             break;
         case 'h':
-            printf("usage: xpt -V | -i | -g | -h | -r | -l | -t | -s [-q] [-d dir] [-f file | -p package | -n net-package]\n");
+            printf("usage: xpt -V | -i | -g | -h | -r | -l | -t | -s [-q] [-d "
+                   "dir] [-f file | -p package | -n net-package]\n");
             printf("the xpt package tool\n");
-            printf("example: xpt --install --file ./ebt-0.1.0.xpt \n\n");
             printf("commands:\n");
-            printf("  %-10s %s\n", "-V",
-                   "show the current xpt version");
+            printf("  %-10s %s\n", "-V", "show the current xpt version");
             printf("  %-10s %s\n", "-i",
                    "install <file> (requires specifying file with -f)");
             printf("  %-10s %s\n", "-g",
@@ -99,10 +99,8 @@ int main(int argc, char *argv[])
             printf("  %-10s %s\n", "-r", "remove a package");
             printf("  %-10s %s\n", "-l",
                    "list the packages installed in the system");
-            printf("  %-10s %s\n", "-t",
-                   "show the files usage by a package");
-            printf("  %-10s %s\n\n", "-s",
-                   "download the repository indexes.");
+            printf("  %-10s %s\n", "-t", "show the files usage by a package");
+            printf("  %-10s %s\n\n", "-s", "download the repository indexes.");
 
             printf("options:\n");
             printf("  %-10s %s\n", "-f <file>", "specify a file");
@@ -118,48 +116,78 @@ int main(int argc, char *argv[])
             return 0;
         }
     }
+    int lockfd = xpt_lock_acquire(destdir);
+    if (lockfd < 0) {
+        fprintf(stderr, "error: could not acquire the lock.");
+        return 1;
+    }
+
     if (action == 1) {
         if (filename && net_package) {
             fprintf(stderr, "specify either -f or -n, not both\n");
+            xpt_lock_release(lockfd);
             return 1;
         }
         if (filename) {
-            return package_install(filename, destdir, loglevel, 0);
+            int result = package_install(filename, destdir, loglevel, 0);
+            xpt_lock_release(lockfd);
+            return result;
         } else if (net_package) {
-            return package_install_from_repo(net_package, destdir, loglevel);
+            int result =
+                package_install_from_repo(net_package, destdir, loglevel);
+            xpt_lock_release(lockfd);
+            return result;
         } else {
             fprintf(stderr, "please specify a file with -f <file> or a package "
                             "with -n <pkg>\n");
+            xpt_lock_release(lockfd);
             return 1;
         }
     } else if (action == 2) {
         if (package == NULL) {
             fprintf(stderr, "please specify a package with -p <pkg>\n");
+            xpt_lock_release(lockfd);
             return 1;
         }
         char *version = database_getver(package, destdir);
         if (!version) {
             fprintf(stderr, "package not found\n");
+            xpt_lock_release(lockfd);
             return 1;
         }
         printf("%s\n", version);
+
+        xpt_lock_release(lockfd);
         return 0;
     } else if (action == 3) {
         if (package == NULL) {
             fprintf(stderr, "please specify a package with -p <pkg>\n");
+            xpt_lock_release(lockfd);
             return 1;
         }
-        return package_uninstall(package, destdir, loglevel);
+
+        int result = package_uninstall(package, destdir, loglevel);
+        xpt_lock_release(lockfd);
+        return result;
     } else if (action == 4) {
-        return database_list(destdir);
+        int result = database_list(destdir);
+        xpt_lock_release(lockfd);
+        return result;
     } else if (action == 5) {
         if (package == NULL) {
             fprintf(stderr, "please specify a package with -p <pkg>\n");
+            xpt_lock_release(lockfd);
             return 1;
         }
-        return package_listfiles(package, destdir);
+        int result = package_listfiles(package, destdir);
+        xpt_lock_release(lockfd);
+        return result;
     } else if (action == 6) {
-        return repos_sync(destdir);
+        int result = repos_sync(destdir);
+        xpt_lock_release(lockfd);
+        return result;
     }
+
+    xpt_lock_release(lockfd);
     return 0;
 }
