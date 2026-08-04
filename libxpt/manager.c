@@ -11,7 +11,7 @@
 #include <string.h>
 #include <unistd.h>
 
-int package_install(const char *file, const char *destdir, int log,
+int xpt_package_install(const char *file, const char *destdir, int log,
                     int netinstall_deps)
 {
     if (!is_file(file)) {
@@ -46,7 +46,7 @@ int package_install(const char *file, const char *destdir, int log,
         return 1;
     }
 
-    if (log == LOG_OK)
+    if (log == XPT_LOG_OK)
         printf("installing %s...\n", pi->name);
 
     if (database_exists(pi->name, destdir) == 0) {
@@ -81,7 +81,7 @@ int package_install(const char *file, const char *destdir, int log,
         return 1;
     }
 
-    if (log == LOG_OK)
+    if (log == XPT_LOG_OK)
         printf("installed %s.\n", pi->name);
     delete_package_info(pi);
     return 0;
@@ -128,13 +128,13 @@ static int uninstall_file(const char *path, void *userdata)
     return 0;
 }
 
-int package_uninstall(const char *name, const char *destdir, int log)
+int xpt_package_remove(const char *name, const char *destdir, int log)
 {
     if (database_exists(name, destdir) != 0) {
         fprintf(stderr, "package %s is not installed\n", name);
         return 1;
     }
-    if (log == LOG_OK)
+    if (log == XPT_LOG_OK)
         printf("uninstalling %s...\n", name);
 
     struct uninstall_ctx ctx = {.destdir = destdir};
@@ -148,7 +148,7 @@ int package_uninstall(const char *name, const char *destdir, int log)
         fprintf(stderr, "an error ocurred removing %s from the database.\n",
                 name);
 
-    if (log == LOG_OK)
+    if (log == XPT_LOG_OK)
         printf("uninstalled %s.\n", name);
 
     return 0;
@@ -163,7 +163,7 @@ static int print_file(const char *path, void *userdata)
     return 0;
 }
 
-int package_listfiles(const char *name, const char *destdir)
+int xpt_package_listfiles(const char *name, const char *destdir)
 {
     if (database_exists(name, destdir) != 0) {
         fprintf(stderr, "package %s is not installed\n", name);
@@ -173,7 +173,7 @@ int package_listfiles(const char *name, const char *destdir)
     return database_foreach_file(name, destdir, print_file, NULL);
 }
 
-int package_install_from_repo(const char *name, const char *destdir, int log)
+int xpt_package_install_from_repo(const char *name, const char *destdir, int log)
 {
     char cachefile[PATH_MAX];
     char destfile[PATH_MAX];
@@ -214,7 +214,5 @@ int package_install_from_repo(const char *name, const char *destdir, int log)
 
     repo_package_free(rp);
 
-    int ret = package_install(destfile, destdir, log, 1);
-
-    return ret;
+    return xpt_package_install(destfile, destdir, log, 1);
 }

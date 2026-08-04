@@ -107,7 +107,7 @@ int resolve_package(NodeContainer *container, const char *name,
     for (i = 0; i < pkg->depends_count; i++) {
         if (database_exists(pkg->depends[i], destdir) != 0) {
             if (netinstall_deps) {
-                if (package_install_from_repo(pkg->depends[i], destdir, log) !=
+                if (xpt_package_install_from_repo(pkg->depends[i], destdir, log) !=
                     0) {
                     fprintf(stderr, "failed to install dependency: %s\n",
                             pkg->depends[i]);

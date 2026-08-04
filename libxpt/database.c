@@ -124,7 +124,7 @@ int database_add(PackageInfo *pi, const char *destdir)
     return ret;
 }
 
-char *database_getver(const char *package, const char *destdir)
+char *xpt_package_getversion(const char *package, const char *destdir)
 {
     sqlite3 *conn = open_db(destdir);
     if (!conn)
@@ -208,7 +208,7 @@ int database_delete(const char *package, const char *destdir)
     return ret;
 }
 
-int database_list(const char *destdir)
+int xpt_package_list(const char *destdir)
 {
     sqlite3 *conn = open_db(destdir);
     if (!conn)
@@ -239,7 +239,7 @@ int database_list(const char *destdir)
     return 0;
 }
 
-int database_printinfo(const char *package, const char *destdir)
+int xpt_package_printinfo(const char *package, const char *destdir)
 {
     sqlite3 *conn = open_db(destdir);
     if (!conn)

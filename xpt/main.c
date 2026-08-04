@@ -32,7 +32,7 @@ int main(int argc, char *argv[])
      * */
     int action = 0;
     char destdir[PATH_MAX] = "/";
-    int loglevel = LOG_OK;
+    int loglevel = XPT_LOG_OK;
 
     if (argc == 1) {
         fprintf(stderr, "usage: xpt <action> [-q] [-d dir] [-f file | -p "
@@ -56,7 +56,7 @@ int main(int argc, char *argv[])
             net_package = optarg;
             break;
         case 'q':
-            loglevel = LOG_NO;
+            loglevel = XPT_LOG_NO;
             break;
         case 'g':
             action = 2;
@@ -131,12 +131,12 @@ int main(int argc, char *argv[])
             return 1;
         }
         if (filename) {
-            int result = package_install(filename, destdir, loglevel, 0);
+            int result = xpt_package_install(filename, destdir, loglevel, 0);
             xpt_lock_release(lockfd);
             return result;
         } else if (net_package) {
             int result =
-                package_install_from_repo(net_package, destdir, loglevel);
+                xpt_package_install_from_repo(net_package, destdir, loglevel);
             xpt_lock_release(lockfd);
             return result;
         } else {
@@ -151,7 +151,7 @@ int main(int argc, char *argv[])
             xpt_lock_release(lockfd);
             return 1;
         }
-        char *version = database_getver(package, destdir);
+        char *version = xpt_package_getversion(package, destdir);
         if (!version) {
             fprintf(stderr, "package not found\n");
             xpt_lock_release(lockfd);
@@ -168,11 +168,11 @@ int main(int argc, char *argv[])
             return 1;
         }
 
-        int result = package_uninstall(package, destdir, loglevel);
+        int result = xpt_package_remove(package, destdir, loglevel);
         xpt_lock_release(lockfd);
         return result;
     } else if (action == 4) {
-        int result = database_list(destdir);
+        int result = xpt_package_list(destdir);
         xpt_lock_release(lockfd);
         return result;
     } else if (action == 5) {
@@ -181,11 +181,11 @@ int main(int argc, char *argv[])
             xpt_lock_release(lockfd);
             return 1;
         }
-        int result = package_listfiles(package, destdir);
+        int result = xpt_package_listfiles(package, destdir);
         xpt_lock_release(lockfd);
         return result;
     } else if (action == 6) {
-        int result = repos_sync(destdir);
+        int result = xpt_repos_sync(destdir);
         xpt_lock_release(lockfd);
         return result;
     } else if (action == 7) {
@@ -194,7 +194,7 @@ int main(int argc, char *argv[])
             xpt_lock_release(lockfd);
             return 1;
         }
-        int result = database_printinfo(package, destdir);
+        int result = xpt_package_printinfo(package, destdir);
         if (result == 1) {
             fprintf(stderr, "package not found\n");
             xpt_lock_release(lockfd);

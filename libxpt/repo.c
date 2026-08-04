@@ -197,7 +197,7 @@ int repo_fetch_index(const char *base_url, const char *cachefile)
     return repo_download(url, cachefile);
 }
 
-int repos_sync(const char *destdir)
+int xpt_repos_sync(const char *destdir)
 {
     char indexfile[PATH_MAX];
     char cachefile[PATH_MAX];
