@@ -1,8 +1,4 @@
-#include <xpt/manager.h>
-#include <xpt/common.h>
-#include <xpt/database.h>
-#include <xpt/repo.h>
-#include <xpt/lockfile.h>
+#include <xpt/xpt.h>
 
 #include <stdio.h>
 #include <unistd.h>

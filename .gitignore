@@ -2,5 +2,9 @@
 *.d
 *.a
 *.gz
+*.so*
+
+build/
+clean/
 
 xpt/xpt

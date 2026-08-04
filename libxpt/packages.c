@@ -1,5 +1,5 @@
-#include <xpt/packages.h>
-#include <xpt/common.h>
+#include <packages.h>
+#include <common.h>
 
 #include <archive.h>
 #include <archive_entry.h>

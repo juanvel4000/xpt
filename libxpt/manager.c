@@ -1,9 +1,9 @@
-#include <xpt/manifests.h>
-#include <xpt/packages.h>
-#include <xpt/common.h>
-#include <xpt/database.h>
-#include <xpt/resolver.h>
-#include <xpt/repo.h>
+#include <manifests.h>
+#include <packages.h>
+#include <common.h>
+#include <database.h>
+#include <resolver.h>
+#include <repo.h>
 
 #include <libgen.h>
 #include <stdio.h>

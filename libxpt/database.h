@@ -1,6 +1,6 @@
 #ifndef DATABASE_H
 #define DATABASE_H
-#include <xpt/manifests.h>
+#include <manifests.h>
 
 char *database_getver(const char *package, const char *destdir);
 

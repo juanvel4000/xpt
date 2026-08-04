@@ -1,6 +1,6 @@
-#include <xpt/database.h>
-#include <xpt/common.h>
-#include <xpt/manifests.h>
+#include <database.h>
+#include <common.h>
+#include <manifests.h>
 
 #include <sqlite3.h>
 #include <stdio.h>

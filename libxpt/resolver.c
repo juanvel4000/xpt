@@ -1,8 +1,8 @@
-#include <xpt/manager.h>
-#include <xpt/resolver.h>
-#include <xpt/database.h>
-#include <xpt/manifests.h>
-#include <xpt/common.h>
+#include <manager.h>
+#include <resolver.h>
+#include <database.h>
+#include <manifests.h>
+#include <common.h>
 
 #include <stdlib.h>
 #include <string.h>
