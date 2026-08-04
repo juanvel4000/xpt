@@ -12,15 +12,14 @@ a minimalistic package manager for `.xpt` packages, written in C.
 ## building
 
 ```sh
- $ make
+ $ meson setup build
+ $ meson compile -C build
 ```
-
-> append `DOCS=0` to the previous command in order to disable documentation
 
 ### installation
 
 ```sh
-  $ make install
+  $ meson install -C build
 ```
 
 ## usage

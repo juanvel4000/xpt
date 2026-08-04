@@ -27,10 +27,26 @@ libxpt = library(
   soversion: '0',
   include_directories: inc,
   c_args: xpt_c_args,
-  dependencies: libxpt_deps
+  dependencies: libxpt_deps,
+  install: true
 )
 
 libxpt_dep = declare_dependency(
     link_with: libxpt,
     include_directories: inc,
+)
+
+install_headers(
+  '../include/xpt/xpt.h',
+  subdir: 'xpt'
+)
+
+pkg = import('pkgconfig')
+
+pkg.generate(
+  libxpt,
+  name: 'libxpt',
+  description: 'XPT package management library',
+  filebase: 'libxpt',
+  version: meson.project_version()
 )
