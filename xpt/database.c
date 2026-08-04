@@ -1,5 +1,6 @@
 #include <xpt/database.h>
 #include <xpt/common.h>
+#include <xpt/manifests.h>
 
 #include <sqlite3.h>
 #include <stdio.h>
@@ -41,11 +42,13 @@ static sqlite3 *open_db(const char *destdir)
         fprintf(stderr, "could not open database: %s\n", sqlite3_errmsg(conn));
     }
 
-    const char *schema =
-        "CREATE TABLE IF NOT EXISTS packages ("
-        "  name TEXT PRIMARY KEY,"
-        "  version TEXT NOT NULL"
-        ");";
+    const char *schema = "CREATE TABLE IF NOT EXISTS packages ("
+                         "  name TEXT PRIMARY KEY,"
+                         "  version TEXT NOT NULL,"
+                         "  desc    TEXT NOT NULL,"
+                         "  maintainer TEXT NOT NULL,"
+                         "  arch       TEXT NOT NULL"
+                         ");";
 
     char *errmsg = NULL;
     if (sqlite3_exec(conn, schema, NULL, NULL, &errmsg) != SQLITE_OK) {
@@ -79,26 +82,32 @@ int database_exists(const char *package, const char *destdir)
     return found ? 0 : 1;
 }
 
-int database_add(const char *package, const char *version, const char *destdir)
+int database_add(PackageInfo *pi, const char *destdir)
 {
     sqlite3 *conn = open_db(destdir);
     if (!conn)
         return 1;
 
     sqlite3_stmt *stmt;
-    const char *sql = "INSERT INTO packages (name, version) VALUES (?, ?);";
+    const char *sql = "INSERT INTO packages (name, version, desc, maintainer, "
+                      "arch) VALUES (?, ?, ?, ?, ?);";
     if (sqlite3_prepare_v2(conn, sql, -1, &stmt, NULL) != SQLITE_OK) {
-        fprintf(stderr, "could not add package to database: %s\n", sqlite3_errmsg(conn));
+        fprintf(stderr, "could not add package to database: %s\n",
+                sqlite3_errmsg(conn));
         sqlite3_close(conn);
         return 1;
     }
 
-    sqlite3_bind_text(stmt, 1, package, -1, SQLITE_STATIC);
-    sqlite3_bind_text(stmt, 2, version, -1, SQLITE_STATIC);
+    sqlite3_bind_text(stmt, 1, pi->name, -1, SQLITE_STATIC);
+    sqlite3_bind_text(stmt, 2, pi->version, -1, SQLITE_STATIC);
+    sqlite3_bind_text(stmt, 3, pi->desc, -1, SQLITE_STATIC);
+    sqlite3_bind_text(stmt, 4, pi->maintainer, -1, SQLITE_STATIC);
+    sqlite3_bind_text(stmt, 5, pi->arch, -1, SQLITE_STATIC);
 
     int ret = 0;
     if (sqlite3_step(stmt) != SQLITE_DONE) {
-        fprintf(stderr, "could not add package to database: %s\n", sqlite3_errmsg(conn));
+        fprintf(stderr, "could not add package to database: %s\n",
+                sqlite3_errmsg(conn));
         ret = 1;
     }
 
@@ -143,7 +152,8 @@ int database_update(const char *package, const char *version,
     sqlite3_stmt *stmt;
     const char *sql = "UPDATE packages SET version = ? WHERE name = ?;";
     if (sqlite3_prepare_v2(conn, sql, -1, &stmt, NULL) != SQLITE_OK) {
-        fprintf(stderr, "could not update the package: %s\n", sqlite3_errmsg(conn));
+        fprintf(stderr, "could not update the package: %s\n",
+                sqlite3_errmsg(conn));
         sqlite3_close(conn);
         return 1;
     }
@@ -153,7 +163,8 @@ int database_update(const char *package, const char *version,
 
     int ret = 0;
     if (sqlite3_step(stmt) != SQLITE_DONE) {
-        fprintf(stderr, "could not update the package: %s\n", sqlite3_errmsg(conn));
+        fprintf(stderr, "could not update the package: %s\n",
+                sqlite3_errmsg(conn));
         ret = 1;
     }
 
@@ -218,4 +229,41 @@ int database_list(const char *destdir)
     sqlite3_close(conn);
     printf("\n%d packages installed\n", pkgcount);
     return 0;
+}
+
+int database_printinfo(const char *package, const char *destdir)
+{
+    sqlite3 *conn = open_db(destdir);
+    if (!conn)
+        return 1;
+
+    sqlite3_stmt *stmt;
+    const char *sql = "SELECT name, version, desc, maintainer, arch FROM "
+                      "packages WHERE name = ?;";
+    if (sqlite3_prepare_v2(conn, sql, -1, &stmt, NULL) != SQLITE_OK) {
+        sqlite3_close(conn);
+        return 1;
+    }
+
+    sqlite3_bind_text(stmt, 1, package, -1, SQLITE_STATIC);
+
+    int rc = sqlite3_step(stmt);
+
+    if (rc == SQLITE_ROW) {
+        const char *name = (const char *)sqlite3_column_text(stmt, 0);
+        const char *version = (const char *)sqlite3_column_text(stmt, 1);
+        const char *desc = (const char *)sqlite3_column_text(stmt, 2);
+        const char *maintainer = (const char *)sqlite3_column_text(stmt, 3);
+        const char *arch = (const char *)sqlite3_column_text(stmt, 4);
+
+        printf("package: %s\n", name);
+        printf("version: %s\n", version);
+        printf("description: %s\n", desc);
+        printf("maintainer: %s\n", maintainer);
+        printf("arch: %s\n", arch);
+    }
+
+    sqlite3_finalize(stmt);
+    sqlite3_close(conn);
+    return (rc == SQLITE_ROW) ? 0 : 1;
 }

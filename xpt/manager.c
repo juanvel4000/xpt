@@ -79,7 +79,7 @@ int package_install(const char *file, const char *destdir, int log,
     }
     resolver_free(&container);
 
-    if (database_add(pi->name, pi->version, destdir) != 0) {
+    if (database_add(pi, destdir) != 0) {
         fprintf(stderr, "error adding %s to database\n", pi->name);
         return 1;
     }

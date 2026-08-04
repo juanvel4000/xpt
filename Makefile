@@ -33,8 +33,8 @@ dist: clean
 	@rm -rf $(DISTDIR)
 	@echo " MKDIR $(DISTDIR)"
 	@mkdir -p $(DISTDIR)
-	@echo " CP ./xpt ./include ./docs ./libfetch Makefile LICENSE THIRD-PARTY-LICENSES"
-	@cp -a ./xpt ./include ./docs ./libfetch Makefile LICENSE THIRD-PARTY-LICENSES $(DISTDIR)
+	@echo " CP ./xpt ./include ./docs ./libfetch Makefile README.md LICENSE THIRD-PARTY-LICENSES"
+	@cp -a ./xpt ./include ./docs ./libfetch Makefile README.md LICENSE THIRD-PARTY-LICENSES $(DISTDIR)
 	@echo " SED $(DISTDIR)/Makefile"
 	sed 's/^VERSION .*/VERSION ?= $(VERSION)/' \
 		$(DISTDIR)/Makefile > $(DISTDIR)/Makefile.tmp

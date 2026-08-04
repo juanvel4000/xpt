@@ -32,6 +32,7 @@ int main(int argc, char *argv[])
      * 4: list
      * 5: package tree
      * 6: sync repos
+     * 7: show pkg info
      * */
     int action = 0;
     char destdir[PATH_MAX] = "/";
@@ -44,7 +45,7 @@ int main(int argc, char *argv[])
         return 1;
     }
 
-    while ((opt = getopt(argc, argv, "iqsVghltrf:p:n:d:")) != -1) {
+    while ((opt = getopt(argc, argv, "iqsVghltrIf:p:n:d:")) != -1) {
         switch (opt) {
         case 'f':
             filename = optarg;
@@ -85,6 +86,9 @@ int main(int argc, char *argv[])
         case 'd':
             snprintf(destdir, sizeof(destdir), "%s", optarg);
             break;
+        case 'I':
+            action = 7;
+            break;
         case 'h':
             printf("usage: xpt -V | -i | -g | -h | -r | -l | -t | -s [-q] [-d "
                    "dir] [-f file | -p package | -n net-package]\n");
@@ -92,7 +96,8 @@ int main(int argc, char *argv[])
             printf("commands:\n");
             printf("  %-10s %s\n", "-V", "show the current xpt version");
             printf("  %-10s %s\n", "-i",
-                   "install <file> (requires specifying file with -f)");
+                   "install a package (requires specifying a package with -f "
+                   "or -n)");
             printf("  %-10s %s\n", "-g",
                    "get the version of an installed package");
             printf("  %-10s %s\n", "-h", "show this message");
@@ -100,7 +105,8 @@ int main(int argc, char *argv[])
             printf("  %-10s %s\n", "-l",
                    "list the packages installed in the system");
             printf("  %-10s %s\n", "-t", "show the files usage by a package");
-            printf("  %-10s %s\n\n", "-s", "download the repository indexes.");
+            printf("  %-10s %s\n", "-s", "download the repository indexes");
+            printf("  %-10s %s\n\n", "-I", "show metadata about a package");
 
             printf("options:\n");
             printf("  %-10s %s\n", "-f <file>", "specify a file");
@@ -186,6 +192,21 @@ int main(int argc, char *argv[])
         int result = repos_sync(destdir);
         xpt_lock_release(lockfd);
         return result;
+    } else if (action == 7) {
+        if (package == NULL) {
+            fprintf(stderr, "please specify a package with -p <pkg>\n");
+            xpt_lock_release(lockfd);
+            return 1;
+        }
+        int result = database_printinfo(package, destdir);
+        if (result == 1) {
+            fprintf(stderr, "package not found\n");
+            xpt_lock_release(lockfd);
+            return 1;
+        }
+
+        xpt_lock_release(lockfd);
+        return 0;
     }
 
     xpt_lock_release(lockfd);
