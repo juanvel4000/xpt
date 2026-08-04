@@ -37,5 +37,8 @@ clean:
 	@rm -f $(OBJS)
 	@echo " RM $(LIB)"
 	@rm -f $(LIB)
+	@echo " RM $(OBJS:.o=.d)"
+	@rm -f $(OBJS:.o=.d)
 
 .PHONY: all clean
+-include $(OBJS:.o=.d)

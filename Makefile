@@ -1,79 +1,40 @@
 .DEFAULT_GOAL := all
 
-CC ?= gcc
-
-CFLAGS ?= -Wall -Wextra
-CFLAGS += -Iinclude -Ilibfetch $(shell pkg-config --cflags libarchive) -MMD -MP
-
-LDFLAGS ?=
-LDFLAGS += -Llibfetch -larchive -lgdbm -lz -lssl -lcrypto -lfetch
-
-TARGET  = xpt/xpt
-SOURCES = \
-	xpt/common.c \
-	xpt/database.c \
-	xpt/manager.c \
-	xpt/packages.c \
-	xpt/manifests.c \
-	xpt/resolver.c \
-	xpt/repo.c \
-	xpt/main.c
-
-TARGETS = $(SOURCES:.c=.o)
-
-VERSION ?= $(shell git describe --tags --abbrev=0 2>/dev/null || echo "0.3.0")
-CFLAGS += -DXPT_VERSION=\"$(VERSION)\"
-
+VERSION ?= $(shell git describe --tags --abbrev=0 2>/dev/null || echo "0.3.2")
 DISTDIR = xpt-$(VERSION)
 DISTFILE = $(DISTDIR).tar.gz
-DESTDIR ?=
-PREFIX ?= /usr/local
-BINDIR ?= $(PREFIX)/bin
 
 DOCS ?= 1
-
-%.o: %.c
-	@echo " CC $@"
-	@$(CC) $(CFLAGS) -c $< -o $@
 
 libfetch/libfetch.a:
 	$(MAKE) -C libfetch all
 
-$(TARGET): $(TARGETS) libfetch/libfetch.a
-	@mkdir -p $(dir $@)
-	@echo " LD $@"
-	@$(CC) $(CFLAGS) -o $@ $^ $(LDFLAGS)
-	
+xpt/xpt:
+	$(MAKE) -C xpt all
 
-all: $(TARGET)
+all: libfetch/libfetch.a xpt/xpt
 	@if [ "$(DOCS)" = "1" ]; then \
 		$(MAKE) -C docs all; \
 	fi
 
 clean:
-	@echo " RM $(TARGET)"
-	@rm -f $(TARGET)
-	@echo " RM $(TARGETS)"
-	@rm -f $(TARGETS)
-	@echo " RM $(TARGETS:.o=.d)"
-	@rm -f $(TARGETS:.o=.d)
+	$(MAKE) -C xpt clean
 	$(MAKE) -C libfetch clean
 	$(MAKE) -C docs clean
 
-debug: CFLAGS += -g -O0 -Wpedantic
-debug: clean all
+debug:
+	$(MAKE) -C xpt debug
 
-static: CFLAGS += -Os
-static: LDFLAGS += -static
-static: all
+static:
+	$(MAKE) -C xpt static
 
 dist: clean
 	@echo " RM $(DISTDIR)"
 	@rm -rf $(DISTDIR)
 	@echo " MKDIR $(DISTDIR)"
 	@mkdir -p $(DISTDIR)
-	@echo " CP ./xpt Makefile LICENSE"
-	@cp -a ./xpt Makefile LICENSE $(DISTDIR)
+	@echo " CP ./xpt ./include ./docs ./libfetch Makefile LICENSE THIRD-PARTY-LICENSES"
+	@cp -a ./xpt ./include ./docs ./libfetch Makefile LICENSE THIRD-PARTY-LICENSES $(DISTDIR)
 	@echo " SED $(DISTDIR)/Makefile"
 	sed 's/^VERSION .*/VERSION ?= $(VERSION)/' \
 		$(DISTDIR)/Makefile > $(DISTDIR)/Makefile.tmp
@@ -84,9 +45,7 @@ dist: clean
 	@rm -rf $(DISTDIR)
 
 install: all
-	@echo " INSTALL $(TARGET)"
-	@install -dm755 $(DESTDIR)$(BINDIR)
-	@install -m755 $(TARGET) $(DESTDIR)$(BINDIR)/xpt
+	$(MAKE) -C xpt install
 	@if [ "$(DOCS)" = "1" ]; then \
 		$(MAKE) -C docs install; \
 	fi
@@ -94,5 +53,4 @@ install: all
 install-docs:
 	$(MAKE) -C docs install
 
--include $(TARGETS:.o=.d)
-.PHONY: all clean debug install dist static install-docs
+.PHONY: all clean debug install dist static install-docs xpt/xpt libfetch/libfetch.a
