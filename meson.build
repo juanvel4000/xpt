@@ -1,7 +1,7 @@
 project(
   'xpt',
   'c',
-  version: '0.4.2',
+  version: '0.5.0',
   default_options: [
     'warning_level=3',
     'c_std=c11'

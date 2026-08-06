@@ -5,7 +5,7 @@
 #include <limits.h>
 
 #ifndef XPT_VERSION
-#define XPT_VERSION "v0.4.2"
+#define XPT_VERSION "v0.5.0"
 #endif
 
 int main(int argc, char *argv[])
