@@ -81,8 +81,13 @@ int xpt_package_install(const char *file, const char *destdir, int log,
         return 1;
     }
 
+    if (remove(tree) != 0) {
+        fprintf(stderr, "warning: failed to delete %s\n", tree);
+    }
+
     if (log == XPT_LOG_OK)
         printf("installed %s.\n", pi->name);
+
     delete_package_info(pi);
     return 0;
 }
