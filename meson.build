@@ -5,7 +5,8 @@ project(
   default_options: [
     'warning_level=3',
     'c_std=c11'
-    ]
+  ],
+  meson_version: '>=1.1',
 )
 
 inc = include_directories('include')
