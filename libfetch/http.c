@@ -1193,6 +1193,9 @@ fetchIO *fetchGetHTTP(struct url *URL, const char *flags)
  */
 fetchIO *fetchPutHTTP(struct url *URL, const char *flags)
 {
+    (void)URL;
+    (void)flags;
+
     fprintf(stderr, "fetchPutHTTP(): not implemented\n");
     return (NULL);
 }
@@ -1383,6 +1386,8 @@ static struct http_index_cache *index_cache;
 int fetchListHTTP(struct url_list *ue, struct url *url, const char *pattern,
                   const char *flags)
 {
+    (void)pattern;
+
     fetchIO *f;
     char buf[2 * PATH_MAX];
     size_t buf_len, sum_processed;

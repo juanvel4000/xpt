@@ -9,6 +9,8 @@
 
 #include <openssl/evp.h>
 
+#include "config.h"
+
 static char *rtrim(char *s)
 {
     while (isspace((unsigned char)*s))
@@ -203,9 +205,9 @@ int xpt_repos_sync(const char *destdir)
     char cachefile[PATH_MAX];
     char tmpfile[PATH_MAX + 5];
 
-    snprintf(indexfile, sizeof(indexfile), "%s/etc/xpt.d/index", destdir);
-    snprintf(cachefile, sizeof(cachefile), "%s/var/cache/xpt.repositories",
-             destdir);
+    snprintf(indexfile, sizeof(indexfile), "%s%s/xpt.d/index", destdir, XPT_SYSCONFDIR);
+    snprintf(cachefile, sizeof(cachefile), "%s%s/cache/xpt.repositories",
+             destdir, XPT_LOCALSTATEDIR);
 
     FILE *fp = fopen(indexfile, "r");
     if (!fp) {

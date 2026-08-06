@@ -92,7 +92,7 @@ uintmax_t fetch_parseuint(const char *str, const char **endptr, int radix,
             d = ch - '0';
         else
             d = tolower(ch) - 'a' + 10;
-        if (d >= radix || val > maxx)
+        if (d >= (uintmax_t)radix || val > maxx)
             goto err;
         val *= radix;
         if (val > max - d)
@@ -113,6 +113,8 @@ err:
  */
 int fetch_default_port(const char *scheme)
 {
+    (void)scheme;
+
     struct servent *se;
 
     if ((se = getservbyname(scheme, "tcp")) != NULL)
@@ -129,6 +131,7 @@ int fetch_default_port(const char *scheme)
  */
 int fetch_default_proxy_port(const char *scheme)
 {
+    (void)scheme;
     return (HTTP_DEFAULT_PROXY_PORT);
 }
 
@@ -389,6 +392,8 @@ void fetch_cache_put(conn_t *conn, int (*closecb)(conn_t *))
  */
 static int fetch_ssl_setup_peer_verification(SSL_CTX *ctx, int verbose)
 {
+    (void)verbose;
+
     const char *ca_file = NULL;
 
 #ifdef CA_CERT_FILE
@@ -1081,7 +1086,7 @@ static int cidr_match(const uint8_t *addr, size_t addr_len, const char *cidr,
 
     cidr_addrlen =
         host_to_address(cidr_addr, sizeof cidr_addr, cidr, slash - cidr);
-    if (cidr_addrlen != addr_len || bits > addr_len * 8)
+    if (cidr_addrlen != addr_len || (size_t)bits > addr_len * 8)
         return 0;
     return bitcmp(cidr_addr, addr, bits) == 0;
 }

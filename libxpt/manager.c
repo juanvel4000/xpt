@@ -5,6 +5,8 @@
 #include <resolver.h>
 #include <repo.h>
 
+#include "config.h"
+
 #include <libgen.h>
 #include <stdio.h>
 #include <limits.h>
@@ -25,7 +27,7 @@ int xpt_package_install(const char *file, const char *destdir, int log,
     }
 
     char xptdir[PATH_MAX];
-    snprintf(xptdir, sizeof(xptdir), "%s/var/lib/xpt", destdir);
+    snprintf(xptdir, sizeof(xptdir), "%s%s/lib/xpt", destdir, XPT_SYSCONFDIR);
 
     if (mkdir_p(xptdir) != 0)
         return 1;
@@ -184,8 +186,8 @@ int xpt_package_install_from_repo(const char *name, const char *destdir, int log
     char destfile[PATH_MAX];
     char destdir_copy[PATH_MAX];
 
-    snprintf(cachefile, sizeof(cachefile), "%s/var/cache/xpt.repositories",
-             destdir);
+    snprintf(cachefile, sizeof(cachefile), "%s%s/cache/xpt.repositories",
+             destdir, XPT_LOCALSTATEDIR);
 
     RepoPackage *rp = repo_index_lookup(cachefile, name);
     if (!rp) {
@@ -193,8 +195,8 @@ int xpt_package_install_from_repo(const char *name, const char *destdir, int log
         return 1;
     }
 
-    snprintf(destfile, sizeof(destfile), "%s/var/cache/xpt.packages/%s-%s.xpt",
-             destdir, rp->name, rp->version);
+    snprintf(destfile, sizeof(destfile), "%s%s/cache/xpt.packages/%s-%s.xpt",
+             destdir, XPT_LOCALSTATEDIR, rp->name, rp->version);
 
     snprintf(destdir_copy, sizeof(destdir_copy), "%s", destfile);
 

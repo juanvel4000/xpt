@@ -8,12 +8,14 @@
 #include <string.h>
 #include <stdlib.h>
 
+#include "config.h"
+
 static int make_paths(char *db, size_t db_size, char *xptdir,
                       size_t xptdir_size, const char *destdir)
 {
     int ret;
 
-    ret = snprintf(xptdir, xptdir_size, "%s/var/lib/xpt", destdir);
+    ret = snprintf(xptdir, xptdir_size, "%s%s/lib/xpt", destdir, XPT_LOCALSTATEDIR);
 
     if (ret < 0 || (size_t)ret >= xptdir_size)
         return -1;
