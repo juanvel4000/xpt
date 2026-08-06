@@ -22,6 +22,18 @@ libxpt_deps = [
 
 conf = configuration_data()
 
+cc_id = meson.get_compiler('c')
+compiler_str = '@0@ @1@'.format(cc_id.get_id(), cc_id.version())
+
+conf.set_quoted('XPT_PREFIX',        get_option('prefix'))
+conf.set_quoted('XPT_SYSCONFDIR',    get_option('sysconfdir'))
+conf.set_quoted('XPT_LOCALSTATEDIR', get_option('localstatedir'))
+conf.set_quoted('XPT_BUILDTYPE',     get_option('buildtype'))
+conf.set_quoted('XPT_BUILD_COMPILER', compiler_str)
+conf.set_quoted('XPT_SQLITE3_VERSION',   sqlite3.version())
+conf.set_quoted('XPT_LIBARCHIVE_VERSION', libarchive.version())
+conf.set_quoted('XPT_OPENSSL_VERSION',    openssl.version())
+
 conf.set_quoted(
   'XPT_LOCALSTATEDIR',
   join_paths(get_option('prefix'), get_option('localstatedir')),

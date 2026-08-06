@@ -7,6 +7,8 @@
 #include <stdio.h>
 #include <limits.h>
 
+#include "config.h"
+
 int is_file(const char *path)
 {
     struct stat buf;
@@ -50,4 +52,15 @@ int mkdir_p(const char *path)
             return -1;
     }
     return 0;
+}
+
+void xpt_print_build_info(FILE *out)
+{
+    fprintf(out, "prefix:        %s\n", XPT_PREFIX);
+    fprintf(out, "sysconfdir:    %s\n", XPT_SYSCONFDIR);
+    fprintf(out, "localstatedir: %s\n", XPT_LOCALSTATEDIR);
+    fprintf(out, "compiler:      %s\n", XPT_COMPILER);
+    fprintf(out, "libraries:     sqlite3 %s, libarchive %s, openssl %s\n",
+            XPT_SQLITE3_VERSION, XPT_LIBARCHIVE_VERSION, XPT_OPENSSL_VERSION);
+    fprintf(out, "build type:    %s\n", XPT_BUILDTYPE);
 }

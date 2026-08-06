@@ -3,6 +3,7 @@
 #include <stdio.h>
 #include <unistd.h>
 #include <limits.h>
+#include "config.h"
 
 #ifndef XPT_VERSION
 #define XPT_VERSION "v0.5.0"
@@ -29,6 +30,7 @@ int main(int argc, char *argv[])
      * 5: package tree
      * 6: sync repos
      * 7: show pkg info
+     * 8: print build info
      * */
     int action = 0;
     char destdir[PATH_MAX] = "/";
@@ -41,7 +43,7 @@ int main(int argc, char *argv[])
         return 1;
     }
 
-    while ((opt = getopt(argc, argv, "iqsVghltrIf:p:n:d:")) != -1) {
+    while ((opt = getopt(argc, argv, "iqsVghltrIBf:p:n:d:")) != -1) {
         switch (opt) {
         case 'f':
             filename = optarg;
@@ -85,8 +87,11 @@ int main(int argc, char *argv[])
         case 'I':
             action = 7;
             break;
+        case 'B':
+            action = 8;
+            break;
         case 'h':
-            printf("usage: xpt -V | -i | -g | -h | -r | -l | -t | -s [-q] [-d "
+            printf("usage: xpt -V | -i | -g | -h | -r | -l | -t | -s | -I | -B [-q] [-d "
                    "dir] [-f file | -p package | -n net-package]\n");
             printf("the xpt package tool\n");
             printf("commands:\n");
@@ -115,6 +120,7 @@ int main(int argc, char *argv[])
             printf("  %-10s %s\n", "-q",
                    "make the output of most operations quiet (doesn't hide "
                    "errors)");
+            printf("  %-10s %s\n", "-B", "print the libxpt build info");
             return 0;
         }
     }
@@ -203,6 +209,9 @@ int main(int argc, char *argv[])
 
         xpt_lock_release(lockfd);
         return 0;
+    } else if (action == 8) {
+        xpt_print_build_info(stdout);
+        xpt_lock_release(lockfd);
     }
 
     xpt_lock_release(lockfd);

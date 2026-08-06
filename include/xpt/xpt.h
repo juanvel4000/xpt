@@ -1,6 +1,8 @@
 #ifndef XPT_H
 #define XPT_H
 
+#include <stdio.h>
+
 int xpt_lock_acquire(const char *destdir);
 void xpt_lock_release(int fd);
 
@@ -19,4 +21,5 @@ char *xpt_package_getversion(const char *package, const char *destdir);
 
 int xpt_repos_sync(const char *destdir);
 
+void xpt_print_build_info(FILE *out);
 #endif /* XPT_H */
