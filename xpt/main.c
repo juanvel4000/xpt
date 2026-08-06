@@ -6,7 +6,7 @@
 #include "config.h"
 
 #ifndef XPT_VERSION
-#define XPT_VERSION "v0.5.0"
+#define XPT_VERSION "v0.5.1"
 #endif
 
 int main(int argc, char *argv[])
