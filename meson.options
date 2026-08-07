@@ -8,6 +8,21 @@ option(
     'networking',
     type: 'feature',
     value: 'enabled',
-    description: 'build XPT with networking support.',
+    description: 'build xpt with networking support.',
 )
+option(
+    'ebt',
+    type: 'feature',
+    value: 'enabled',
+    description: 'ebt build system.',
+)
+
+option(
+    'docs',
+    type: 'feature',
+    value: 'enabled',
+    description: 'xpt/ebt documentation.',
+)
+
+
 

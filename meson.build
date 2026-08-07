@@ -14,4 +14,10 @@ xpt_c_args = ['-D_GNU_SOURCE', '-D_XOPEN_SOURCE=700']
 subdir('libfetch')
 subdir('libxpt')
 subdir('xpt')
-subdir('docs')
+if not get_option('docs').disabled()
+    subdir('docs')
+endif
+if not get_option('ebt').disabled()
+    subdir('ebt')
+endif
+

@@ -18,7 +18,7 @@ libxpt_deps = [
 
 networking_opt = get_option('networking')
 if not networking_opt.disabled()
-    mbedtls = dependency('mbedtls', static: get_option('static'))
+    mbedtls = dependency('openssl', static: get_option('static'))
     libxpt_sources += files('repo.c')
     libxpt_deps += [mbedtls, libfetch_dep]
 endif
