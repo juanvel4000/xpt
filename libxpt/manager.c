@@ -3,9 +3,11 @@
 #include <common.h>
 #include <database.h>
 #include <resolver.h>
-#include <repo.h>
-
 #include "config.h"
+
+#if !XPT_DISABLE_NETWORKING
+#include <repo.h>
+#endif
 
 #include <libgen.h>
 #include <stdio.h>
@@ -16,6 +18,10 @@
 int xpt_package_install(const char *file, const char *destdir, int log,
                         int netinstall_deps)
 {
+#if XPT_DISABLE_NETWORKING
+    netinstall_deps = 0;
+#endif
+
     if (!is_file(file)) {
         fprintf(stderr, "%s not found\n", file);
         return XPT_EX_NOINPUT;
@@ -180,6 +186,7 @@ int xpt_package_listfiles(const char *name, const char *destdir)
     return database_foreach_file(name, destdir, print_file, NULL);
 }
 
+#if !XPT_DISABLE_NETWORKING
 int xpt_package_install_from_repo(const char *name, const char *destdir,
                                   int log)
 {
@@ -212,7 +219,6 @@ int xpt_package_install_from_repo(const char *name, const char *destdir,
         repo_package_free(rp);
         return XPT_EX_TEMPFAIL;
     }
-
     if (verify_sha256(destfile, rp->sha256) != 0) {
         fprintf(stderr, "checksum mismatch for %s\n", destfile);
         remove(destfile);
@@ -224,3 +230,15 @@ int xpt_package_install_from_repo(const char *name, const char *destdir,
 
     return xpt_package_install(destfile, destdir, log, 1);
 }
+#else
+int xpt_package_install_from_repo(const char *name, const char *destdir,
+                                  int log)
+{
+    (void)name;
+    (void)destdir;
+    (void)log;
+
+    fprintf(stderr, "libxpt has been built without networking support.\n");
+    return XPT_EX_USAGE;
+}
+#endif

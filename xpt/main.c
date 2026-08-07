@@ -57,6 +57,10 @@ int main(int argc, char *argv[])
             package = optarg;
             break;
         case 'n':
+#if XPT_DISABLE_NETWORKING
+            fprintf(stderr, "libxpt has been built without networking support.\n");
+            return XPT_EX_USAGE;
+#endif
             net_package = optarg;
             break;
         case 'q':
@@ -75,6 +79,10 @@ int main(int argc, char *argv[])
             action = ACTION_TREE;
             break;
         case 's':
+#if XPT_DISABLE_NETWORKING
+            fprintf(stderr, "libxpt has been built without networking support.\n");
+            return XPT_EX_USAGE;
+#endif
             action = ACTION_SYNC;
             break;
         case 'V':
@@ -109,7 +117,9 @@ int main(int argc, char *argv[])
             printf("  %-10s %s\n", "-l",
                    "list the packages installed in the system");
             printf("  %-10s %s\n", "-t", "show the files used by a package");
+#if !XPT_DISABLE_NETWORKING
             printf("  %-10s %s\n", "-s", "download the repository indexes");
+#endif
             printf("  %-10s %s\n\n", "-I", "show metadata about a package");
 
             printf("options:\n");
@@ -118,8 +128,10 @@ int main(int argc, char *argv[])
                    "specify an installed package name");
             printf("  %-10s %s\n", "-d <dir>",
                    "specify a destination directory for the operations");
+#if !XPT_DISABLE_NETWORKING
             printf("  %-10s %s\n", "-n <pkg>",
                    "specify a package from one of the repositories");
+#endif
             printf("  %-10s %s\n", "-q",
                    "make the output of most operations quiet (doesn't hide "
                    "errors)");
@@ -194,9 +206,11 @@ int main(int argc, char *argv[])
         xpt_lock_release(lockfd);
         return result;
     } else if (action == ACTION_SYNC) {
+#if !XPT_DISABLE_NETWORKING
         int result = xpt_repos_sync(destdir);
         xpt_lock_release(lockfd);
         return result;
+#endif
     } else if (action == ACTION_INFO) {
         if (package == NULL) {
             fprintf(stderr, "please specify a package with -p <pkg>\n");

@@ -60,7 +60,19 @@ void xpt_print_build_info(FILE *out)
     fprintf(out, "sysconfdir:    %s\n", XPT_SYSCONFDIR);
     fprintf(out, "localstatedir: %s\n", XPT_LOCALSTATEDIR);
     fprintf(out, "compiler:      %s\n", XPT_COMPILER);
+#if XPT_DISABLE_NETWORKING
+    fprintf(out, "libraries:     sqlite3 %s, libarchive %s\n",
+            XPT_SQLITE3_VERSION, XPT_LIBARCHIVE_VERSION);
+#else
     fprintf(out, "libraries:     sqlite3 %s, libarchive %s, openssl %s\n",
             XPT_SQLITE3_VERSION, XPT_LIBARCHIVE_VERSION, XPT_OPENSSL_VERSION);
+#endif
     fprintf(out, "build type:    %s\n", XPT_BUILDTYPE);
+    char *networking;
+#if XPT_DISABLE_NETWORKING
+        networking = "no";
+#else
+        networking = "yes";
+#endif
+    fprintf(out, "networking:    %s\n", networking);
 }

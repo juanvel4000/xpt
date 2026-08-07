@@ -1,1 +1,3 @@
 option('static', type: 'boolean', value: false, description: 'build a statically linked xpt executable')
+option('networking', type: 'feature', value: 'enabled', description: 'build XPT with networking support.')
+
