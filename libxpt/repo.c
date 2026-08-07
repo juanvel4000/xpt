@@ -1,4 +1,5 @@
 #include <repo.h>
+#include <common.h>
 
 #include <stdio.h>
 #include <stdlib.h>
@@ -29,7 +30,7 @@ static char *rtrim(char *s)
 static int parse_depends(RepoPackage *rp, const char *value)
 {
     if (value[0] == '\0')
-        return 0;
+        return XPT_EX_OK;
 
     char *copy = strdup(value);
     if (!copy)
@@ -59,7 +60,7 @@ static int parse_depends(RepoPackage *rp, const char *value)
     }
 
     free(copy);
-    return 0;
+    return XPT_EX_OK;
 }
 
 void repo_package_free(RepoPackage *rp)
@@ -164,14 +165,14 @@ int repo_download(const char *url, const char *dest)
     src = fetchXGetURL(url, NULL, "");
     if (!src) {
         fprintf(stderr, "download failed: %d\n", fetchLastErrCode.code);
-        return 1;
+        return 6;
     }
 
     dst = fopen(dest, "wb");
     if (!dst) {
         perror("fopen");
         fetchIO_close(src);
-        return 1;
+        return XPT_EX_IOERR;
     }
 
     char buf[4096];
@@ -183,7 +184,7 @@ int repo_download(const char *url, const char *dest)
     fetchIO_close(src);
     fclose(dst);
 
-    return 0;
+    return XPT_EX_OK;
 }
 
 int repo_fetch_index(const char *base_url, const char *cachefile)
@@ -205,7 +206,8 @@ int xpt_repos_sync(const char *destdir)
     char cachefile[PATH_MAX];
     char tmpfile[PATH_MAX + 5];
 
-    snprintf(indexfile, sizeof(indexfile), "%s%s/xpt.d/index", destdir, XPT_SYSCONFDIR);
+    snprintf(indexfile, sizeof(indexfile), "%s%s/xpt.d/index", destdir,
+             XPT_SYSCONFDIR);
     snprintf(cachefile, sizeof(cachefile), "%s%s/cache/xpt.repositories",
              destdir, XPT_LOCALSTATEDIR);
 

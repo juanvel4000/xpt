@@ -47,6 +47,14 @@ int extract_payload(const char *file, const char *destdir)
     int hr;
     while ((hr = archive_read_next_header(a, &entry)) == ARCHIVE_OK) {
         const char *cfil = archive_entry_pathname(entry);
+        if (cfil[0] == '/' || strstr(cfil, "..") != NULL) {
+            fprintf(stderr, "refusing to extract unsafe path: %s\n", cfil);
+            archive_read_close(a);
+            archive_read_free(a);
+            archive_write_close(ext);
+            archive_write_free(ext);
+            return XPT_EX_DATAERR;
+        }
         if (strlen(cfil) >= 4 && strcmp(cfil + strlen(cfil) - 4, ".xpt") == 0)
             continue;
         char target[PATH_MAX];
@@ -106,5 +114,5 @@ int extract_payload(const char *file, const char *destdir)
     archive_read_free(a);
     archive_write_close(ext);
     archive_write_free(ext);
-    return 0;
+    return XPT_EX_OK;
 }

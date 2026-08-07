@@ -15,7 +15,8 @@ static int make_paths(char *db, size_t db_size, char *xptdir,
 {
     int ret;
 
-    ret = snprintf(xptdir, xptdir_size, "%s%s/lib/xpt", destdir, XPT_LOCALSTATEDIR);
+    ret = snprintf(xptdir, xptdir_size, "%s%s/lib/xpt", destdir,
+                   XPT_LOCALSTATEDIR);
 
     if (ret < 0 || (size_t)ret >= xptdir_size)
         return -1;
@@ -25,7 +26,7 @@ static int make_paths(char *db, size_t db_size, char *xptdir,
     if (ret < 0 || (size_t)ret >= db_size)
         return -1;
 
-    return 0;
+    return XPT_EX_OK;
 }
 
 static sqlite3 *open_db(const char *destdir)
@@ -42,6 +43,7 @@ static sqlite3 *open_db(const char *destdir)
     sqlite3 *conn;
     if (sqlite3_open(db, &conn) != SQLITE_OK) {
         fprintf(stderr, "could not open database: %s\n", sqlite3_errmsg(conn));
+        return NULL;
     }
 
     sqlite3_exec(conn, "PRAGMA foreign_keys = ON;", NULL, NULL, NULL);
@@ -214,14 +216,14 @@ int xpt_package_list(const char *destdir)
 {
     sqlite3 *conn = open_db(destdir);
     if (!conn)
-        return 1;
+        return XPT_EX_IOERR;
 
     sqlite3_stmt *stmt;
     const char *sql = "SELECT name, version FROM packages ORDER BY name;";
     if (sqlite3_prepare_v2(conn, sql, -1, &stmt, NULL) != SQLITE_OK) {
         fprintf(stderr, "could not list packages: %s\n", sqlite3_errmsg(conn));
         sqlite3_close(conn);
-        return 1;
+        return XPT_EX_IOERR;
     }
 
     printf("%-20s %s\n", "package", "version");
@@ -238,21 +240,21 @@ int xpt_package_list(const char *destdir)
     sqlite3_finalize(stmt);
     sqlite3_close(conn);
     printf("\n%d packages installed\n", pkgcount);
-    return 0;
+    return XPT_EX_OK;
 }
 
 int xpt_package_printinfo(const char *package, const char *destdir)
 {
     sqlite3 *conn = open_db(destdir);
     if (!conn)
-        return 1;
+        return XPT_EX_IOERR;
 
     sqlite3_stmt *stmt;
     const char *sql = "SELECT name, version, desc, maintainer, arch FROM "
                       "packages WHERE name = ?;";
     if (sqlite3_prepare_v2(conn, sql, -1, &stmt, NULL) != SQLITE_OK) {
         sqlite3_close(conn);
-        return 1;
+        return XPT_EX_IOERR;
     }
 
     sqlite3_bind_text(stmt, 1, package, -1, SQLITE_STATIC);
@@ -275,7 +277,7 @@ int xpt_package_printinfo(const char *package, const char *destdir)
 
     sqlite3_finalize(stmt);
     sqlite3_close(conn);
-    return (rc == SQLITE_ROW) ? 0 : 1;
+    return (rc == SQLITE_ROW) ? XPT_EX_OK : XPT_EX_NOINPUT;
 }
 
 int database_files_add(const char *pkgname, const char *treefile,
@@ -294,8 +296,12 @@ int database_files_add(const char *pkgname, const char *treefile,
 
     sqlite3_stmt *stmt;
 
-    sqlite3_prepare_v2(conn, "INSERT INTO files (path, pkgname) VALUES (?, ?);",
-                       -1, &stmt, NULL);
+    if (sqlite3_prepare_v2(conn,
+                           "INSERT INTO files (path, pkgname) VALUES (?, ?);",
+                           -1, &stmt, NULL) != SQLITE_OK) {
+        sqlite3_close(conn);
+        return 1;
+    }
 
     char line[PATH_MAX];
     while (fgets(line, sizeof(line), fp) != NULL) {
@@ -318,7 +324,7 @@ int database_files_add(const char *pkgname, const char *treefile,
 
     sqlite3_finalize(stmt);
     sqlite3_close(conn);
-    return 0;
+    return XPT_EX_OK;
 }
 
 int database_foreach_file(const char *pkgname, const char *destdir,
@@ -349,5 +355,5 @@ int database_foreach_file(const char *pkgname, const char *destdir,
     sqlite3_finalize(stmt);
     sqlite3_close(conn);
 
-    return 0;
+    return XPT_EX_OK;
 }

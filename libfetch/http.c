@@ -685,7 +685,8 @@ static conn_t *http_connect(struct url *URL, struct url *purl,
         return (conn);
     }
 
-    if ((conn = fetch_connect(cache_url, purl ? purl : URL, af, verbose)) == NULL)
+    if ((conn = fetch_connect(cache_url, purl ? purl : URL, af, verbose)) ==
+        NULL)
         /* fetch_connect() has already set an error code */
         return (NULL);
 

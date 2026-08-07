@@ -21,18 +21,20 @@ int main(int argc, char *argv[])
     char *filename = NULL;
     char *package = NULL;
     char *net_package = NULL;
-    /* actions
-     * 0: none
-     * 1: install
-     * 2: get ver
-     * 3: remove
-     * 4: list
-     * 5: package tree
-     * 6: sync repos
-     * 7: show pkg info
-     * 8: print build info
-     * */
-    int action = 0;
+    typedef enum {
+        ACTION_NONE,
+        ACTION_INSTALL,
+        ACTION_GETVER,
+        ACTION_REMOVE,
+        ACTION_LIST,
+        ACTION_TREE,
+        ACTION_SYNC,
+        ACTION_INFO,
+        ACTION_BUILDINFO
+    } xpt_action_t;
+
+    xpt_action_t action = ACTION_NONE;
+
     char destdir[PATH_MAX] = "/";
     int loglevel = XPT_LOG_OK;
 
@@ -40,7 +42,7 @@ int main(int argc, char *argv[])
         fprintf(stderr, "usage: xpt <action> [-q] [-d dir] [-f file | -p "
                         "package | -n net-package]\n");
         fprintf(stderr, "try 'xpt -h' for more information.\n");
-        return 1;
+        return XPT_EX_USAGE;
     }
 
     while ((opt = getopt(argc, argv, "iqsVghltrIBf:p:n:d:")) != -1) {
@@ -49,7 +51,7 @@ int main(int argc, char *argv[])
             filename = optarg;
             break;
         case 'i':
-            action = 1;
+            action = ACTION_INSTALL;
             break;
         case 'p':
             package = optarg;
@@ -61,37 +63,38 @@ int main(int argc, char *argv[])
             loglevel = XPT_LOG_NO;
             break;
         case 'g':
-            action = 2;
+            action = ACTION_GETVER;
             break;
         case 'r':
-            action = 3;
+            action = ACTION_REMOVE;
             break;
         case 'l':
-            action = 4;
+            action = ACTION_LIST;
             break;
         case 't':
-            action = 5;
+            action = ACTION_TREE;
             break;
         case 's':
-            action = 6;
+            action = ACTION_SYNC;
             break;
         case 'V':
             printf("xpt (xpt package tool) %s\n", xptver);
             printf("copyright (c) 2025-2026 juanvel400.\n");
             printf("license BSD-3-Clause "
                    "<http://spdx.org/licenses/BSD-3-Clause.html>\n");
-            return 0;
+            return XPT_EX_OK;
         case 'd':
             snprintf(destdir, sizeof(destdir), "%s", optarg);
             break;
         case 'I':
-            action = 7;
+            action = ACTION_INFO;
             break;
         case 'B':
-            action = 8;
+            action = ACTION_BUILDINFO;
             break;
         case 'h':
-            printf("usage: xpt -V | -i | -g | -h | -r | -l | -t | -s | -I | -B [-q] [-d "
+            printf("usage: xpt -V | -i | -g | -h | -r | -l | -t | -s | -I | -B "
+                   "[-q] [-d "
                    "dir] [-f file | -p package | -n net-package]\n");
             printf("the xpt package tool\n");
             printf("commands:\n");
@@ -121,20 +124,20 @@ int main(int argc, char *argv[])
                    "make the output of most operations quiet (doesn't hide "
                    "errors)");
             printf("  %-10s %s\n", "-B", "print the libxpt build info");
-            return 0;
+            return XPT_EX_OK;
         }
     }
     int lockfd = xpt_lock_acquire(destdir);
     if (lockfd < 0) {
         fprintf(stderr, "error: could not acquire the lock.");
-        return 1;
+        return XPT_EX_NOPERM;
     }
 
-    if (action == 1) {
+    if (action == ACTION_INSTALL) {
         if (filename && net_package) {
             fprintf(stderr, "specify either -f or -n, not both\n");
             xpt_lock_release(lockfd);
-            return 1;
+            return XPT_EX_USAGE;
         }
         if (filename) {
             int result = xpt_package_install(filename, destdir, loglevel, 0);
@@ -149,71 +152,72 @@ int main(int argc, char *argv[])
             fprintf(stderr, "please specify a file with -f <file> or a package "
                             "with -n <pkg>\n");
             xpt_lock_release(lockfd);
-            return 1;
+            return XPT_EX_USAGE;
         }
-    } else if (action == 2) {
+    } else if (action == ACTION_GETVER) {
         if (package == NULL) {
             fprintf(stderr, "please specify a package with -p <pkg>\n");
             xpt_lock_release(lockfd);
-            return 1;
+            return XPT_EX_USAGE;
         }
         char *version = xpt_package_getversion(package, destdir);
         if (!version) {
             fprintf(stderr, "package not found\n");
             xpt_lock_release(lockfd);
-            return 1;
+            return XPT_EX_NOINPUT;
         }
         printf("%s\n", version);
 
         xpt_lock_release(lockfd);
-        return 0;
-    } else if (action == 3) {
+        return XPT_EX_OK;
+    } else if (action == ACTION_REMOVE) {
         if (package == NULL) {
             fprintf(stderr, "please specify a package with -p <pkg>\n");
             xpt_lock_release(lockfd);
-            return 1;
+            return XPT_EX_USAGE;
         }
 
         int result = xpt_package_remove(package, destdir, loglevel);
         xpt_lock_release(lockfd);
         return result;
-    } else if (action == 4) {
+    } else if (action == ACTION_LIST) {
         int result = xpt_package_list(destdir);
         xpt_lock_release(lockfd);
         return result;
-    } else if (action == 5) {
+    } else if (action == ACTION_TREE) {
         if (package == NULL) {
             fprintf(stderr, "please specify a package with -p <pkg>\n");
             xpt_lock_release(lockfd);
-            return 1;
+            return XPT_EX_USAGE;
         }
         int result = xpt_package_listfiles(package, destdir);
         xpt_lock_release(lockfd);
         return result;
-    } else if (action == 6) {
+    } else if (action == ACTION_SYNC) {
         int result = xpt_repos_sync(destdir);
         xpt_lock_release(lockfd);
         return result;
-    } else if (action == 7) {
+    } else if (action == ACTION_INFO) {
         if (package == NULL) {
             fprintf(stderr, "please specify a package with -p <pkg>\n");
             xpt_lock_release(lockfd);
-            return 1;
+            return XPT_EX_USAGE;
         }
         int result = xpt_package_printinfo(package, destdir);
         if (result == 1) {
             fprintf(stderr, "package not found\n");
             xpt_lock_release(lockfd);
-            return 1;
+            return XPT_EX_NOINPUT;
         }
 
         xpt_lock_release(lockfd);
-        return 0;
-    } else if (action == 8) {
+        return XPT_EX_OK;
+    } else if (action == ACTION_BUILDINFO) {
         xpt_print_build_info(stdout);
         xpt_lock_release(lockfd);
+        return XPT_EX_OK;
     }
 
     xpt_lock_release(lockfd);
-    return 0;
+    return XPT_EX_OK;
 }

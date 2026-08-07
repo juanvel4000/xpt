@@ -70,7 +70,7 @@ int resolver_add_resolved(NodeContainer *container, const char *name)
 
     current->next = node;
 
-    return 0;
+    return XPT_EX_OK;
 }
 
 void resolver_free(NodeContainer *container)
@@ -98,7 +98,7 @@ int resolve_package(NodeContainer *container, const char *name,
                     int log)
 {
     if (resolver_seen(container, name))
-        return 0;
+        return XPT_EX_OK;
 
     if (resolver_add_seen(container, name))
         return 1;
@@ -107,8 +107,8 @@ int resolve_package(NodeContainer *container, const char *name,
     for (i = 0; i < pkg->depends_count; i++) {
         if (database_exists(pkg->depends[i], destdir) != 0) {
             if (netinstall_deps) {
-                if (xpt_package_install_from_repo(pkg->depends[i], destdir, log) !=
-                    0) {
+                if (xpt_package_install_from_repo(pkg->depends[i], destdir,
+                                                  log) != 0) {
                     fprintf(stderr, "failed to install dependency: %s\n",
                             pkg->depends[i]);
                     return 1;

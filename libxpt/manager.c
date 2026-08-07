@@ -14,23 +14,23 @@
 #include <unistd.h>
 
 int xpt_package_install(const char *file, const char *destdir, int log,
-                    int netinstall_deps)
+                        int netinstall_deps)
 {
     if (!is_file(file)) {
         fprintf(stderr, "%s not found\n", file);
-        return 1;
+        return XPT_EX_NOINPUT;
     }
 
     if (extract_payload(file, destdir) != 0) {
         fprintf(stderr, "could not extract %s\n", file);
-        return 1;
+        return XPT_EX_IOERR;
     }
 
     char xptdir[PATH_MAX];
     snprintf(xptdir, sizeof(xptdir), "%s%s/lib/xpt", destdir, XPT_SYSCONFDIR);
 
     if (mkdir_p(xptdir) != 0)
-        return 1;
+        return XPT_EX_CANTCREAT;
 
     char manifest[PATH_MAX];
     char tree[PATH_MAX];
@@ -39,13 +39,13 @@ int xpt_package_install(const char *file, const char *destdir, int log,
     snprintf(tree, sizeof(tree), "%s/xpt.tree", destdir);
     if (!is_file(tree) || !is_file(manifest)) {
         fprintf(stderr, "either the manifest OR the treefile doesn't exist\n");
-        return 1;
+        return XPT_EX_NOINPUT;
     }
 
     PackageInfo *pi = parse_manifest(manifest);
     if (!pi) {
         fprintf(stderr, "invalid manifest: %s\n", manifest);
-        return 1;
+        return XPT_EX_DATAERR;
     }
 
     if (log == XPT_LOG_OK)
@@ -54,7 +54,7 @@ int xpt_package_install(const char *file, const char *destdir, int log,
     if (database_exists(pi->name, destdir) == 0) {
         fprintf(stderr, "this package is already installed\n");
         delete_package_info(pi);
-        return 1;
+        return XPT_EX_EXISTS;
     }
 
     if (remove(manifest) != 0) {
@@ -67,20 +67,20 @@ int xpt_package_install(const char *file, const char *destdir, int log,
         fprintf(stderr, "dependency resolution failed for %s\n", pi->name);
         resolver_free(&container);
         delete_package_info(pi);
-        return 1;
+        return XPT_EX_NOINPUT;
     }
     resolver_free(&container);
 
     if (database_add(pi, destdir) != 0) {
         fprintf(stderr, "error adding %s to database\n", pi->name);
-        return 1;
+        return XPT_EX_IOERR;
     }
 
     if (database_files_add(pi->name, tree, destdir) != 0) {
         fprintf(stderr, "error saving file list for %s\n", pi->name);
         database_delete(pi->name, destdir);
         delete_package_info(pi);
-        return 1;
+        return XPT_EX_IOERR;
     }
 
     if (remove(tree) != 0) {
@@ -91,7 +91,7 @@ int xpt_package_install(const char *file, const char *destdir, int log,
         printf("installed %s.\n", pi->name);
 
     delete_package_info(pi);
-    return 0;
+    return XPT_EX_OK;
 }
 
 void prune_empty_dirs(const char *file_path, const char *root_dir)
@@ -139,7 +139,7 @@ int xpt_package_remove(const char *name, const char *destdir, int log)
 {
     if (database_exists(name, destdir) != 0) {
         fprintf(stderr, "package %s is not installed\n", name);
-        return 1;
+        return XPT_EX_NOINPUT;
     }
     if (log == XPT_LOG_OK)
         printf("uninstalling %s...\n", name);
@@ -148,7 +148,7 @@ int xpt_package_remove(const char *name, const char *destdir, int log)
 
     if (database_foreach_file(name, destdir, uninstall_file, &ctx) != 0) {
         fprintf(stderr, "failed to enumerate files for %s\n", name);
-        return 1;
+        return XPT_EX_IOERR;
     }
 
     if (database_delete(name, destdir) == 1)
@@ -158,7 +158,7 @@ int xpt_package_remove(const char *name, const char *destdir, int log)
     if (log == XPT_LOG_OK)
         printf("uninstalled %s.\n", name);
 
-    return 0;
+    return XPT_EX_OK;
 }
 
 static int print_file(const char *path, void *userdata)
@@ -174,13 +174,14 @@ int xpt_package_listfiles(const char *name, const char *destdir)
 {
     if (database_exists(name, destdir) != 0) {
         fprintf(stderr, "package %s is not installed\n", name);
-        return 1;
+        return XPT_EX_NOINPUT;
     }
 
     return database_foreach_file(name, destdir, print_file, NULL);
 }
 
-int xpt_package_install_from_repo(const char *name, const char *destdir, int log)
+int xpt_package_install_from_repo(const char *name, const char *destdir,
+                                  int log)
 {
     char cachefile[PATH_MAX];
     char destfile[PATH_MAX];
@@ -192,7 +193,7 @@ int xpt_package_install_from_repo(const char *name, const char *destdir, int log
     RepoPackage *rp = repo_index_lookup(cachefile, name);
     if (!rp) {
         fprintf(stderr, "package %s not found in any repository\n", name);
-        return 1;
+        return XPT_EX_NOINPUT;
     }
 
     snprintf(destfile, sizeof(destfile), "%s%s/cache/xpt.packages/%s-%s.xpt",
@@ -203,20 +204,20 @@ int xpt_package_install_from_repo(const char *name, const char *destdir, int log
     if (mkdir_p(dirname(destdir_copy)) != 0) {
         fprintf(stderr, "could not create cache directory for %s\n", destfile);
         repo_package_free(rp);
-        return 1;
+        return XPT_EX_CANTCREAT;
     }
 
     if (repo_download(rp->url, destfile) != 0) {
         fprintf(stderr, "could not download %s\n", rp->url);
         repo_package_free(rp);
-        return 1;
+        return XPT_EX_TEMPFAIL;
     }
 
     if (verify_sha256(destfile, rp->sha256) != 0) {
         fprintf(stderr, "checksum mismatch for %s\n", destfile);
         remove(destfile);
         repo_package_free(rp);
-        return 1;
+        return XPT_EX_PROTOCOL;
     }
 
     repo_package_free(rp);

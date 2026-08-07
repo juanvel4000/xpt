@@ -53,7 +53,7 @@ static int parse_depends(PackageInfo *pi, const char *value)
     }
 
     free(copy);
-    return 0;
+    return XPT_EX_OK;
 }
 
 int verify_package_info(PackageInfo *pi)
@@ -69,7 +69,7 @@ int verify_package_info(PackageInfo *pi)
     } else if (pi->maintainer == NULL) {
         return 1;
     } else {
-        return 0;
+        return XPT_EX_OK;
     }
 }
 
@@ -95,7 +95,7 @@ int safe_strdup(char **dst, const char *src)
         perror("strdup");
         return 1;
     }
-    return 0;
+    return XPT_EX_OK;
 }
 PackageInfo *parse_manifest(const char *file)
 {
