@@ -53,7 +53,10 @@ static sqlite3 *open_db(const char *destdir)
         "  version TEXT NOT NULL,"
         "  desc TEXT NOT NULL,"
         "  maintainer TEXT NOT NULL,"
-        "  arch TEXT NOT NULL"
+        "  arch TEXT NOT NULL,"
+        "  license TEXT DEFAULT NULL,"
+        "  homepage TEXT DEFAULT NULL,"
+        "  build_epoch INTEGER NOT NULL DEFAULT 0"
         ");"
         "CREATE TABLE IF NOT EXISTS files ("
         "  path TEXT NOT NULL,"
@@ -102,7 +105,7 @@ int database_add(PackageInfo *pi, const char *destdir)
 
     sqlite3_stmt *stmt;
     const char *sql = "INSERT INTO packages (name, version, desc, maintainer, "
-                      "arch) VALUES (?, ?, ?, ?, ?);";
+                      "arch, license, homepage, build_epoch) VALUES (?, ?, ?, ?, ?, ?, ?, ?);";
     if (sqlite3_prepare_v2(conn, sql, -1, &stmt, NULL) != SQLITE_OK) {
         fprintf(stderr, "could not add package to database: %s\n",
                 sqlite3_errmsg(conn));
@@ -115,6 +118,18 @@ int database_add(PackageInfo *pi, const char *destdir)
     sqlite3_bind_text(stmt, 3, pi->desc, -1, SQLITE_STATIC);
     sqlite3_bind_text(stmt, 4, pi->maintainer, -1, SQLITE_STATIC);
     sqlite3_bind_text(stmt, 5, pi->arch, -1, SQLITE_STATIC);
+
+    if (pi->license)
+        sqlite3_bind_text(stmt, 6, pi->license, -1, SQLITE_STATIC);
+    else
+        sqlite3_bind_null(stmt, 6);
+
+    if (pi->homepage)
+        sqlite3_bind_text(stmt, 7, pi->homepage, -1, SQLITE_STATIC);
+    else
+        sqlite3_bind_null(stmt, 7);
+
+    sqlite3_bind_int64(stmt, 8, pi->build_epoch);
 
     int ret = 0;
     if (sqlite3_step(stmt) != SQLITE_DONE) {
@@ -250,8 +265,9 @@ int xpt_package_printinfo(const char *package, const char *destdir)
         return XPT_EX_IOERR;
 
     sqlite3_stmt *stmt;
-    const char *sql = "SELECT name, version, desc, maintainer, arch FROM "
-                      "packages WHERE name = ?;";
+    const char *sql =
+        "SELECT name, version, desc, maintainer, arch, license, homepage, build_epoch FROM "
+        "packages WHERE name = ?;";
     if (sqlite3_prepare_v2(conn, sql, -1, &stmt, NULL) != SQLITE_OK) {
         sqlite3_close(conn);
         return XPT_EX_IOERR;
@@ -267,12 +283,21 @@ int xpt_package_printinfo(const char *package, const char *destdir)
         const char *desc = (const char *)sqlite3_column_text(stmt, 2);
         const char *maintainer = (const char *)sqlite3_column_text(stmt, 3);
         const char *arch = (const char *)sqlite3_column_text(stmt, 4);
+        const char *license = (const char *)sqlite3_column_text(stmt, 5);
+        const char *homepage = (const char *)sqlite3_column_text(stmt, 6);
+        const char *build_epoch = (const char*)sqlite3_column_text(stmt, 7);
 
         printf("package: %s\n", name);
-        printf("version: %s\n", version);
+        printf("version: %s \n", version);
+        printf("build epoch: %s\n", build_epoch);
         printf("description: %s\n", desc);
         printf("maintainer: %s\n", maintainer);
         printf("arch: %s\n", arch);
+        if (license != NULL)
+            printf("license: %s\n", license);
+
+        if (homepage != NULL)
+            printf("homepage: %s\n", homepage);
     }
 
     sqlite3_finalize(stmt);

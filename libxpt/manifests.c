@@ -4,9 +4,11 @@
 
 #include <stdio.h>
 #include <stdlib.h>
-
+#include <errno.h>
 #include <ctype.h>
 #include <string.h>
+#include <stdint.h>
+
 char *trim(char *s)
 {
     while (isspace((unsigned char)*s))
@@ -172,6 +174,39 @@ PackageInfo *parse_manifest(const char *file)
                 delete_package_info(pi);
                 return NULL;
             }
+        } else if (strcmp(key, "maintainer") == 0) {
+            if (safe_strdup(&pi->maintainer, val) == 1) {
+                fclose(fp);
+                delete_package_info(pi);
+                return NULL;
+            }
+        } else if (strcmp(key, "license") == 0) {
+            if (safe_strdup(&pi->license, val) == 1) {
+                fclose(fp);
+                delete_package_info(pi);
+                return NULL;
+            }
+        } else if (strcmp(key, "homepage") == 0) {
+            if (safe_strdup(&pi->homepage, val) == 1) {
+                fclose(fp);
+                delete_package_info(pi);
+                return NULL;
+            }
+        } else if (strcmp(key, "build_epoch") == 0) {
+            char *end;
+            unsigned long long epoch;
+
+            errno = 0;
+            epoch = strtoull(val, &end, 10);
+
+            if (errno == ERANGE || *end != '\0') {
+                fprintf(stderr, "invalid build_epoch: %s\n", val);
+                fclose(fp);
+                delete_package_info(pi);
+                return NULL;
+            }
+
+            pi->build_epoch = epoch;
         } else {
             fprintf(stderr, "unknown key: %s\n", key);
             continue;

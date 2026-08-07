@@ -1,6 +1,7 @@
 #ifndef MANIFESTS_H
 #define MANIFESTS_H
 #include <stdio.h>
+#include <stdint.h>
 
 typedef struct {
     char *name;
@@ -11,6 +12,11 @@ typedef struct {
 
     char **depends;
     size_t depends_count;
+
+    char *license;
+    char *homepage;
+
+    uint64_t build_epoch;
 
 } PackageInfo;
 

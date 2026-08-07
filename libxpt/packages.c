@@ -24,7 +24,7 @@ int extract_payload(const char *file, const char *destdir)
 
     a = archive_read_new();
 
-    archive_read_support_filter_gzip(a);
+    archive_read_support_filter_zstd(a);
     archive_read_support_format_tar(a);
 
     if ((r = archive_read_open_filename(a, file, 10240))) {
