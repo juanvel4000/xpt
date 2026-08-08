@@ -53,7 +53,8 @@ int main(int argc, char *argv[])
             break;
         case 'n':
 #if XPT_DISABLE_NETWORKING
-            fprintf(stderr, "libxpt has been built without networking support.\n");
+            fprintf(stderr,
+                    "libxpt has been built without networking support.\n");
             return XPT_EX_USAGE;
 #endif
             net_package = optarg;
@@ -75,7 +76,8 @@ int main(int argc, char *argv[])
             break;
         case 's':
 #if XPT_DISABLE_NETWORKING
-            fprintf(stderr, "libxpt has been built without networking support.\n");
+            fprintf(stderr,
+                    "libxpt has been built without networking support.\n");
             return XPT_EX_USAGE;
 #endif
             action = ACTION_SYNC;

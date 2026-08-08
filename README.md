@@ -103,6 +103,12 @@ to install only ebt
   $ meson install -C build
 ```
 
+## project status
+
+- [CHANGELOG.md](CHANGELOG.md) -- release history
+- [ROADMAP.md](ROADMAP.md) -- known limitations and planned work
+- [CONTRIBUTING.md](CONTRIBUTING.md) -- how to report bugs and send patches
+
 ## license
 
 BSD-3-Clause -- see LICENSE

@@ -105,7 +105,8 @@ int database_add(PackageInfo *pi, const char *destdir)
 
     sqlite3_stmt *stmt;
     const char *sql = "INSERT INTO packages (name, version, desc, maintainer, "
-                      "arch, license, homepage, build_epoch) VALUES (?, ?, ?, ?, ?, ?, ?, ?);";
+                      "arch, license, homepage, build_epoch) VALUES (?, ?, ?, "
+                      "?, ?, ?, ?, ?);";
     if (sqlite3_prepare_v2(conn, sql, -1, &stmt, NULL) != SQLITE_OK) {
         fprintf(stderr, "could not add package to database: %s\n",
                 sqlite3_errmsg(conn));
@@ -265,9 +266,9 @@ int xpt_package_printinfo(const char *package, const char *destdir)
         return XPT_EX_IOERR;
 
     sqlite3_stmt *stmt;
-    const char *sql =
-        "SELECT name, version, desc, maintainer, arch, license, homepage, build_epoch FROM "
-        "packages WHERE name = ?;";
+    const char *sql = "SELECT name, version, desc, maintainer, arch, license, "
+                      "homepage, build_epoch FROM "
+                      "packages WHERE name = ?;";
     if (sqlite3_prepare_v2(conn, sql, -1, &stmt, NULL) != SQLITE_OK) {
         sqlite3_close(conn);
         return XPT_EX_IOERR;
@@ -285,7 +286,7 @@ int xpt_package_printinfo(const char *package, const char *destdir)
         const char *arch = (const char *)sqlite3_column_text(stmt, 4);
         const char *license = (const char *)sqlite3_column_text(stmt, 5);
         const char *homepage = (const char *)sqlite3_column_text(stmt, 6);
-        const char *build_epoch = (const char*)sqlite3_column_text(stmt, 7);
+        const char *build_epoch = (const char *)sqlite3_column_text(stmt, 7);
 
         printf("package: %s\n", name);
         printf("version: %s \n", version);

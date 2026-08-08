@@ -4,7 +4,6 @@
 
 #include <resolver.h>
 
-
 static void test_seen_and_resolved(void)
 {
     NodeContainer c = {0};
@@ -25,7 +24,6 @@ static void test_seen_and_resolved(void)
     resolver_free(&c);
 }
 
-
 int main(int argc, char **argv)
 {
     (void)argc;
@@ -34,4 +32,3 @@ int main(int argc, char **argv)
     test_seen_and_resolved();
     return 0;
 }
-

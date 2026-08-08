@@ -70,9 +70,9 @@ void xpt_print_build_info(FILE *out)
     fprintf(out, "build type:    %s\n", XPT_BUILDTYPE);
     char *networking;
 #if XPT_DISABLE_NETWORKING
-        networking = "no";
+    networking = "no";
 #else
-        networking = "yes";
+    networking = "yes";
 #endif
     fprintf(out, "networking:    %s\n", networking);
 }
