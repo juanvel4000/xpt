@@ -6,7 +6,7 @@ this document tracks known limitations and planned work for xpt.
 
 these are real, understood gaps -- not surprises waiting to be found.
 
-- **dependency resolution is not transitive.** installing a package only solves its direct dependencies. see [`resolve_package()`](libxpt/resolver.c)
+- **offline/local installs cannot resolve transitive dependencies.**
 
 - **checksum mismatch handling is untested.** the code path exists in `ebs(1)` but has no test coverage yet.
 
@@ -14,7 +14,6 @@ these are real, understood gaps -- not surprises waiting to be found.
 
 in rough priority order
 
-- [ ] transitive dependency resolution
 - [ ] test coverage for checksum verification failures
 - [ ] test coverage for malformed/incomplete manifests
 - [ ] package uninstall improvements
@@ -31,3 +30,4 @@ things intentionally out of scope
 recently closed items worth noting here before they migrate to CHANGELOG.md
 
 - [X] basic test suite
+- [X] transitive dependency resolution
