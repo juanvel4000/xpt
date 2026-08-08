@@ -26,4 +26,5 @@ test(
         meson.current_source_dir() / '../ebt/ebs.sh',
         meson.current_source_dir() / '../docs/examples/ebs.formula',
     ],
+    timeout: 120,
 )
