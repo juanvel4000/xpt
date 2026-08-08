@@ -25,7 +25,7 @@ if get_option('ebt').enabled()
         find_program('test_ebs_checksum_mismatch.sh'),
         args: [
             meson.current_source_dir() / '../ebt/ebs.sh',
-            meson.current_source_dir() / 'fixtures/corrupted_checksum.ebs.formula'
+            meson.current_source_dir() / 'fixtures/corrupted_checksum.ebs.formula',
         ],
         timeout: 120,
     )

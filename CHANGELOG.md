@@ -7,6 +7,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 ### Added
+- scripts/fmt.sh script for code formatting
 - CONTRIBUTING.md
 - unit test for invalid/non-existent manifests
 - integration test for checksum mismatch (ebs)

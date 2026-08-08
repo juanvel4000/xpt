@@ -20,8 +20,7 @@ xpt doesn't use GitHub-style pull requests. instead:
 [sr.ht's send-email tutorial](https://git-send-email.io/)
 4. send your patch to: **~juanvel400/xpt-devel@lists.sr.ht**
 ```sh
- $ git format-patch origin/main
- $ git send-email --to=~juanvel400/xpt-devel@lists.sr.ht *.patch
+ $ git send-email --to=~juanvel400/xpt-devel@lists.sr.ht origin/main..HEAD
 ```
 
 ## commit style
@@ -38,9 +37,13 @@ xpt doesn't use GitHub-style pull requests. instead:
 
 ## code style
 
-- C code is formatted with clang-format (run it before committing)
 - shell scripts (ebt/*.sh) are POSIX sh -- avoid bashisms
 - see existing code for naming conventions (`xpt_`-prefixed public functions in libxpt, etc.)
+
+> `scripts/fmt.sh` formats all of the above in one pass
+> ```sh
+>  $ scripts/fmt.sh -a
+> ```
 
 ## license
 
