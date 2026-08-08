@@ -40,11 +40,11 @@ optionally, a formula can also define the following attributes
 comma-separated list of runtime package dependencies.
 
 .It Va pkgsrc
-a URL to a downloadable source, if it's *.tar or *.zip archive, it will be extracted using the
-.Xr tar 1
-or
-.Xr unzip 1
-utilities respectively.
+a URL to a downloadable source.
+if the source is a tar archive, it is extracted using
+.Xr tar 1 .
+if the source is a zip archive, it is extracted using
+.Xr unzip 1 .
 
 .It Va pkgchecksum
 sha256 or sha512 checksum used to verify the downloaded source, required if 
@@ -56,6 +56,11 @@ a SPDX-compatible license string.
 
 .It Va pkghomepage
 a URL to the package's website.
+
+.It Va pkgcheck
+controls whether
+.Fn check
+is executed. (default true)
 
 .El
 .Pp
@@ -75,10 +80,13 @@ it is highly recommended that the
 utility is used when performing filesystem-related actions.
 
 .It Fn install_to_toolchain
-called by
-.Ic ebs buildt
-to additionally install the package into
-.Ev TOOLCHAIN_DIR
+optionally installs the built software into
+.Ev TOOLCHAIN_DIR .
+this function is called by
+.Nm ebs
+when
+.Cm buildt
+is used.
 
 .El
 .Pp
@@ -100,12 +108,12 @@ can be used to enable or disable these.
 .El
 
 .Sh SEE ALSO
-..Xr mkfhs 1 ,
+Xr mkfhs 1 ,
 .Xr ebs 1 ,
 .Xr ecw 8 ,
 .Xr libxpt 3 ,
 .Xr xpt.manifest 5 ,
 .Xr xpt.tree 5 ,
 .Xr xpt 8
-Sh LICENSE
+.Sh LICENSE
 BSD-3-Clause, see the source code for details.

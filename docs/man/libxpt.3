@@ -4,7 +4,7 @@
 
 .Sh NAME
 .Nm libxpt
-.Nd xpt package management library
+.Nd package management library
 
 .Sh LIBRARY
 .Lb libxpt
@@ -14,7 +14,34 @@
 
 .Sh DESCRIPTION
 
-libxpt exposes a public API for managing installed packages, handling repositories, resolving dependencies and accessing the xpt package databases.
+.Nm
+provides the core package management functionality used by
+.Xr xpt 8 .
+
+.Bl -bullet
+
+.It
+package installation and removal;
+
+.It
+package database access;
+
+.It
+repository access;
+
+.It
+dependency resolution;
+
+.It
+package metadata and manifests;
+
+.It
+package file tracking; and
+
+.It
+package database locking.
+
+.El
 
 .Sh SEE ALSO
 .Xr mkfhs 1 ,
