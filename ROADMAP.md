@@ -8,8 +8,6 @@ these are real, understood gaps -- not surprises waiting to be found.
 
 - **offline/local installs cannot resolve transitive dependencies.**
 
-- **checksum mismatch handling is untested.** the code path exists in `ebs(1)` but has no test coverage yet.
-
 ## planned
 
 in rough priority order
