@@ -30,7 +30,7 @@ run
  $ xpt -h
 ```
 
-> or view the manpage (`xpt.8`) by running this after install (if you enabled documentation)
+> alternatively, view the manpage (`xpt.8`) after installation if documentation was enabled:
 > ```sh
 > $ man 8 xpt
 > ```
@@ -38,9 +38,24 @@ run
 
 ## ebt
 
-a lightweight package build suite.
+a lightweight package build toolkit.
 
-ebt bundles a set of tools written in POSIX sh script designed to 
+ebt bundles a set of tools written in POSIX `sh` for building `.xpt` packages from source.
+
+### tools
+
+- mkfhs: creates a fully compliant FHS directory tree
+- ecw: a wrapper around `chroot(1)`
+- ebs: a build system for EBS formula, which outputs a zstd-based `.xpt` package
+
+### installation
+
+to install only ebt
+
+```sh
+  $ meson setup build -Debt_only=enabled
+  $ meson install -C build
+```
 
 ## license
 

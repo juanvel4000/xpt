@@ -10,16 +10,22 @@ inc = include_directories('include')
 
 xpt_c_args = ['-D_GNU_SOURCE', '-D_XOPEN_SOURCE=700']
 
+ebt_only = get_option('ebt_only')
+ebt = get_option('ebt')
+
+if ebt_only.enabled() and ebt.disabled()
+  error('ebt_only requires ebt to not be disabled')
+endif
 
 if get_option('ebt_only').disabled()
     subdir('libfetch')
     subdir('libxpt')
     subdir('xpt')
 endif
-if not get_option('docs').disabled()
+if get_option('docs').enabled()
     subdir('docs')
 endif
-if not get_option('ebt').disabled()
+if get_option('ebt').enabled()
     subdir('ebt')
 endif
 

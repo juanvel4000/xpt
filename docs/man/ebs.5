@@ -1,0 +1,105 @@
+.Dd August 2026
+.Dt EBS 5
+.Os
+.Sh NAME
+.Nm ebs
+.Nd formula file format
+.Sh DESCRIPTION
+an ebs formula is a POSIX shell script, sourced by
+.Xr ebs 1 ,
+that describes how to build and package software as an
+.Xr xpt 8
+binary package
+.Pp
+a formula must define the following attributes
+.Bl -tag -width Ds
+
+.It Va ebsver
+currently
+.Sy 1 ,
+checked by
+.Xr ebs 1
+for compatibility
+.It Va pkgname
+name of the package.
+.It Va pkgver
+version of the package.
+.It Va pkgdesc
+short description of the package.
+.It Va pkgmaintainer
+maintainer of the formula.
+.It Va pkgdeps
+comma-separated list of runtime package dependencies.
+
+.El
+.Pp
+
+optionally, a formula can also define the following attributes
+
+.Bl -tag -width Ds
+.It Va pkgsrc
+a URL to a downloadable source, if it's *.tar or *.zip archive, it will be extracted using the
+.Xr tar 1
+or
+.Xr unzip 1
+utilities respectively.
+
+.It Va pkgchecksum
+sha256 or sha512 checksum used to verify the downloaded source, required if 
+.Va pkgsrc
+is set
+
+.It Va pkglicense
+a SPDX-compatible license string.
+
+.It Va pkghomepage
+a URL to the package's website.
+
+.El
+.Pp
+
+a formula must also define the following functions:
+
+.Bl -tag -width Ds
+.It Fn build
+compiles or packages the source.
+
+.It Fn package
+installs the package to the
+.Va pkgdir
+staging directory.
+it is highly recommended that the
+.Xr fakeroot 1
+utility is used when performing filesystem-related actions.
+
+.It Fn install_to_toolchain
+called by
+.Ic ebs buildt
+to additionally install the package into
+.Ev TOOLCHAIN_DIR
+
+.El
+.Pp
+
+optionally, a formula can also define the following functions
+
+.Bl -tag -width Ds
+.It Fn prepare
+executed before 
+.Fn build ,
+.Fn prepare
+is intended to be used to modify the source files or configuring them.
+
+.It Fn check
+intended to run the package test suites.
+the attribute
+.Va pkgcheck
+can be used to enable or disable these.
+.El
+
+.Sh SEE ALSO
+.Xr ecw 1 ,
+.Xr ebs 1 ,
+.Xr xpt 8
+.Sh LICENSE
+BSD-3-Clause, see the source code for details.
