@@ -1,4 +1,4 @@
-libfetch_sources = files('common.c', 'fetch.c', 'http.c', 'openssl-compat.c')
+libfetch_sources = files('common.c', 'fetch.c', 'http.c')
 
 libfetch = static_library(
     'fetch',

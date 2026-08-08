@@ -38,7 +38,9 @@
 
 #include <sys/types.h>
 #include <limits.h>
-#include "openssl-compat.h"
+#include <openssl/ssl.h>
+#include <openssl/err.h>
+#include <openssl/x509.h>
 
 #if defined(__GNUC__) && __GNUC__ >= 3
 #define LIBFETCH_PRINTFLIKE(fmtarg, firstvararg)                               \

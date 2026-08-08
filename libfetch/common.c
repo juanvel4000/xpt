@@ -54,6 +54,7 @@
 #include "fetch.h"
 #include "common.h"
 
+#include <openssl/x509v3.h>
 /*** Local data **************************************************************/
 
 static int ssl_verify_mode = SSL_VERIFY_PEER;

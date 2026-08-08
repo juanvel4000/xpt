@@ -5,6 +5,13 @@ All notable changes to xpt will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [Unreleased]
+### Added
+- CONTRIBUTING.md
+### Changed
+- format various source files
+- remove openssl-compat from libfetch
+
 ## [0.6.1] - basic test suite and improved documentation
 ### Added
 - basic test suite (unit tests for manifest parsing and dependency resolver, integration test for ebs formula builds)

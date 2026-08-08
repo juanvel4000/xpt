@@ -1,3 +1,8 @@
-libfetch: BSD-3-Clause
+libfetch:
+  License: BSD-3-Clause
+  Origin: NetBSD libfetch
+  Copyright:
+    Dag-Erling Coïdan Smørgrav
+    Joerg Sonnenberger
+    Noel Kuntze
 
-libfetch/openssl-compat: unclear 

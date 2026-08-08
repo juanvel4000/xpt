@@ -5,7 +5,7 @@ a minimalistic package manager for `.xpt` packages, written in C.
 ## features
 
 - install/remove/list packages, dependency resolution, repo sync
-- lightweight libfetch implementation (from OpenBSD)
+- lightweight libfetch implementation derived from NetBSD
 - sqlite3-backed local database storage
 - barebones package format
 
