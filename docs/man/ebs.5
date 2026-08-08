@@ -28,8 +28,6 @@ version of the package.
 short description of the package.
 .It Va pkgmaintainer
 maintainer of the formula.
-.It Va pkgdeps
-comma-separated list of runtime package dependencies.
 
 .El
 .Pp
@@ -37,6 +35,10 @@ comma-separated list of runtime package dependencies.
 optionally, a formula can also define the following attributes
 
 .Bl -tag -width Ds
+
+.It Va pkgdeps
+comma-separated list of runtime package dependencies.
+
 .It Va pkgsrc
 a URL to a downloadable source, if it's *.tar or *.zip archive, it will be extracted using the
 .Xr tar 1
@@ -47,7 +49,7 @@ utilities respectively.
 .It Va pkgchecksum
 sha256 or sha512 checksum used to verify the downloaded source, required if 
 .Va pkgsrc
-is set
+is set.
 
 .It Va pkglicense
 a SPDX-compatible license string.
@@ -98,8 +100,12 @@ can be used to enable or disable these.
 .El
 
 .Sh SEE ALSO
-.Xr ecw 1 ,
+..Xr mkfhs 1 ,
 .Xr ebs 1 ,
+.Xr ecw 8 ,
+.Xr libxpt 3 ,
+.Xr xpt.manifest 5 ,
+.Xr xpt.tree 5 ,
 .Xr xpt 8
-.Sh LICENSE
+Sh LICENSE
 BSD-3-Clause, see the source code for details.

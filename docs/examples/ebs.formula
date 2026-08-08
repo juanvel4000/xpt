@@ -1,0 +1,31 @@
+#!/bin/sh
+#ebs.formulae
+ebsver=1
+
+pkgname=hello
+pkgver=2.12.3
+
+pkgdesc="simple hello world program from gnu"
+pkgmaintainer="you <you@example.com>"
+pkgdeps=""
+
+pkghomepage="https://gnu.org/software/hello"
+pkglicense="GPL-3.0-or-later"
+
+pkgsrc=https://ftp.gnu.org/gnu/hello/hello-2.12.3.tar.gz
+pkgchecksum=sha256:0d5f60154382fee10b114a1c34e785d8b1f492073ae2d3a6f7b147687b366aa0
+
+build() {
+    cd "$pkgname-$pkgver"
+
+    ./configure --prefix=/usr    
+    make
+}
+
+check() {
+    make check "${MAKE_CHECK_FLAGS:-}"
+}
+
+package() {
+    fakeroot make install DESTDIR="${pkgdir}" "${MAKE_INSTALL_FLAGS:-}"
+}

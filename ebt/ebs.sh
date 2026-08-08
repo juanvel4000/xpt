@@ -1,6 +1,6 @@
 #!/bin/sh
 # ebs build system
-# build xpt packages from ebs formulae
+# build xpt packages from ebs.formula
 
 set -eu
 if (set -o pipefail) 2>/dev/null; then
@@ -41,7 +41,7 @@ fi
 
 print_ebs_help() {
     echo "ebs: ebs build system"
-    echo "build xpt packages from ebs formulae"
+    echo "build xpt packages from ebs.formula"
     echo "usage: ebs <command> [arguments]"
     echo "commands"
     echo "  help    show this message"
@@ -109,7 +109,7 @@ extract_source() {
 build_formula() {
     SOURCE_DATE_EPOCH=${SOURCE_DATE_EPOCH:-0}
     initdir="$(pwd)"
-    formula_script="${1:-ebs.formulae}"
+    formula_script="${1:-ebs.formula}"
 
     case "$formula_script" in
         /*) formula_path="$formula_script" ;;
@@ -266,11 +266,11 @@ case "${1:-}" in
         ;;
 
     build|-b|b)
-        build_formula "${2:-./ebs.formulae}" "${3:-ebs.auto}"
+        build_formula "${2:-./ebs.formula}" "${3:-ebs.auto}"
         ;;
 
     buildt|-t|t)
-        build_formula "${2:-./ebs.formulae}" "${3:-ebs.auto}" "install_to_toolchain"
+        build_formula "${2:-./ebs.formula}" "${3:-ebs.auto}" "install_to_toolchain"
         ;;
 
     *)
