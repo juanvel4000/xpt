@@ -13,8 +13,7 @@ pkghomepage="https://dl.juanvel400.com/#hello"
 pkglicense="BSD-3-Clause"
 
 pkgsrc=https://dl.juanvel400.com/hello/hello-0.1.0.tar.xz
-pkgchecksum=sha256:69f2258ed66d8f01e91e7e59d4605472d930936f26151140b438551ea323443a
-
+pkgchecksum=sha256:d36b4bba05ca8c097ebd30dbc69c77082be4421af46e4f1cfd5bf22143f27372
 build() {
     make
 }

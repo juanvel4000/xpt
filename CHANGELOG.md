@@ -8,7 +8,10 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ## [Unreleased]
 ### Added
 - CONTRIBUTING.md
+- unit test for invalid/non-existent manifests
+- integration test for checksum mismatch (ebs)
 ### Changed
+- use dl.juanvel400.com/hello example package instead of GNU hello
 - format various source files
 - improve consistency in README.md and manpages
 - fix shellcheck warnings in ebt

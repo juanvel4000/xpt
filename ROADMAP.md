@@ -14,8 +14,6 @@ these are real, understood gaps -- not surprises waiting to be found.
 
 in rough priority order
 
-- [ ] test coverage for checksum verification failures
-- [ ] test coverage for malformed/incomplete manifests
 - [ ] package uninstall improvements
 - [ ] GPG-signed repositories, signed packages
 
@@ -29,5 +27,7 @@ things intentionally out of scope
 
 recently closed items worth noting here before they migrate to CHANGELOG.md
 
+- [X] test coverage for checksum verification failures
+- [X] test coverage for malformed/incomplete manifests
 - [X] basic test suite
 - [X] transitive dependency resolution
