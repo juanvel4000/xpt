@@ -36,6 +36,12 @@ run
 > ```
 > you will need a manpage viewer such as mandoc or man-db.
 
+## ebt
+
+a lightweight package build suite.
+
+ebt bundles a set of tools written in POSIX sh script designed to 
+
 ## license
 
 BSD-3-Clause -- see LICENSE

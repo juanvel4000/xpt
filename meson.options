@@ -24,5 +24,11 @@ option(
     description: 'xpt/ebt documentation.',
 )
 
+option(
+    'ebt_only',
+    type: 'feature',
+    value: 'disabled',
+    description: 'only build ebt',
+)
 
 

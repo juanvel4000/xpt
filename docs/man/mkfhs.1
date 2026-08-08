@@ -1,50 +1,46 @@
-.TH MKFHS 1 "July 2025" "v0.1" "User Commands"
-.SH NAME
-mkfhs \- create a fhs-compiliant tree layout
-
-.SH SYNOPSIS
-
-.B mkfhs
-[\fIrootfs\fR] [\fIarch\fR]
-
-.SH DESCRIPTION
-.B mkfhs
-is a shell script that generates a fhs-compiliant root filesystem tree inside the
-.IR rootfs "directory"
-
-if
-.B rootfs
-is not specified, the script will use the current directory
-
-if
-.B arch
-is not specified, the script will use the system's architecture
-
-if
-.I arch
+.Dd August 2026
+.Dt MKFHS 1
+.Os
+.Sh NAME
+.Nm mkfhs
+.Nd create a fhs-compliant tree layout
+.Sh SYNOPSIS
+.Nm
+.Op Ar rootfs
+.Op Ar arch
+.Sh DESCRIPTION
+.Nm
+is a shell script that generates a fhs-compliant root filesystem tree inside the
+.Ar rootfs
+directory.
+.Pp
+If
+.Ar rootfs
+is not specified, the script will use the current directory.
+If
+.Ar arch
+is not specified, the script will use the system's architecture.
+.Pp
+If
+.Ar arch
 is
-.B x86_64,
+.Cm x86_64 ,
 a
-.B lib64
-directory will be created and symlinked into the root
-
-.B mkfhs
-is part of elegant build tools
-.B (ebt)
-
-.SH OPTIONS
-.TP
-.B mkfhs
-create the directory layout in the current directory for the native arch
-
-.TP
-.B \-\-help
-print usage information to the screen
-
-.SH LICENSE
-MIT License, see the source code for details
-
-.SH SEE ALSO
-.BR ln(1),
-.BR mkdir(1),
-.BR filesystem(1)
+.Pa lib64
+directory will be created and symlinked into the root.
+.Pp
+.Nm
+is part of ebt build tools
+.Pq Nm ebt .
+.Sh COMMANDS
+.Bl -tag -width Ds
+.It Cm help
+print usage information to the screen.
+.El
+.Sh SEE ALSO
+.Xr ebs 1 ,
+.Xr ecw 8 ,
+.Xr xpt 8
+.Xr
+.Sh LICENSE
+BSD-3-Clause, see the source code for details.

@@ -1,0 +1,50 @@
+.Dd August 2026
+.Dt ECW 8
+.Os
+.Sh NAME
+.Nm ecw
+.Nd safely chroot into a directory
+.Sh SYNOPSIS
+.Nm
+.Cm help
+.Nm
+.Ar chroot
+.Op Ar shell
+.Sh DESCRIPTION
+.Nm
+is a wrapper around
+.Xr chroot 8 
+that binds
+.Pa /dev ,
+.Pa /sys ,
+.Pa /tmp ,
+and
+.Pa /run
+into
+.Ar chroot ,
+mounts
+.Pa /proc ,
+and unmounts everything again on exit.
+.Pp
+If
+.Ar shell
+is not specified,
+.Nm
+searches
+.Ar chroot
+for a shell and uses the first one found.
+
+.Nm
+is part of ebt build tools
+.Pq Nm ebt .
+.Sh COMMANDS
+.Bl -tag -width Ds
+.It Cm help
+print usage information to the screen.
+.El
+.Sh SEE ALSO
+.Xr mkfhs 1 ,
+.Xr ebs 1 ,
+.Xr xpt 8
+.Sh LICENSE
+BSD-3-Clause, see the source code for details.

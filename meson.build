@@ -11,9 +11,11 @@ inc = include_directories('include')
 xpt_c_args = ['-D_GNU_SOURCE', '-D_XOPEN_SOURCE=700']
 
 
-subdir('libfetch')
-subdir('libxpt')
-subdir('xpt')
+if get_option('ebt_only').disabled()
+    subdir('libfetch')
+    subdir('libxpt')
+    subdir('xpt')
+endif
 if not get_option('docs').disabled()
     subdir('docs')
 endif

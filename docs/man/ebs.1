@@ -1,0 +1,44 @@
+.Dd August 2026
+.Dt EBS 1
+.Os
+.Sh NAME
+.Nm ebs
+.Nd build .xpt packages from ebs formulae
+.Sh SYNOPSIS
+.Nm
+.Aq Ar COMMAND
+.Op Ar arguments
+.Sh DESCRIPTION
+.Nm
+is a shell script that parses
+.Xr ebs 5
+formulae scripts
+and executes them to build
+.Xr xpt 8
+binary packages.
+
+.Nm
+is part of ebt build tools
+.Pq Nm ebt .
+.Sh COMMANDS
+.Bl -tag -width Ds
+.It Cm help
+print usage information to the screen.
+.It Cm build
+build an
+.Xr xpt 8
+package from a
+.Xr ebs 5
+formula.
+.It Cm buildt
+same as
+.Cm build
+but also installs to the toolchain specified in
+.Ev TOOLCHAIN_DIR .
+.El
+.Sh SEE ALSO
+.Xr mkfhs 1 ,
+.Xr ecw 8 ,
+.Xr xpt 8
+.Sh LICENSE
+BSD-3-Clause, see the source code for details.
