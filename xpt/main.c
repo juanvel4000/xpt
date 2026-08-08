@@ -5,10 +5,6 @@
 #include <limits.h>
 #include "config.h"
 
-#ifndef XPT_VERSION
-#define XPT_VERSION "v0.5.2"
-#endif
-
 int main(int argc, char *argv[])
 {
     char *xptver;
@@ -29,8 +25,7 @@ int main(int argc, char *argv[])
         ACTION_LIST,
         ACTION_TREE,
         ACTION_SYNC,
-        ACTION_INFO,
-        ACTION_BUILDINFO
+        ACTION_INFO
     } xpt_action_t;
 
     xpt_action_t action = ACTION_NONE;
@@ -86,7 +81,7 @@ int main(int argc, char *argv[])
             action = ACTION_SYNC;
             break;
         case 'V':
-            printf("xpt (xpt package tool) %s\n", xptver);
+            printf("xpt (xpt package tool) v%s\n", xptver);
             printf("copyright (c) 2025-2026 juanvel400.\n");
             printf("license BSD-3-Clause "
                    "<http://spdx.org/licenses/BSD-3-Clause.html>\n");
@@ -98,8 +93,8 @@ int main(int argc, char *argv[])
             action = ACTION_INFO;
             break;
         case 'B':
-            action = ACTION_BUILDINFO;
-            break;
+            xpt_print_build_info(stdout);
+            return XPT_EX_OK;
         case 'h':
             printf("usage: xpt -V | -i | -g | -h | -r | -l | -t | -s | -I | -B "
                    "[-q] [-d "
@@ -224,10 +219,6 @@ int main(int argc, char *argv[])
             return XPT_EX_NOINPUT;
         }
 
-        xpt_lock_release(lockfd);
-        return XPT_EX_OK;
-    } else if (action == ACTION_BUILDINFO) {
-        xpt_print_build_info(stdout);
         xpt_lock_release(lockfd);
         return XPT_EX_OK;
     }
