@@ -1,0 +1,32 @@
+#!/bin/sh
+
+pkgname=xpt
+pkgver=0.6.1
+pkgrel=1
+epoch=
+pkgdesc="xpt package manager"
+arch=(x86_64)
+url="https://sr.ht/~juanvel400/xpt"
+license=("BSD-3-Clause")
+depends=('libarchive' 'zstd' 'sqlite3' 'openssl')
+makedepends=('meson' 'ninja')
+provides=()
+source=("https://dl.juanvel400.com/${pkgname}/${pkgname}-${pkgver}.tar.xz")
+sha256sums=('c74c6ea0944132ca7f76c6cb288c095d0e6a3fae429a3d3cecca62b87ff3f35d')
+
+build() {
+    cd "${pkgname}-${pkgver}"
+
+    meson setup build -Dprefix=/usr -Dsysconfdir=/etc -Dlocalstatedir=/var -Dbuildtype=release
+    meson compile -C build
+}
+
+check() {
+    cd "${pkgname}-${pkgver}"
+    meson test -C build
+}
+
+package() {
+    cd "${pkgname}-${pkgver}"
+    DESTDIR="${pkgdir}/" meson install -C build
+}
