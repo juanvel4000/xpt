@@ -1,0 +1,9 @@
+name=foo
+desc=test package
+version=1.2.3
+maintainer=you <you@example.com>
+arch=x86_64
+
+license=BSD-3-Clause
+homepage=https://example.com/software/foo.html
+depends=libfoo-dev,libc

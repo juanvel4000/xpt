@@ -174,12 +174,6 @@ PackageInfo *parse_manifest(const char *file)
                 delete_package_info(pi);
                 return NULL;
             }
-        } else if (strcmp(key, "maintainer") == 0) {
-            if (safe_strdup(&pi->maintainer, val) == 1) {
-                fclose(fp);
-                delete_package_info(pi);
-                return NULL;
-            }
         } else if (strcmp(key, "license") == 0) {
             if (safe_strdup(&pi->license, val) == 1) {
                 fclose(fp);

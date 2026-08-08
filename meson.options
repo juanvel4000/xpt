@@ -31,4 +31,9 @@ option(
     description: 'only build ebt',
 )
 
-
+option(
+    'tests',
+    type: 'feature',
+    value: 'enabled',
+    description: 'run the xpt tests suite',
+)

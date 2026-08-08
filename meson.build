@@ -28,4 +28,6 @@ endif
 if get_option('ebt').enabled()
     subdir('ebt')
 endif
-
+if get_option('tests').enabled()
+    subdir('tests')
+endif

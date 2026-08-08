@@ -16,6 +16,20 @@ a minimalistic package manager for `.xpt` packages, written in C.
  $ meson compile -C build
 ```
 
+### testing
+
+the `tests/` directory provides a simple test suite for
+
+- simple dependency resolution
+- package manifest parsing
+- ebs formula builds
+
+these can be executed by running
+
+```sh
+ $ meson test -C build
+```
+
 ### installation
 
 ```sh
