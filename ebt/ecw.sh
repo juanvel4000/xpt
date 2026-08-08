@@ -37,7 +37,7 @@ case "$1" in
     *)
         [ -d "$1" ] || { echo "$1 does not exist"; exit 1; }
         if ! [ -n "$2" ]; then
-            for ecw_shell in \
+            for shell in \
                 /bin/sh /usr/bin/sh /bin/bash /usr/bin/bash \
                 /bin/dash /usr/bin/dash /bin/zsh /usr/bin/zsh \
                 /bin/fish /usr/bin/fish /bin/ksh /usr/bin/ksh \
@@ -47,8 +47,8 @@ case "$1" in
                 /bin/elvish /usr/bin/elvish /bin/xonsh /usr/bin/xonsh \
                 /bin/rc /usr/bin/rc
             do
-                if [ -f "$1/$ecw_shell" ]; then
-                    ecw_shell="$ecw_shell"
+                if [ -f "$1/$shell" ]; then
+                    ecw_shell="$shell"
                     break
                 fi
             done

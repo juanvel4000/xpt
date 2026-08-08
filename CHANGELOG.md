@@ -12,6 +12,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - format various source files
 - remove openssl-compat from libfetch
 - improve consistency in README.md and manpages
+- fix shellcheck warnings in ebt
 
 ## [0.6.1] - basic test suite and improved documentation
 ### Added
