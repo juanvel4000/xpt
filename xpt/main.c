@@ -134,15 +134,20 @@ int main(int argc, char *argv[])
                    "errors)");
             printf("  %-10s %s\n", "-B", "print the libxpt build info");
             return XPT_EX_OK;
+        default:
+            fprintf(stderr, "usage: xpt <action> [-q] [-d dir] [-f file | -p "
+                            "package | -n net-package]\n");
+            return XPT_EX_USAGE;
         }
-    }
-    int lockfd = xpt_lock_acquire(destdir);
-    if (lockfd < 0) {
-        fprintf(stderr, "error: could not acquire the lock.");
-        return XPT_EX_NOPERM;
     }
 
     if (action == ACTION_INSTALL) {
+        int lockfd = xpt_lock_acquire(destdir);
+        if (lockfd < 0) {
+            fprintf(stderr, "error: could not acquire the lock.\n");
+            return XPT_EX_NOPERM;
+        }
+
         if (filename && net_package) {
             fprintf(stderr, "specify either -f or -n, not both\n");
             xpt_lock_release(lockfd);
@@ -166,20 +171,22 @@ int main(int argc, char *argv[])
     } else if (action == ACTION_GETVER) {
         if (package == NULL) {
             fprintf(stderr, "please specify a package with -p <pkg>\n");
-            xpt_lock_release(lockfd);
             return XPT_EX_USAGE;
         }
         char *version = xpt_package_getversion(package, destdir);
         if (!version) {
             fprintf(stderr, "package not found\n");
-            xpt_lock_release(lockfd);
             return XPT_EX_NOINPUT;
         }
         printf("%s\n", version);
 
-        xpt_lock_release(lockfd);
         return XPT_EX_OK;
     } else if (action == ACTION_REMOVE) {
+        int lockfd = xpt_lock_acquire(destdir);
+        if (lockfd < 0) {
+            fprintf(stderr, "error: could not acquire the lock.\n");
+            return XPT_EX_NOPERM;
+        }
         if (package == NULL) {
             fprintf(stderr, "please specify a package with -p <pkg>\n");
             xpt_lock_release(lockfd);
@@ -191,40 +198,44 @@ int main(int argc, char *argv[])
         return result;
     } else if (action == ACTION_LIST) {
         int result = xpt_package_list(destdir);
-        xpt_lock_release(lockfd);
         return result;
     } else if (action == ACTION_TREE) {
         if (package == NULL) {
             fprintf(stderr, "please specify a package with -p <pkg>\n");
-            xpt_lock_release(lockfd);
             return XPT_EX_USAGE;
         }
         int result = xpt_package_listfiles(package, destdir);
-        xpt_lock_release(lockfd);
         return result;
     } else if (action == ACTION_SYNC) {
 #if !XPT_DISABLE_NETWORKING
+        int lockfd = xpt_lock_acquire(destdir);
+        if (lockfd < 0) {
+            fprintf(stderr, "error: could not acquire the lock.\n");
+            return XPT_EX_NOPERM;
+        }
         int result = xpt_repos_sync(destdir);
         xpt_lock_release(lockfd);
         return result;
+#else
+        fprintf(stderr, "libxpt has been built without networking support.\n");
+        return XPT_EX_USAGE;
 #endif
     } else if (action == ACTION_INFO) {
         if (package == NULL) {
             fprintf(stderr, "please specify a package with -p <pkg>\n");
-            xpt_lock_release(lockfd);
             return XPT_EX_USAGE;
         }
         int result = xpt_package_printinfo(package, destdir);
         if (result == 1) {
             fprintf(stderr, "package not found\n");
-            xpt_lock_release(lockfd);
             return XPT_EX_NOINPUT;
         }
 
-        xpt_lock_release(lockfd);
         return XPT_EX_OK;
+    } else if (action == ACTION_NONE) {
+        fprintf(stderr, "no action specified; try 'xpt -h'\n");
+        return XPT_EX_USAGE;
     }
 
-    xpt_lock_release(lockfd);
     return XPT_EX_OK;
 }
