@@ -16,6 +16,24 @@ a minimalistic package manager for `.xpt` packages, written in C.
  $ meson compile -C build
 ```
 
+### configuration
+
+xpt exposes several meson build-time options
+
+| option       | type       | default    | description                              |
+|--------------|------------|------------|------------------------------------------|
+| `static`     | boolean    | `false`    | build a statically linked xpt executable |
+| `networking` | feature    | `enabled`  | build xpt with networking support        |
+| `ebt`        | feature    | `enabled`  | ebt build system                         |
+| `docs`       | feature    | `enabled`  | xpt/ebt documentation                    |
+| `ebt_only`   | feature    | `disabled` | only build ebt                           |
+| `tests`      | feature    | `enabled`  | run the xpt tests suite                  |
+
+> set with, e.g.:
+> ```sh
+>  $ meson setup build -Dstatic=true -Dnetworking=disabled
+> ```
+
 ### testing
 
 the `tests/` directory provides a simple test suite for
@@ -44,12 +62,26 @@ run
  $ xpt -h
 ```
 
-> alternatively, view the manpage (`xpt.8`) after installation if documentation was enabled:
-> ```sh
-> $ man 8 xpt
-> ```
-> you will need a manpage viewer such as mandoc or man-db.
+## documentation
 
+manpages are installed alongside the executables if documentation was enabled at build time
+
+| manpage           | describes                    |
+|-------------------|------------------------------|
+| `xpt(8)`          | the `xpt` cli                |
+| `libxpt(3)`       | the `libxpt` library api     |
+| `ebs(1)`          | the ebs build system         |
+| `ebs(5)`          | the ebs formula file format  |
+| `ecw(8)`          | the ecw chroot wrapper       |
+| `mkfhs(1)`        | the FHS tree creator         |
+| `xpt.manifest(5)` | the xpt.manifest file format |
+| `xpt.tree(5)`     | the xpt.tree file format     |
+
+> view any of them with, e.g.:
+> ```sh
+>  $ man 8 xpt
+> ```
+> you will need a manpage viewer such as mandoc or man-db
 ## ebt
 
 a lightweight package build toolkit.
