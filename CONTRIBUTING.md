@@ -20,7 +20,8 @@ xpt doesn't use GitHub-style pull requests. instead:
 [sr.ht's send-email tutorial](https://git-send-email.io/)
 4. send your patch to: **~juanvel400/xpt-devel@lists.sr.ht**
 ```sh
-  $ git send-email --to=~juanvel400/xpt-devel@lists.sr.ht origin/main
+ $ git format-patch origin/main
+ $ git send-email --to=~juanvel400/xpt-devel@lists.sr.ht *.patch
 ```
 
 ## commit style

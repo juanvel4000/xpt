@@ -2,13 +2,30 @@
 
 a minimalistic package manager for `.xpt` packages, written in C.
 
+xpt consists of the `libxpt(3)` package-management library and the `xpt(8)` command-line frontend. the repository also contains ebt, a separate set of POSIX shell tools for building `.xpt` packages.
+
 ## features
 
 - install/remove/list packages, dependency resolution, repo sync
 - lightweight libfetch implementation derived from NetBSD
 - sqlite3-backed local database storage
-- barebones package format
+- simple zstd-based package format
 
+## dependencies
+
+building xpt requires
+
+- Meson
+- Ninja
+- libc
+- a C compiler
+- pkg-config
+- SQLite3
+- libarchive (with zstd and tar support)
+- zstd
+- OpenSSL (if networking is enabled)
+
+libfetch is built as part of the project when networking support is enabled.
 ## building
 
 ```sh
@@ -64,18 +81,18 @@ run
 
 ## documentation
 
-manpages are installed alongside the executables if documentation was enabled at build time
+manpages are installed when documentation is enabled at build time
 
-| manpage           | describes                    |
-|-------------------|------------------------------|
-| `xpt(8)`          | the `xpt` cli                |
-| `libxpt(3)`       | the `libxpt` library api     |
-| `ebs(1)`          | the ebs build system         |
-| `ebs(5)`          | the ebs formula file format  |
-| `ecw(8)`          | the ecw chroot wrapper       |
-| `mkfhs(1)`        | the FHS tree creator         |
-| `xpt.manifest(5)` | the xpt.manifest file format |
-| `xpt.tree(5)`     | the xpt.tree file format     |
+| manpage           | describes                          |
+|-------------------|------------------------------------|
+| `xpt(8)`          | the `xpt` cli                      |
+| `libxpt(3)`       | the `libxpt` library api           |
+| `ebs(1)`          | the ebs build system               |
+| `ebs(5)`          | the ebs formula file format        |
+| `ecw(8)`          | the ecw chroot wrapper             |
+| `mkfhs(1)`        | creates a `hier(7)` directory tree |
+| `xpt.manifest(5)` | the xpt.manifest file format       |
+| `xpt.tree(5)`     | the xpt.tree file format           |
 
 > view any of them with, e.g.:
 > ```sh
@@ -90,9 +107,9 @@ ebt bundles a set of tools written in POSIX `sh` for building `.xpt` packages fr
 
 ### tools
 
-- mkfhs: creates a fully compliant FHS directory tree
-- ecw: a wrapper around `chroot(1)`
-- ebs: a build system for EBS formula, which outputs a zstd-based `.xpt` package
+- `mkfhs(1)`: creates a `hier(7)` directory tree
+- `ecw(8)`: a wrapper around `chroot(8)`
+- `ebs(1)`: a build system for `ebs(5)` formulae, producing zstd-based `.xpt` packages
 
 ### installation
 
@@ -113,6 +130,6 @@ to install only ebt
 
 BSD-3-Clause -- see LICENSE
 
-third-party artifacts (libfetch and libfetch/openssl-compat) are specified in THIRD-PARTY-LICENSES
+third-party source is specified in THIRD-PARTY-LICENSES
 
 

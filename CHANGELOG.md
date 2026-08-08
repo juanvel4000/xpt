@@ -11,6 +11,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ### Changed
 - format various source files
 - remove openssl-compat from libfetch
+- improve consistency in README.md and manpages
 
 ## [0.6.1] - basic test suite and improved documentation
 ### Added
@@ -36,7 +37,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - path traversal protection
 - meaningful exit codes via XPT_EX_*
 
-## [0.5.1] -  add a xpt_print_build_info function and allow static linking in xpt
+## [0.5.1] -  add a xpt_print_build_info() function and allow static linking in xpt
 ### Added
 - xpt_print_build_info() in libxpt and a -B command in xpt
 - static linking for the xpt binary
@@ -66,10 +67,9 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ## [0.4.0] - add a lockfile and drop long-options
 ### Added
 - basic lockfile to prevent concurrent runs
-### Changed
-- dropped long-options, standarized the usage text
-### Added
 - separate xpt/Makefile
+### Changed
+- dropped long-options, standardized the usage text
 
 ## [0.3.2] - organization improvements
 ### Changed

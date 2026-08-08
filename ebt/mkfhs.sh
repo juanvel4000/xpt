@@ -1,5 +1,5 @@
 #!/bin/sh
-# mkfhs: create a fhs-compiliant tree layout
+# mkfhs: create a hier(7) tree layout
 set -e
 
 
@@ -7,7 +7,7 @@ ROOTFS=${1:-$(pwd)}
 TARGETARCH=${2:-$(uname -m)}
 if [ "$ROOTFS" = '--help' ]; then
     echo "usage: $0 [rootfs] [arch]"
-    echo "create a fhs-compiliant directory tree in [rootfs]"
+    echo "create a hier(7)-compiliant directory tree in [rootfs]"
     echo "  [rootfs]      defaults to '.'"
     echo "  [arch]        defaults to $(uname -m)"
     echo "  if [arch] is 'x86_64', then a lib64 directory will be created"
@@ -50,4 +50,4 @@ echo "* setting permissions"
 chmod 1777 "$ROOTFS/tmp" "$ROOTFS/var/tmp"
 chmod 0700 "$ROOTFS/root"
 
-echo "successfully created a fhs tree in $ROOTFS for $TARGETARCH"
+echo "successfully created a hier(7) tree in $ROOTFS for $TARGETARCH"
