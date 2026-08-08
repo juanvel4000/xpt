@@ -13,5 +13,5 @@ endif
 
 install_data(
     'examples/ebs.formula',
-    install_dir: join_paths(get_option('datadir'), 'xpt')
+    install_dir: join_paths(get_option('datadir'), 'xpt'),
 )

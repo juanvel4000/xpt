@@ -14,7 +14,7 @@ ebt_only = get_option('ebt_only')
 ebt = get_option('ebt')
 
 if ebt_only.enabled() and ebt.disabled()
-  error('ebt_only requires ebt to not be disabled')
+    error('ebt_only requires ebt to not be disabled')
 endif
 
 if get_option('ebt_only').disabled()
