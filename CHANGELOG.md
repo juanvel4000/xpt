@@ -5,7 +5,7 @@ All notable changes to xpt will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
-## [Unreleased]
+## [0.7.0] - fix CLI lock handling, expand tests and dev tooling
 ### Added
 - scripts/fmt.sh script for code formatting
 - CONTRIBUTING.md
@@ -16,8 +16,9 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - format various source files
 - improve consistency in README.md and manpages
 - fix shellcheck warnings in ebt
+- improve the CLI UX; use the lock only in mutable actions
 ### Removed
-- remove openssl-compat from libfetch
+- openssl-compat from libfetch
 
 ## [0.6.1] - basic test suite and improved documentation
 ### Added
