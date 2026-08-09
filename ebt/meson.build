@@ -18,3 +18,10 @@ install_data(
     install_mode: 'rwxr-xr-x',
     rename: 'mkfhs',
 )
+
+install_data(
+    'rig.sh',
+    install_dir: get_option('bindir'),
+    install_mode: 'rwxr-xr-x',
+    rename: 'rig',
+)

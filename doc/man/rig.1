@@ -1,0 +1,63 @@
+.Dd August 2026
+.Dt RIG 1
+.Os
+.Sh NAME
+.Nm rig
+.Nd xpt.index file generator
+.Sh SYNOPSIS
+.Nm
+.Op Fl hqr
+.Op Fl d Ar directory
+.Op Fl u Ar url
+.Op Fl o Ar output
+.Sh DESCRIPTION
+.Nm
+is a shell script that generates
+.Xr xpt.index 5
+from a directory tree.
+
+.Nm
+is part of ebt build tools
+.Pq Nm ebt .
+.Sh OPTIONS
+.Bl -tag -width Ds
+.It Fl h
+print a help message to the screen.
+.It Fl q
+make the output of most operations quiet (doesn't hide errors)
+.It Fl r
+find
+.Xr xpt 8
+packages in subdirectories.
+
+.It Fl d Ar directory
+specify the directory containing the
+.Xr xpt 8
+packages.
+
+.It Fl u Ar url
+specify the URL prefix for the
+.B url
+field in the generated
+.Xr xpt.index 5 .
+
+.It Fl o Ar output
+specify the output file to write the final
+.Xr xpt.index 5
+to.
+
+if a
+.Sq -
+is provided, write to stdout.
+.El
+.Sh SEE ALSO
+.Xr mkfhs 1 ,
+.Xr ebs 5 ,
+.Xr ecw 8 ,
+.Xr libxpt 3 ,
+.Xr xpt.manifest 5 ,
+.Xr xpt.tree 5 ,
+.Xr xpt.index 5 ,
+.Xr xpt 8
+.Sh LICENSE
+BSD-3-Clause, see the source code for details.

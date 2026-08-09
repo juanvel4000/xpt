@@ -91,8 +91,10 @@ manpages are installed when documentation is enabled at build time
 | `ebs(5)`          | the ebs formula file format        |
 | `ecw(8)`          | the ecw chroot wrapper             |
 | `mkfhs(1)`        | creates a `hier(7)` directory tree |
+| `rig(1)`          | generates an xpt.index             |
 | `xpt.manifest(5)` | the xpt.manifest file format       |
 | `xpt.tree(5)`     | the xpt.tree file format           |
+| `xpt.index(5)`    | the xpt.index file format          |
 
 > view any of them with, e.g.:
 > ```sh

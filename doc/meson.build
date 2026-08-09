@@ -10,6 +10,7 @@ if get_option('ebt').enabled()
     install_man('man/ebs.1')
     install_man('man/ecw.8')
     install_man('man/ebs.5')
+    install_man('man/rig.1')
 endif
 
 install_data(
