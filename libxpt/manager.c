@@ -27,6 +27,11 @@ int xpt_package_install(const char *file, const char *destdir, int log,
         return XPT_EX_NOINPUT;
     }
 
+    if (preflight_payload(file, destdir) != 0) {
+        fprintf(stderr, "could not extract %s\n", file);
+        return XPT_EX_DATAERR;
+    }
+
     if (extract_payload(file, destdir) != 0) {
         fprintf(stderr, "could not extract %s\n", file);
         return XPT_EX_IOERR;
@@ -121,7 +126,9 @@ void prune_empty_dirs(const char *file_path, const char *root_dir)
 }
 
 struct uninstall_ctx {
+    const char *name;
     const char *destdir;
+    int log;
 };
 
 static int uninstall_file(const char *path, void *userdata)
@@ -132,6 +139,18 @@ static int uninstall_file(const char *path, void *userdata)
     char full[PATH_MAX];
 
     snprintf(full, sizeof(full), "%s/%s", ctx->destdir, path);
+
+    int shared;
+    if (database_file_has_other_owners(ctx->name, path, ctx->destdir,
+                                       &shared) != 0)
+
+        return XPT_EX_IOERR;
+
+    if (shared) {
+        if (ctx->log == XPT_LOG_OK)
+            printf("keeping shared file: %s\n", path);
+        return 0;
+    }
 
     if (is_file(full) != 0) {
         remove(full);
@@ -150,7 +169,7 @@ int xpt_package_remove(const char *name, const char *destdir, int log)
     if (log == XPT_LOG_OK)
         printf("uninstalling %s...\n", name);
 
-    struct uninstall_ctx ctx = {.destdir = destdir};
+    struct uninstall_ctx ctx = {.name = name, .destdir = destdir, .log = log};
 
     if (database_foreach_file(name, destdir, uninstall_file, &ctx) != 0) {
         fprintf(stderr, "failed to enumerate files for %s\n", name);

@@ -19,12 +19,12 @@ static int make_paths(char *db, size_t db_size, char *xptdir,
                    XPT_LOCALSTATEDIR);
 
     if (ret < 0 || (size_t)ret >= xptdir_size)
-        return -1;
+        return 1;
 
     ret = snprintf(db, db_size, "%s/xpt.db", xptdir);
 
     if (ret < 0 || (size_t)ret >= db_size)
-        return -1;
+        return 1;
 
     return XPT_EX_OK;
 }
@@ -382,4 +382,71 @@ int database_foreach_file(const char *pkgname, const char *destdir,
     sqlite3_close(conn);
 
     return XPT_EX_OK;
+}
+
+int database_file_has_other_owners(const char *name, const char *path,
+                                   const char *destdir, int *shared)
+{
+    sqlite3 *conn = open_db(destdir);
+    if (!conn)
+        return 1;
+
+    sqlite3_stmt *stmt;
+
+    const char *sql = "SELECT EXISTS("
+                      "SELECT 1 FROM files WHERE path = ? AND pkgname != ?"
+                      ");";
+
+    if (sqlite3_prepare_v2(conn, sql, -1, &stmt, NULL) != SQLITE_OK) {
+        sqlite3_close(conn);
+        return 1;
+    }
+
+    sqlite3_bind_text(stmt, 1, path, -1, SQLITE_STATIC);
+    sqlite3_bind_text(stmt, 2, name, -1, SQLITE_STATIC);
+
+    int result;
+    if (sqlite3_step(stmt) == SQLITE_ROW) {
+        *shared = sqlite3_column_int(stmt, 0);
+        result = 0;
+    } else
+        result = 1;
+
+    sqlite3_finalize(stmt);
+    sqlite3_close(conn);
+
+    return result;
+}
+
+int database_file_has_owner(const char *path, const char *destdir, int *owned)
+{
+    sqlite3 *conn = open_db(destdir);
+    if (!conn)
+        return 1;
+
+    sqlite3_stmt *stmt;
+
+    const char *sql = "SELECT EXISTS("
+                      "SELECT 1 FROM files WHERE path = ?"
+                      ");";
+
+    if (sqlite3_prepare_v2(conn, sql, -1, &stmt, NULL) != SQLITE_OK) {
+        sqlite3_close(conn);
+        return 1;
+    }
+
+    sqlite3_bind_text(stmt, 1, path, -1, SQLITE_STATIC);
+
+    int result;
+    if (sqlite3_step(stmt) == SQLITE_ROW) {
+        *owned = sqlite3_column_int(stmt, 0);
+        result = 0;
+    } else {
+        result = 1;
+    }
+
+    sqlite3_finalize(stmt);
+    sqlite3_close(conn);
+
+    return result;
 }

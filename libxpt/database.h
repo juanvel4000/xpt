@@ -17,4 +17,8 @@ int database_files_add(const char *pkgname, const char *treefile,
 typedef int (*database_file_callback)(const char *path, void *userdata);
 int database_foreach_file(const char *pkgname, const char *destdir,
                           database_file_callback cb, void *userdata);
+int database_file_has_other_owners(const char *name, const char *path,
+                                   const char *destdir, int *shared);
+int database_file_has_owner(const char *path, const char *destdir, int *owned);
+
 #endif /* DATABASE_H */
