@@ -8,8 +8,12 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ### Added
 - package-file ownership awareness in install/uninstall
 - virtual packages / capability system (`provides=`)
+- "known limitations" section in README.md
+- transactions in the database
 ### Changed
-- fix contradictions in ROADMAP.md
+- rename docs -> doc
+### Removed
+- ROADMAP.md 
 
 ## [0.7.0] - fix CLI lock handling, expand tests and dev tooling
 ### Added

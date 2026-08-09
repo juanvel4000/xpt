@@ -29,6 +29,21 @@ static int make_paths(char *db, size_t db_size, char *xptdir,
     return 0;
 }
 
+static int tbegin(sqlite3 *conn)
+{
+    return sqlite3_exec(conn, "BEGIN;", NULL, NULL, NULL);
+}
+
+static int trollback(sqlite3 *conn)
+{
+    return sqlite3_exec(conn, "ROLLBACK;", NULL, NULL, NULL);
+}
+
+static int tcommit(sqlite3 *conn)
+{
+    return sqlite3_exec(conn, "COMMIT;", NULL, NULL, NULL);
+}
+
 static sqlite3 *open_db(const char *destdir)
 {
     char db[PATH_MAX];
@@ -109,6 +124,8 @@ int database_add(PackageInfo *pi, const char *destdir)
     if (!conn)
         return 1;
 
+    tbegin(conn);
+
     sqlite3_stmt *stmt;
     const char *sql = "INSERT INTO packages (name, version, desc, maintainer, "
                       "arch, license, homepage, build_epoch) VALUES (?, ?, ?, "
@@ -116,6 +133,8 @@ int database_add(PackageInfo *pi, const char *destdir)
     if (sqlite3_prepare_v2(conn, sql, -1, &stmt, NULL) != SQLITE_OK) {
         fprintf(stderr, "could not add package to database: %s\n",
                 sqlite3_errmsg(conn));
+
+        trollback(conn);
         sqlite3_close(conn);
         return 1;
     }
@@ -138,16 +157,20 @@ int database_add(PackageInfo *pi, const char *destdir)
 
     sqlite3_bind_int64(stmt, 8, pi->build_epoch);
 
-    int ret = 0;
     if (sqlite3_step(stmt) != SQLITE_DONE) {
         fprintf(stderr, "could not add package to database: %s\n",
                 sqlite3_errmsg(conn));
-        ret = 1;
+
+        trollback(conn);
+        sqlite3_finalize(stmt);
+        sqlite3_close(conn);
+        return 1;
     }
 
+    tcommit(conn);
     sqlite3_finalize(stmt);
     sqlite3_close(conn);
-    return ret;
+    return 0;
 }
 
 char *xpt_package_getversion(const char *package, const char *destdir)
@@ -183,11 +206,13 @@ int database_update(const char *package, const char *version,
     if (!conn)
         return 1;
 
+    tbegin(conn);
     sqlite3_stmt *stmt;
     const char *sql = "UPDATE packages SET version = ? WHERE name = ?;";
     if (sqlite3_prepare_v2(conn, sql, -1, &stmt, NULL) != SQLITE_OK) {
         fprintf(stderr, "could not update the package: %s\n",
                 sqlite3_errmsg(conn));
+        trollback(conn);
         sqlite3_close(conn);
         return 1;
     }
@@ -195,16 +220,20 @@ int database_update(const char *package, const char *version,
     sqlite3_bind_text(stmt, 1, version, -1, SQLITE_STATIC);
     sqlite3_bind_text(stmt, 2, package, -1, SQLITE_STATIC);
 
-    int ret = 0;
     if (sqlite3_step(stmt) != SQLITE_DONE) {
         fprintf(stderr, "could not update the package: %s\n",
                 sqlite3_errmsg(conn));
-        ret = 1;
+
+        trollback(conn);
+        sqlite3_finalize(stmt);
+        sqlite3_close(conn);
+        return 1;
     }
 
+    tcommit(conn);
     sqlite3_finalize(stmt);
     sqlite3_close(conn);
-    return ret;
+    return 0;
 }
 
 int database_delete(const char *package, const char *destdir)
@@ -213,25 +242,31 @@ int database_delete(const char *package, const char *destdir)
     if (!conn)
         return 1;
 
+    tbegin(conn);
     sqlite3_stmt *stmt;
     const char *sql = "DELETE FROM packages WHERE name = ?;";
     if (sqlite3_prepare_v2(conn, sql, -1, &stmt, NULL) != SQLITE_OK) {
         fprintf(stderr, "could not delete package: %s\n", sqlite3_errmsg(conn));
+        trollback(conn);
         sqlite3_close(conn);
         return 1;
     }
 
     sqlite3_bind_text(stmt, 1, package, -1, SQLITE_STATIC);
 
-    int ret = 0;
     if (sqlite3_step(stmt) != SQLITE_DONE) {
         fprintf(stderr, "could not delete package: %s\n", sqlite3_errmsg(conn));
-        ret = 1;
+
+        trollback(conn);
+        sqlite3_finalize(stmt);
+        sqlite3_close(conn);
+        return 1;
     }
 
+    tcommit(conn);
     sqlite3_finalize(stmt);
     sqlite3_close(conn);
-    return ret;
+    return 0;
 }
 
 int xpt_package_list(const char *destdir)
@@ -326,6 +361,7 @@ int database_files_add(const char *pkgname, const char *treefile,
         return 1;
     }
 
+    tbegin(conn);
     sqlite3_stmt *stmt;
 
     if (sqlite3_prepare_v2(conn,
@@ -346,17 +382,23 @@ int database_files_add(const char *pkgname, const char *treefile,
         sqlite3_bind_text(stmt, 2, pkgname, -1, SQLITE_TRANSIENT);
 
         if (sqlite3_step(stmt) != SQLITE_DONE) {
-            fprintf(stderr, "warning: failed to save %s (%s): %s\n", line,
+            fprintf(stderr, "failed to save %s (%s): %s\n", line,
                     pkgname, sqlite3_errmsg(conn));
-            continue;
+            trollback(conn);
+            sqlite3_finalize(stmt);
+            fclose(fp);
+            sqlite3_close(conn);
+            return 1;
         }
 
         sqlite3_reset(stmt);
     }
 
+    tcommit(conn);
     sqlite3_finalize(stmt);
+    fclose(fp);
     sqlite3_close(conn);
-    return XPT_EX_OK;
+    return 0;
 }
 
 int database_foreach_file(const char *pkgname, const char *destdir,
@@ -464,6 +506,7 @@ int database_provides_add(const char *pkgname, char *const *capabilities,
     if (!conn)
         return 1;
 
+    tbegin(conn);
     sqlite3_stmt *stmt;
 
     if (sqlite3_prepare_v2(
@@ -479,8 +522,9 @@ int database_provides_add(const char *pkgname, char *const *capabilities,
         sqlite3_bind_text(stmt, 2, pkgname, -1, SQLITE_TRANSIENT);
 
         if (sqlite3_step(stmt) != SQLITE_DONE) {
-            fprintf(stderr, " failed to save capability %s (%s): %s\n", capability,
-                    pkgname, sqlite3_errmsg(conn));
+            fprintf(stderr, " failed to save capability %s (%s): %s\n",
+                    capability, pkgname, sqlite3_errmsg(conn));
+            trollback(conn);
             sqlite3_finalize(stmt);
             sqlite3_close(conn);
             return 1;
@@ -489,6 +533,7 @@ int database_provides_add(const char *pkgname, char *const *capabilities,
         sqlite3_reset(stmt);
     }
 
+    tcommit(conn);
     sqlite3_finalize(stmt);
     sqlite3_close(conn);
     return 0;
