@@ -34,7 +34,7 @@ if get_option('ebt').enabled()
         find_program('test_ebs.sh'),
         args: [
             meson.current_source_dir() / '../ebt/ebs.sh',
-            meson.current_source_dir() / '../docs/examples/ebs.formula',
+            meson.current_source_dir() / '../doc/examples/ebs.formula',
         ],
         timeout: 120,
     )
