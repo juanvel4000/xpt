@@ -35,5 +35,17 @@ option(
     'tests',
     type: 'feature',
     value: 'enabled',
-    description: 'run the xpt tests suite',
+    description: 'run the test suite',
+)
+option(
+    'libxpt',
+    type: 'feature',
+    value: 'enabled',
+    description: 'build the libxpt library',
+)
+option(
+    'xpt',
+    type: 'feature',
+    value: 'enabled',
+    description: 'build the xpt binary',
 )

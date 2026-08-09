@@ -8,6 +8,7 @@ pkgver=0.1.0
 pkgdesc="simple hello world program"
 pkgmaintainer="you <you@example.com>"
 pkgdeps=""
+pkgprovides=""
 
 pkghomepage="https://dl.juanvel400.com/#hello"
 pkglicense="BSD-3-Clause"

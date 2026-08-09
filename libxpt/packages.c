@@ -112,7 +112,8 @@ int extract_payload(const char *file, const char *destdir)
     archive_write_disk_set_options(
         ext, ARCHIVE_EXTRACT_TIME | ARCHIVE_EXTRACT_PERM | ARCHIVE_EXTRACT_ACL |
                  ARCHIVE_EXTRACT_FFLAGS | ARCHIVE_EXTRACT_OWNER |
-                 ARCHIVE_EXTRACT_XATTR);
+                 ARCHIVE_EXTRACT_XATTR | ARCHIVE_EXTRACT_SECURE_SYMLINKS |
+                 ARCHIVE_EXTRACT_SECURE_NODOTDOT);
 
     int hr;
     while ((hr = archive_read_next_header(a, &entry)) == ARCHIVE_OK) {

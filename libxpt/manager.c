@@ -124,7 +124,8 @@ int xpt_package_install(const char *file, const char *destdir, int log,
         return XPT_EX_IOERR;
     }
 
-    if (database_provides_add(pi->name, pi->provides, pi->provides_count, destdir) != 0) {
+    if (database_provides_add(pi->name, pi->provides, pi->provides_count,
+                              destdir) != 0) {
         fprintf(stderr, "error saving capabilities to database\n");
         database_delete(pi->name, destdir);
         delete_package_info(pi);

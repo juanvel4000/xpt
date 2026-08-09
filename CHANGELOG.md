@@ -12,6 +12,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - transactions in the database
 ### Changed
 - rename docs -> doc
+- expand and fix issues in the xpt(8) help text
+- add modular options to meson.build
 ### Removed
 - ROADMAP.md 
 

@@ -382,8 +382,8 @@ int database_files_add(const char *pkgname, const char *treefile,
         sqlite3_bind_text(stmt, 2, pkgname, -1, SQLITE_TRANSIENT);
 
         if (sqlite3_step(stmt) != SQLITE_DONE) {
-            fprintf(stderr, "failed to save %s (%s): %s\n", line,
-                    pkgname, sqlite3_errmsg(conn));
+            fprintf(stderr, "failed to save %s (%s): %s\n", line, pkgname,
+                    sqlite3_errmsg(conn));
             trollback(conn);
             sqlite3_finalize(stmt);
             fclose(fp);

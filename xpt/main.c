@@ -34,8 +34,7 @@ int main(int argc, char *argv[])
     int loglevel = XPT_LOG_OK;
 
     if (argc == 1) {
-        fprintf(stderr, "usage: xpt <action> [-q] [-d dir] [-f file | -p "
-                        "package | -n net-package]\n");
+        fprintf(stderr, "usage: xpt command [options]\n");
         fprintf(stderr, "try 'xpt -h' for more information.\n");
         return XPT_EX_USAGE;
     }
@@ -87,6 +86,10 @@ int main(int argc, char *argv[])
             printf("copyright (c) 2025-2026 juanvel400.\n");
             printf("license BSD-3-Clause "
                    "<http://spdx.org/licenses/BSD-3-Clause.html>\n");
+#if XPT_DISABLE_NETWORKING
+            printf("libxpt has been built without networking support.\n");
+#endif
+
             return XPT_EX_OK;
         case 'd':
             snprintf(destdir, sizeof(destdir), "%s", optarg);
@@ -98,15 +101,16 @@ int main(int argc, char *argv[])
             xpt_print_build_info(stdout);
             return XPT_EX_OK;
         case 'h':
-            printf("usage: xpt -V | -i | -g | -h | -r | -l | -t | -s | -I | -B "
-                   "[-q] [-d "
-                   "dir] [-f file | -p package | -n net-package]\n");
-            printf("the xpt package tool\n");
+            printf("xpt v%s\n", xptver);
+            printf("usage: xpt command [options]\n\n");
+            printf(
+                "xpt is a package management utility designed to install,\n"
+                "remove and administer .xpt packages. it is designed as\n"
+                "both a high-level and a medium-level interface for package\n"
+                "management.\n\n");
             printf("commands:\n");
             printf("  %-10s %s\n", "-V", "show the current xpt version");
-            printf("  %-10s %s\n", "-i",
-                   "install a package (requires specifying a package with -f "
-                   "or -n)");
+            printf("  %-10s %s\n", "-i", "install a package");
             printf("  %-10s %s\n", "-g",
                    "get the version of an installed package");
             printf("  %-10s %s\n", "-h", "show this message");
@@ -117,22 +121,25 @@ int main(int argc, char *argv[])
 #if !XPT_DISABLE_NETWORKING
             printf("  %-10s %s\n", "-s", "download the repository indexes");
 #endif
-            printf("  %-10s %s\n\n", "-I", "show metadata about a package");
+            printf("  %-10s %s\n", "-I", "show metadata about a package");
+            printf("  %-10s %s\n\n", "-B", "print the libxpt build info");
 
             printf("options:\n");
-            printf("  %-10s %s\n", "-f <file>", "specify a file");
+            printf("  %-10s %s\n", "-f <file>",
+                   "operate on a .xpt package file");
             printf("  %-10s %s\n", "-p <pkg>",
-                   "specify an installed package name");
-            printf("  %-10s %s\n", "-d <dir>",
-                   "specify a destination directory for the operations");
+                   "operate on an installed package");
 #if !XPT_DISABLE_NETWORKING
             printf("  %-10s %s\n", "-n <pkg>",
-                   "specify a package from one of the repositories");
+                   "operate on a repository/network package");
 #endif
+            printf("  %-10s %s\n", "-d <dir>",
+                   "specify a destination directory for the operations");
             printf("  %-10s %s\n", "-q",
                    "make the output of most operations quiet (doesn't hide "
                    "errors)");
-            printf("  %-10s %s\n", "-B", "print the libxpt build info");
+            printf("\nsee xpt(8) for more information about the available "
+                   "commands\n");
             return XPT_EX_OK;
         default:
             fprintf(stderr, "usage: xpt <action> [-q] [-d dir] [-f file | -p "
