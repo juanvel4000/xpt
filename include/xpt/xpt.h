@@ -21,6 +21,7 @@ int xpt_package_printinfo(const char *package, const char *destdir);
 char *xpt_package_getversion(const char *package, const char *destdir);
 
 int xpt_repos_sync(const char *destdir);
+int xpt_repos_getpkginfo(const char *name, const char *destdir);
 
 void xpt_print_build_info(FILE *out);
 

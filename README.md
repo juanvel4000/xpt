@@ -42,7 +42,7 @@ xpt exposes several meson build-time options
 | `static`     | boolean    | `false`    | build a statically linked xpt executable |
 | `networking` | feature    | `enabled`  | build xpt with networking support        |
 | `ebt`        | feature    | `enabled`  | ebt build system                         |
-| `doc`       | feature    | `enabled`  | xpt/ebt documentation                    |
+| `doc`        | feature    | `enabled`  | xpt/ebt documentation                    |
 | `ebt_only`   | feature    | `disabled` | only build ebt                           |
 | `tests`      | feature    | `enabled`  | run the xpt tests suite                  |
 
@@ -112,6 +112,7 @@ ebt bundles a set of tools written in POSIX `sh` for building `.xpt` packages fr
 - `mkfhs(1)`: creates a `hier(7)` directory tree
 - `ecw(8)`: a wrapper around `chroot(8)`
 - `ebs(1)`: a build system for `ebs(5)` formulae, producing zstd-based `.xpt` packages
+- `rig(1)`: a `xpt.index(5)` repository index generator
 
 ### installation
 

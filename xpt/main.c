@@ -25,7 +25,8 @@ int main(int argc, char *argv[])
         ACTION_LIST,
         ACTION_TREE,
         ACTION_SYNC,
-        ACTION_INFO
+        ACTION_INFO,
+        ACTION_NPKGINFO
     } xpt_action_t;
 
     xpt_action_t action = ACTION_NONE;
@@ -39,7 +40,7 @@ int main(int argc, char *argv[])
         return XPT_EX_USAGE;
     }
 
-    while ((opt = getopt(argc, argv, "iqsVghltrIBf:p:n:d:")) != -1) {
+    while ((opt = getopt(argc, argv, "iqsVghltrIBQf:p:n:d:")) != -1) {
         switch (opt) {
         case 'f':
             filename = optarg;
@@ -81,6 +82,14 @@ int main(int argc, char *argv[])
 #endif
             action = ACTION_SYNC;
             break;
+        case 'Q':
+#if XPT_DISABLE_NETWORKING
+            fprintf(stderr,
+                    "libxpt has been built without networking support.\n");
+            return XPT_EX_USAGE;
+#endif
+            action = ACTION_NPKGINFO;
+            break;
         case 'V':
             printf("xpt (xpt package tool) v%s\n", xptver);
             printf("copyright (c) 2025-2026 juanvel400.\n");
@@ -120,6 +129,7 @@ int main(int argc, char *argv[])
             printf("  %-10s %s\n", "-t", "show the files used by a package");
 #if !XPT_DISABLE_NETWORKING
             printf("  %-10s %s\n", "-s", "download the repository indexes");
+            printf("  %-10s %s\n", "-Q", "get information of a package in a repository");
 #endif
             printf("  %-10s %s\n", "-I", "show metadata about a package");
             printf("  %-10s %s\n\n", "-B", "print the libxpt build info");
@@ -239,6 +249,19 @@ int main(int argc, char *argv[])
         }
 
         return XPT_EX_OK;
+    } else if (action == ACTION_NPKGINFO) {
+#if !XPT_DISABLE_NETWORKING
+        if (net_package == NULL)   {
+            fprintf(stderr, "please specify a network-package with -n <pkg>\n");
+            return XPT_EX_USAGE;
+        }
+
+        xpt_repos_getpkginfo(net_package, destdir);
+        return XPT_EX_OK;
+#else
+        fprintf(stderr, "libxpt has been built without networking support.\n");
+        return XPT_EX_USAGE;
+#endif
     } else if (action == ACTION_NONE) {
         fprintf(stderr, "no action specified; try 'xpt -h'\n");
         return XPT_EX_USAGE;

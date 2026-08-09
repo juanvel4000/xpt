@@ -292,3 +292,23 @@ int verify_sha256(const char *file, const char *expected_hex)
 
     return strcasecmp(hex, expected_hex) == 0 ? 0 : 1;
 }
+
+int xpt_repos_getpkginfo(const char *name, const char *destdir)
+{
+    char cachefile[PATH_MAX];
+    snprintf(cachefile, sizeof(cachefile), "%s%s/cache/xpt.repositories", destdir,
+             XPT_LOCALSTATEDIR);
+
+    RepoPackage *rp;
+
+    rp = repo_index_lookup(cachefile, name);
+    if (rp == NULL) {
+        fprintf(stderr, "package not found: %s\n", name);
+        repo_package_free(rp);
+        return XPT_EX_NOINPUT;
+    }
+
+    printf("%s@%s (%s)\n", rp->name, rp->version, rp->arch);
+    repo_package_free(rp);
+    return XPT_EX_OK;
+}
