@@ -22,8 +22,8 @@ if get_option('ebt_only').disabled()
     subdir('libxpt')
     subdir('xpt')
 endif
-if get_option('docs').enabled()
-    subdir('docs')
+if get_option('doc').enabled()
+    subdir('doc')
 endif
 if get_option('ebt').enabled()
     subdir('ebt')

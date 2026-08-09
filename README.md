@@ -42,7 +42,7 @@ xpt exposes several meson build-time options
 | `static`     | boolean    | `false`    | build a statically linked xpt executable |
 | `networking` | feature    | `enabled`  | build xpt with networking support        |
 | `ebt`        | feature    | `enabled`  | ebt build system                         |
-| `docs`       | feature    | `enabled`  | xpt/ebt documentation                    |
+| `doc`       | feature    | `enabled`  | xpt/ebt documentation                    |
 | `ebt_only`   | feature    | `disabled` | only build ebt                           |
 | `tests`      | feature    | `enabled`  | run the xpt tests suite                  |
 
@@ -120,10 +120,15 @@ to install only ebt
   $ meson install -C build
 ```
 
+## known limitations
+
+- offline / local installs cannot resolve transitive dependencies.
+- no GPG-signed repositories or packages yet
+- package uninstall could use more polish
+
 ## project status
 
 - [CHANGELOG.md](CHANGELOG.md) -- release history
-- [ROADMAP.md](ROADMAP.md) -- known limitations and planned work
 - [CONTRIBUTING.md](CONTRIBUTING.md) -- how to report bugs and send patches
 
 ## license

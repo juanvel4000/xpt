@@ -7,6 +7,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ## [Unreleased]
 ### Added
 - package-file ownership awareness in install/uninstall
+- virtual packages / capability system (`provides=`)
 ### Changed
 - fix contradictions in ROADMAP.md
 
