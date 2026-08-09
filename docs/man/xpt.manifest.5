@@ -61,6 +61,12 @@ a URL to the package's website.
 .It Va build_epoch
 unix timestamp of when the package was built.
 
+.It Va provides
+comma-separated list of provided virtual packages.
+if another package already provides a listed capability,
+.Xr xpt 8
+will prompt to replace it.
+
 .El
 .Sh SEE ALSO
 .Xr mkfhs 1 ,

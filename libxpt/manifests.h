@@ -13,6 +13,9 @@ typedef struct {
     char **depends;
     size_t depends_count;
 
+    char **provides;
+    size_t provides_count;
+
     char *license;
     char *homepage;
 
@@ -24,4 +27,5 @@ typedef struct {
 
 void delete_package_info(PackageInfo *pi);
 PackageInfo *parse_manifest(const char *file);
+int package_info_add_provide(PackageInfo *pi, const char *capability);
 #endif /* MANIFESTS_H */

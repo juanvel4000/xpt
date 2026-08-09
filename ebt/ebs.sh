@@ -278,7 +278,7 @@ arch=${pkgarch:-$(uname -m)}
 desc=$pkgdesc
 maintainer=$pkgmaintainer
 depends=${pkgdeps:-}
-
+provides=${pkgprovides:-}
 EOF
 
 	if [ "${pkglicense:-""}" != "" ]; then

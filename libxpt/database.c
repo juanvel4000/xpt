@@ -26,7 +26,7 @@ static int make_paths(char *db, size_t db_size, char *xptdir,
     if (ret < 0 || (size_t)ret >= db_size)
         return 1;
 
-    return XPT_EX_OK;
+    return 0;
 }
 
 static sqlite3 *open_db(const char *destdir)
@@ -63,6 +63,12 @@ static sqlite3 *open_db(const char *destdir)
         "  pkgname TEXT NOT NULL,"
         "  FOREIGN KEY (pkgname) REFERENCES packages(name) ON DELETE CASCADE,"
         "  UNIQUE (pkgname, path)"
+        ");"
+        "CREATE TABLE IF NOT EXISTS provides ("
+        "  capability TEXT NOT NULL,"
+        "  pkgname  TEXT NOT NULL,"
+        "  FOREIGN KEY (pkgname) REFERENCES packages(name) ON DELETE CASCADE,"
+        "  UNIQUE (capability)"
         ");";
 
     char *errmsg = NULL;
@@ -449,4 +455,68 @@ int database_file_has_owner(const char *path, const char *destdir, int *owned)
     sqlite3_close(conn);
 
     return result;
+}
+
+int database_provides_add(const char *pkgname, char *const *capabilities,
+                          size_t capability_count, const char *destdir)
+{
+    sqlite3 *conn = open_db(destdir);
+    if (!conn)
+        return 1;
+
+    sqlite3_stmt *stmt;
+
+    if (sqlite3_prepare_v2(
+            conn, "INSERT INTO provides (capability, pkgname) VALUES (?, ?);",
+            -1, &stmt, NULL) != SQLITE_OK) {
+        sqlite3_close(conn);
+        return 1;
+    }
+
+    for (size_t i = 0; i < capability_count; i++) {
+        const char *capability = capabilities[i];
+        sqlite3_bind_text(stmt, 1, capability, -1, SQLITE_TRANSIENT);
+        sqlite3_bind_text(stmt, 2, pkgname, -1, SQLITE_TRANSIENT);
+
+        if (sqlite3_step(stmt) != SQLITE_DONE) {
+            fprintf(stderr, " failed to save capability %s (%s): %s\n", capability,
+                    pkgname, sqlite3_errmsg(conn));
+            sqlite3_finalize(stmt);
+            sqlite3_close(conn);
+            return 1;
+        }
+
+        sqlite3_reset(stmt);
+    }
+
+    sqlite3_finalize(stmt);
+    sqlite3_close(conn);
+    return 0;
+}
+
+char *database_who_provides(const char *capability, const char *destdir)
+{
+    sqlite3 *conn = open_db(destdir);
+    if (!conn)
+        return NULL;
+
+    sqlite3_stmt *stmt;
+
+    if (sqlite3_prepare_v2(conn,
+                           "SELECT pkgname FROM provides WHERE capability = ?;",
+                           -1, &stmt, NULL) != SQLITE_OK) {
+        sqlite3_close(conn);
+        return NULL;
+    }
+
+    sqlite3_bind_text(stmt, 1, capability, -1, SQLITE_STATIC);
+    char *pkgname = NULL;
+    if (sqlite3_step(stmt) == SQLITE_ROW) {
+        const unsigned char *text = sqlite3_column_text(stmt, 0);
+        pkgname = strdup((const char *)text);
+    }
+
+    sqlite3_finalize(stmt);
+    sqlite3_close(conn);
+    return pkgname;
 }

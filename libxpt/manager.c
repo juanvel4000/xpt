@@ -3,6 +3,7 @@
 #include <common.h>
 #include <database.h>
 #include <resolver.h>
+#include <manager.h>
 #include "config.h"
 
 #if !XPT_DISABLE_NETWORKING
@@ -14,6 +15,7 @@
 #include <limits.h>
 #include <string.h>
 #include <unistd.h>
+#include <stdlib.h>
 
 int xpt_package_install(const char *file, const char *destdir, int log,
                         int netinstall_deps)
@@ -68,6 +70,34 @@ int xpt_package_install(const char *file, const char *destdir, int log,
         return XPT_EX_EXISTS;
     }
 
+    package_info_add_provide(pi, pi->name);
+    for (size_t i = 0; i < pi->provides_count; i++) {
+        char *owner = database_who_provides(pi->provides[i], destdir);
+
+        if (owner == NULL)
+            continue;
+
+        printf("%s provides %s\n", owner, pi->provides[i]);
+        printf("do you want to replace %s with %s? [y/N]: ", owner, pi->name);
+
+        char answer;
+        if (scanf(" %c", &answer) != 1 || (answer != 'y' && answer != 'Y')) {
+            fprintf(stderr, "could not install %s\n", pi->name);
+            free(owner);
+            delete_package_info(pi);
+            return XPT_EX_USAGE;
+        }
+
+        if (xpt_package_remove(owner, destdir, log) != XPT_EX_OK) {
+            fprintf(stderr, "could not remove %s\n", owner);
+            free(owner);
+            delete_package_info(pi);
+            return XPT_EX_IOERR;
+        }
+
+        free(owner);
+    }
+
     if (remove(manifest) != 0) {
         fprintf(stderr, "failed to delete %s\n", manifest);
     }
@@ -89,6 +119,13 @@ int xpt_package_install(const char *file, const char *destdir, int log,
 
     if (database_files_add(pi->name, tree, destdir) != 0) {
         fprintf(stderr, "error saving file list for %s\n", pi->name);
+        database_delete(pi->name, destdir);
+        delete_package_info(pi);
+        return XPT_EX_IOERR;
+    }
+
+    if (database_provides_add(pi->name, pi->provides, pi->provides_count, destdir) != 0) {
+        fprintf(stderr, "error saving capabilities to database\n");
         database_delete(pi->name, destdir);
         delete_package_info(pi);
         return XPT_EX_IOERR;

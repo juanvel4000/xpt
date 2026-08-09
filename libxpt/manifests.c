@@ -24,38 +24,40 @@ char *trim(char *s)
     return s;
 }
 
-static int parse_depends(PackageInfo *pi, const char *value)
+static int parse_list(const char *value, char ***list, size_t *count)
 {
-    char *copy = strdup(value);
+    char *copy;
+    char *tok;
+    char **tmp;
+
+    copy = strdup(value);
     if (!copy)
         return 1;
 
-    char *tok = strtok(copy, ",");
+    tok = strtok(copy, ",");
 
     while (tok) {
-        char **tmp =
-            realloc(pi->depends, (pi->depends_count + 1) * sizeof(char *));
-
+        tmp = realloc(*list, (*count + 1) * sizeof(char *));
         if (!tmp) {
             free(copy);
             return 1;
         }
 
-        pi->depends = tmp;
+        *list = tmp;
 
-        pi->depends[pi->depends_count] = strdup(trim(tok));
-        if (!pi->depends[pi->depends_count]) {
+        (*list)[*count] = strdup(trim(tok));
+        if (!(*list)[*count]) {
             free(copy);
             return 1;
         }
 
-        pi->depends_count++;
+        (*count)++;
 
         tok = strtok(NULL, ",");
     }
 
     free(copy);
-    return XPT_EX_OK;
+    return 0;
 }
 
 int verify_package_info(PackageInfo *pi)
@@ -87,6 +89,11 @@ void delete_package_info(PackageInfo *pi)
         free(pi->depends[i]);
 
     free(pi->depends);
+
+    for (size_t i = 0; i < pi->provides_count; i++)
+        free(pi->provides[i]);
+
+    free(pi->provides);
 
     free(pi);
 }
@@ -169,7 +176,7 @@ PackageInfo *parse_manifest(const char *file)
                 return NULL;
             }
         } else if (strcmp(key, "depends") == 0) {
-            if (parse_depends(pi, val) != 0) {
+            if (parse_list(val, &pi->depends, &pi->depends_count) != 0) {
                 fclose(fp);
                 delete_package_info(pi);
                 return NULL;
@@ -201,6 +208,12 @@ PackageInfo *parse_manifest(const char *file)
             }
 
             pi->build_epoch = epoch;
+        } else if (strcmp(key, "provides") == 0) {
+            if (parse_list(val, &pi->provides, &pi->provides_count) != 0) {
+                fclose(fp);
+                delete_package_info(pi);
+                return NULL;
+            }
         } else {
             fprintf(stderr, "unknown key: %s\n", key);
             continue;
@@ -213,4 +226,31 @@ PackageInfo *parse_manifest(const char *file)
         delete_package_info(pi);
         return NULL;
     }
+}
+
+int package_info_add_provide(PackageInfo *pi, const char *capability)
+{
+    char **tmp;
+
+    if (pi == NULL || capability == NULL || capability[0] == '\0')
+        return 1;
+
+    for (size_t i = 0; i < pi->provides_count; i++) {
+        if (strcmp(pi->provides[i], capability) == 0)
+            return 0;
+    }
+
+    tmp =
+        realloc(pi->provides, (pi->provides_count + 1) * sizeof(*pi->provides));
+    if (tmp == NULL)
+        return 1;
+
+    pi->provides = tmp;
+    pi->provides[pi->provides_count] = strdup(capability);
+
+    if (pi->provides[pi->provides_count] == NULL)
+        return 1;
+
+    pi->provides_count++;
+    return 0;
 }

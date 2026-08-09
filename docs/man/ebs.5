@@ -62,6 +62,12 @@ controls whether
 .Fn check
 is executed. (default true)
 
+.It Va pkgprovides
+comma-separated list of provided virtual packages.
+if another package already provides a listed capability,
+.Xr xpt 8
+will prompt to replace it.
+
 .El
 .Pp
 
