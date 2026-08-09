@@ -1,0 +1,6 @@
+foo|2.1.4|x86_64|libbar|https://example.com/xpt/f/foo/foo-2.1.4.xpt|SHA256_CHECKSUM
+libfoo|1.1.1|x86_64|libbar,libbaz|https://example.com/xpt/l/libfoo/libfoo-1.1.1.xpt|SHA256_CHECKSUM
+bar|3.2.4|x86_64|libbar|https://example.com/xpt/b/bar/bar-3.2.4.xpt|SHA256_CHECKSUM
+libbar|1.4.0|x86_64|libbaz|https://example.com/xpt/l/libbar/libbar-1.4.0.xpt|SHA256_CHECKSUM
+libbaz|1.2.3|x86_64||https://example.com/xpt/l/libbaz/libbaz-1.2.3.xpt|SHA256_CHECKSUM
+

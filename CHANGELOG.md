@@ -10,6 +10,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - virtual packages / capability system (`provides=`)
 - "known limitations" section in README.md
 - transactions in the database
+- xpt.index(5) manpage
+- examples for xpt.index and xpt.manifest
 ### Changed
 - rename docs -> doc
 - expand and fix issues in the xpt(8) help text

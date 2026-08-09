@@ -1,0 +1,17 @@
+// example xpt.manifest
+
+name=hello
+version=0.1.0
+arch=x86_64
+desc=simple hello world program
+maintainer=you <you@example.com
+
+// optional fields
+
+build_epoch=0
+homepage=https://dl.juanvel400.com/#hello
+license=BSD-3-Clause
+
+// comma-separated lists
+depends=
+provides=
