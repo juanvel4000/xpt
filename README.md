@@ -1,6 +1,6 @@
-# xpt
+ # xpt
 
-a minimalistic package manager for `.xpt` packages, written in C.
+a minimalistic, lightweight package manager for `.xpt` packages, written in C.
 
 xpt consists of the `libxpt(3)` package-management library and the `xpt(8)` command-line frontend. the repository also contains ebt, a separate set of POSIX shell tools for building `.xpt` packages.
 
@@ -11,9 +11,42 @@ xpt consists of the `libxpt(3)` package-management library and the `xpt(8)` comm
 - sqlite3-backed local database storage
 - simple zstd-based package format
 
+## quick start
+
+setup the project
+
+```sh
+ $ meson setup build --sysconfdir=/etc --localstatedir=/var
+```
+
+> `--localstatedir=/var` sets `/var` as the LOCALSTATEDIR, instead of the default `/var/local`
+> `--sysconfdir=/etc` sets `/etc` as the SYSCONFDIR, instead of the default `PREFIX/etc`
+> you might also want to set `--prefix=/usr` to set PREFIX as `/usr` instead of the default `/usr/local`
+> you might want to set `--buildtype=release` to disable any debug material
+> view `meson configure` for more options, or the [`building / configuration`](#building) section in this README
+
+build the project
+
+```
+ $ meson compile -C build
+```
+
+> optionally, run tests
+> ```
+>  $ meson test -C build
+> ```
+
+install the project
+
+```sh
+ $ meson install -C build
+```
+
+> **note**: this command assumes the user has write-access in the directory specified by DESTDIR (default: `/`)
+
 ## dependencies
 
-building xpt requires
+build-time dependencies include
 
 - Meson
 - Ninja
@@ -25,13 +58,10 @@ building xpt requires
 - zstd
 - OpenSSL (if networking is enabled)
 
-libfetch is built as part of the project when networking support is enabled.
-## building
+> libfetch is built as part of the project when networking support is enabled.
+> if built as a shared binary, xpt will require the previous as runtime dependencies.
 
-```sh
- $ meson setup build
- $ meson compile -C build
-```
+## building
 
 ### configuration
 
@@ -58,6 +88,7 @@ the `tests/` directory provides a simple test suite for
 - simple dependency resolution
 - package manifest parsing
 - ebs formula builds
+- ebs checksum mismatch
 
 these can be executed by running
 
@@ -73,11 +104,61 @@ these can be executed by running
 
 ## usage
 
-run
+xpt uses a unique verb-item argument system
+
+### items
+
+| item        | description                          |
+|-------------|--------------------------------------|
+| `-f <file>` | file package                         |
+| `-p <pkg>`  | installed package                    |
+| `-n <pkg>`  | network package                      |
+| `-d <dir>`  | destination directory (default: `/`) |
+
+### verbs
+
+| verb | description                                  | usable items     |
+|------|----------------------------------------------|------------------|
+| `-V` | show the current xpt version                 | --               |
+| `-i` | install a package                            | `-d`, `-f`, `-n` |
+| `-g` | get the version of an installed package      | `-d`             |
+| `-h` | show the help message                        | --               |
+| `-r` | remove a package                             | `-d`, `-p`       |
+| `-l` | list the packages installed in the system    | `-d`             |
+| `-t` | show the files used by a package             | `-d`, `-p`       |
+| `-s` | download the repository indexes              | `-d`             |
+| `-Q` | get information of a package in a repository | `-d`, `-n`       |
+| `-I` | show metadata about a package                | `-d`, `-p`       |
+| `-B` | print the libxpt build info                  | --               |
+
+### examples
+
+examples use a package called `hello`, as shown in `doc/examples/ebs.formula` and `doc/examples/xpt.manifest`
+
+#### install a local package
+
+uses `install` (`-i`) and `file package` (`-f`)
 
 ```sh
- $ xpt -h
+ $ xpt -if hello-0.1.0.xpt
 ```
+
+#### install a network package
+
+uses `install` (`-i`) and `network package` (`-n`)
+
+```sh
+ $ xpt -in hello
+```
+
+#### remove an installed package
+
+uses `remove` (`-r`) and `installed package` (`-p`)
+
+```sh
+ $ xpt -rp hello
+```
+
 
 ## documentation
 
@@ -123,9 +204,9 @@ to install only ebt
   $ meson install -C build
 ```
 
-## known limitations
+## limitations
 
-- offline / local installs cannot resolve transitive dependencies.
+- offline / installs do not resolve transitive dependencies.
 - no GPG-signed repositories or packages yet
 - package uninstall could use more polish
 
