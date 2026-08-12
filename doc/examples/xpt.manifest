@@ -4,7 +4,7 @@ name=hello
 version=0.1.0
 arch=x86_64
 desc=simple hello world program
-maintainer=you <you@example.com
+maintainer=you <you@example.com>
 
 // optional fields
 

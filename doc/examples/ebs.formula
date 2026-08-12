@@ -1,5 +1,5 @@
 #!/bin/sh
-#ebs.formulae
+# ebs.formula
 ebsver=1
 
 pkgname=hello
