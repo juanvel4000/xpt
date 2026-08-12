@@ -296,8 +296,8 @@ int verify_sha256(const char *file, const char *expected_hex)
 int xpt_repos_getpkginfo(const char *name, const char *destdir)
 {
     char cachefile[PATH_MAX];
-    snprintf(cachefile, sizeof(cachefile), "%s%s/cache/xpt.repositories", destdir,
-             XPT_LOCALSTATEDIR);
+    snprintf(cachefile, sizeof(cachefile), "%s%s/cache/xpt.repositories",
+             destdir, XPT_LOCALSTATEDIR);
 
     RepoPackage *rp;
 

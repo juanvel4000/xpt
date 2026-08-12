@@ -129,7 +129,8 @@ int main(int argc, char *argv[])
             printf("  %-10s %s\n", "-t", "show the files used by a package");
 #if !XPT_DISABLE_NETWORKING
             printf("  %-10s %s\n", "-s", "download the repository indexes");
-            printf("  %-10s %s\n", "-Q", "get information of a package in a repository");
+            printf("  %-10s %s\n", "-Q",
+                   "get information of a package in a repository");
 #endif
             printf("  %-10s %s\n", "-I", "show metadata about a package");
             printf("  %-10s %s\n\n", "-B", "print the libxpt build info");
@@ -140,8 +141,7 @@ int main(int argc, char *argv[])
             printf("  %-10s %s\n", "-p <pkg>",
                    "operate on an installed package");
 #if !XPT_DISABLE_NETWORKING
-            printf("  %-10s %s\n", "-n <pkg>",
-                   "operate on a network package");
+            printf("  %-10s %s\n", "-n <pkg>", "operate on a network package");
 #endif
             printf("  %-10s %s\n", "-d <dir>",
                    "specify a destination directory for the operations");
@@ -251,7 +251,7 @@ int main(int argc, char *argv[])
         return XPT_EX_OK;
     } else if (action == ACTION_NPKGINFO) {
 #if !XPT_DISABLE_NETWORKING
-        if (net_package == NULL)   {
+        if (net_package == NULL) {
             fprintf(stderr, "please specify a network-package with -n <pkg>\n");
             return XPT_EX_USAGE;
         }
