@@ -6,8 +6,15 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
 ## [Unreleased]
+### Added
+- quick start section in README.md
+- xpt/libxpt guard in meson.build
+### Changed
+- usage section in README.md
+- specify the tools used by scripts/fmt.sh in CHANGELOG.md
 ### Fixed
-- fix doc/ path in test_ebs.sh
+- doc/ path in test_ebs.sh
+- minor improvements to `libxpt(3)`, `rig(1)`, `xpt(8)` and `xpt.manifest(5)`
 
 ## [0.8.0] - transactions, virtual packages and rig
 ### Added
