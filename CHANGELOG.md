@@ -13,6 +13,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - usage section in README.md
 - specify the tools used by scripts/fmt.sh in CONTRIBUTING.md
 ### Fixed
+- formatting in libxpt/repo.c and xpt/main.c
 - doc/ path in test_ebs.sh
 - minor improvements to `libxpt(3)`, `rig(1)`, `xpt(8)` and `xpt.manifest(5)`
 

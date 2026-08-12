@@ -1,4 +1,4 @@
- # xpt
+# xpt
 
 a minimalistic, lightweight package manager for `.xpt` packages, written in C.
 
@@ -212,6 +212,8 @@ to install only ebt
 
 ## project status
 
+xpt is in active development. while functional, it is **not yet production-ready** for real-world usage. known limitations are documented above.
+
 - [CHANGELOG.md](CHANGELOG.md) -- release history
 - [CONTRIBUTING.md](CONTRIBUTING.md) -- how to report bugs and send patches
 
@@ -220,5 +222,4 @@ to install only ebt
 BSD-3-Clause -- see LICENSE
 
 third-party source is specified in THIRD-PARTY-LICENSES
-
 
