@@ -141,7 +141,7 @@ int main(int argc, char *argv[])
                    "operate on an installed package");
 #if !XPT_DISABLE_NETWORKING
             printf("  %-10s %s\n", "-n <pkg>",
-                   "operate on a repository/network package");
+                   "operate on a network package");
 #endif
             printf("  %-10s %s\n", "-d <dir>",
                    "specify a destination directory for the operations");

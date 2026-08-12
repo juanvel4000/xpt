@@ -22,6 +22,10 @@ if ebt_only.enabled() and ebt.disabled()
     error('ebt_only requires ebt to not be disabled')
 endif
 
+if xpt.enabled() and libxpt.disabled()
+    error('xpt requires libxpt')
+endif
+
 if ebt_only.disabled()
     if networking.enabled()
         subdir('libfetch')

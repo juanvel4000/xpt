@@ -2,7 +2,7 @@ option(
     'static',
     type: 'boolean',
     value: false,
-    description: 'build a statically linked xpt executable',
+    description: 'build a statically linked xpt executable.',
 )
 option(
     'networking',
@@ -28,24 +28,24 @@ option(
     'ebt_only',
     type: 'feature',
     value: 'disabled',
-    description: 'only build ebt',
+    description: 'only build ebt.',
 )
 
 option(
     'tests',
     type: 'feature',
     value: 'enabled',
-    description: 'run the test suite',
+    description: 'run the test suite.',
 )
 option(
     'libxpt',
     type: 'feature',
     value: 'enabled',
-    description: 'build the libxpt library',
+    description: 'build the libxpt library.',
 )
 option(
     'xpt',
     type: 'feature',
     value: 'enabled',
-    description: 'build the xpt binary',
+    description: 'build the xpt binary.',
 )
