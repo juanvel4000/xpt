@@ -37,13 +37,15 @@ xpt doesn't use GitHub-style pull requests. instead:
 
 ## code style
 
-- shell scripts (ebt/*.sh) are POSIX sh -- avoid bashisms
+- shell scripts are POSIX sh -- avoid bashisms
 - see existing code for naming conventions (`xpt_`-prefixed public functions in libxpt, etc.)
 
 > `scripts/fmt.sh` formats all of the above in one pass
 > ```sh
 >  $ scripts/fmt.sh -a
 > ```
+> `scripts/fmt.sh` uses `meson fmt` for meson files (`-m`), `clang-format` for C sources (including headers) (`-c` and `-h`)
+> and `shfmt` for shell scripts (`-s`).
 
 ## license
 
