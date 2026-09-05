@@ -1,29 +1,22 @@
 #!/bin/sh
-# ebs.formula
+#ebs.formulae
 ebsver=1
 
 pkgname=hello
-pkgver=0.1.0
-
+pkgver=0.1.2
+pkgsrc=https://dl.juanvel400.com/hello/hello-$pkgver.tar.xz
+pkgchecksum=sha256:e1679b76db9ca718b943846cc21b75fe2180102b3d532be1a663db38e8fd78c1
 pkgdesc="simple hello world program"
-pkgmaintainer="you <you@example.com>"
-pkgdeps=""
-pkgprovides=""
-
-pkghomepage="https://dl.juanvel400.com/#hello"
-pkglicense="BSD-3-Clause"
-
-pkgsrc=https://dl.juanvel400.com/hello/hello-0.1.0.tar.xz
-pkgchecksum=sha256:69f2258ed66d8f01e91e7e59d4605472d930936f26151140b438551ea323443a
+pkgmaintainer="juanvel400 <contact@juanvel400.com>"
 
 build() {
-    make
-}
+    cd "hello-$pkgver"
 
-check() {
-    make check
+    make
+    make check    
 }
 
 package() {
-    fakeroot make install DESTDIR="${pkgdir}"
+    fakeroot make install PREFIX="/usr" DESTDIR="$pkgdir"
 }
+
