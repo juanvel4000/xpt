@@ -16,30 +16,10 @@ xpt consists of the `libxpt(3)` package-management library and the `xpt(8)` comm
 setup the project
 
 ```sh
- $ meson setup build --sysconfdir=/etc --localstatedir=/var
-```
-
-> `--localstatedir=/var` sets `/var` as the LOCALSTATEDIR, instead of the default `/var/local`
-> `--sysconfdir=/etc` sets `/etc` as the SYSCONFDIR, instead of the default `PREFIX/etc`
-> you might also want to set `--prefix=/usr` to set PREFIX as `/usr` instead of the default `/usr/local`
-> you might want to set `--buildtype=release` to disable any debug material
-> view `meson configure` for more options, or the [`building / configuration`](#building) section in this README
-
-build the project
-
-```
- $ meson compile -C build
-```
-
-> optionally, run tests
-> ```
->  $ meson test -C build
-> ```
-
-install the project
-
-```sh
- $ meson install -C build
+meson setup build --sysconfdir=/etc --localstatedir=/var # setup the build
+meson compile -C build # compile xpt, libxpt
+meson test -C build # run the test suite
+meson install -C build # install the project
 ```
 
 > **note**: this command assumes the user has write-access in the directory specified by DESTDIR (default: `/`)
@@ -67,18 +47,19 @@ build-time dependencies include
 
 xpt exposes several meson build-time options
 
-| option       | type       | default    | description                              |
-|--------------|------------|------------|------------------------------------------|
-| `static`     | boolean    | `false`    | build a statically linked xpt executable |
-| `networking` | feature    | `enabled`  | build xpt with networking support        |
-| `ebt`        | feature    | `enabled`  | ebt build system                         |
-| `doc`        | feature    | `enabled`  | xpt/ebt documentation                    |
-| `ebt_only`   | feature    | `disabled` | only build ebt                           |
-| `tests`      | feature    | `enabled`  | run the xpt tests suite                  |
+| option       | type    | default    | description                                                                      |
+| ------------ | ------- | ---------- | -------------------------------------------------------------------------------- |
+| `static`     | boolean | `false`    | build a statically linked xpt executable, requires static dependencies available |
+| `networking` | feature | `enabled`  | build xpt with `libfetch` networking support                                     |
+| `ebt`        | feature | `enabled`  | build the ebt build system                                                       |
+| `doc`        | feature | `enabled`  | xpt/ebt documentation                                                            |
+| `ebt_only`   | feature | `disabled` | only build ebt                                                                   |
+| `tests`      | feature | `enabled`  | enable the xpt test suite                                                        |
 
 > set with, e.g.:
+>
 > ```sh
->  $ meson setup build -Dstatic=true -Dnetworking=disabled
+> meson setup build -Dstatic=true -Dnetworking=disabled
 > ```
 
 ### testing
@@ -93,13 +74,13 @@ the `tests/` directory provides a simple test suite for
 these can be executed by running
 
 ```sh
- $ meson test -C build
+meson test -C build
 ```
 
 ### installation
 
 ```sh
-  $ meson install -C build
+meson install -C build
 ```
 
 ## usage
@@ -109,7 +90,7 @@ xpt uses a unique verb-item argument system
 ### items
 
 | item        | description                          |
-|-------------|--------------------------------------|
+| ----------- | ------------------------------------ |
 | `-f <file>` | file package                         |
 | `-p <pkg>`  | installed package                    |
 | `-n <pkg>`  | network package                      |
@@ -118,7 +99,7 @@ xpt uses a unique verb-item argument system
 ### verbs
 
 | verb | description                                  | usable items     |
-|------|----------------------------------------------|------------------|
+| ---- | -------------------------------------------- | ---------------- |
 | `-V` | show the current xpt version                 | --               |
 | `-i` | install a package                            | `-d`, `-f`, `-n` |
 | `-g` | get the version of an installed package      | `-d`             |
@@ -140,7 +121,7 @@ examples use a package called `hello`, as shown in `doc/examples/ebs.formula` an
 uses `install` (`-i`) and `file package` (`-f`)
 
 ```sh
- $ xpt -if hello-0.1.0.xpt
+xpt -if hello-0.1.0.xpt
 ```
 
 #### install a network package
@@ -148,7 +129,7 @@ uses `install` (`-i`) and `file package` (`-f`)
 uses `install` (`-i`) and `network package` (`-n`)
 
 ```sh
- $ xpt -in hello
+xpt -in hello
 ```
 
 #### remove an installed package
@@ -156,16 +137,15 @@ uses `install` (`-i`) and `network package` (`-n`)
 uses `remove` (`-r`) and `installed package` (`-p`)
 
 ```sh
- $ xpt -rp hello
+xpt -rp hello
 ```
-
 
 ## documentation
 
 manpages are installed when documentation is enabled at build time
 
 | manpage           | describes                          |
-|-------------------|------------------------------------|
+| ----------------- | ---------------------------------- |
 | `xpt(8)`          | the `xpt` cli                      |
 | `libxpt(3)`       | the `libxpt` library api           |
 | `ebs(1)`          | the ebs build system               |
@@ -178,10 +158,13 @@ manpages are installed when documentation is enabled at build time
 | `xpt.index(5)`    | the xpt.index file format          |
 
 > view any of them with, e.g.:
+>
 > ```sh
->  $ man 8 xpt
+> man 8 xpt
 > ```
+>
 > you will need a manpage viewer such as mandoc or man-db
+
 ## ebt
 
 a lightweight package build toolkit.
@@ -200,11 +183,11 @@ ebt bundles a set of tools written in POSIX `sh` for building `.xpt` packages fr
 to install only ebt
 
 ```sh
-  $ meson setup build -Debt_only=enabled
-  $ meson install -C build
+meson setup build -Debt_only=enabled
+meson install -C build
 ```
 
-## limitations
+## known limitations
 
 - offline / installs do not resolve transitive dependencies.
 - no GPG-signed repositories or packages yet
@@ -219,7 +202,6 @@ xpt is in active development. while functional, it is **not yet production-ready
 
 ## license
 
-BSD-3-Clause -- see LICENSE
+BSD-3-Clause, see [LICENSE](LICENSE).
 
-third-party source is specified in THIRD-PARTY-LICENSES
-
+third-party source is specified in [THIRD-PARTY-LICENSES](THIRD-PARTY-LICENSES).
