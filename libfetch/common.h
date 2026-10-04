@@ -36,6 +36,7 @@
 #define HTTPS_DEFAULT_PORT 443
 #define HTTP_DEFAULT_PROXY_PORT 3128
 
+#include "fetch.h"
 #include <limits.h>
 #include <openssl/err.h>
 #include <openssl/ssl.h>

@@ -9,6 +9,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Added
 
+- format all c source files and headers
 - properly format and standarize the ebt scripts
 - quick start section in README.md
 - xpt/libxpt guard in meson.build
