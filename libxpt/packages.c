@@ -1,14 +1,14 @@
-#include <packages.h>
 #include <common.h>
 #include <database.h>
+#include <packages.h>
 
 #include <archive.h>
 #include <archive_entry.h>
 
-#include <string.h>
-#include <stdio.h>
 #include <limits.h>
+#include <stdio.h>
 #include <stdlib.h>
+#include <string.h>
 
 int preflight_payload(const char *file, const char *destdir)
 {

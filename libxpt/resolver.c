@@ -1,12 +1,12 @@
-#include <manager.h>
-#include <resolver.h>
-#include <database.h>
-#include <manifests.h>
 #include <common.h>
+#include <database.h>
+#include <manager.h>
+#include <manifests.h>
+#include <resolver.h>
 
+#include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
-#include <stdio.h>
 
 int resolver_seen(NodeContainer *container, const char *name)
 {

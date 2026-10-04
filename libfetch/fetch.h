@@ -32,9 +32,9 @@
 #ifndef _FETCH_H_INCLUDED
 #define _FETCH_H_INCLUDED
 
-#include <sys/types.h>
 #include <limits.h>
 #include <stdio.h>
+#include <sys/types.h>
 
 #define _LIBFETCH_VER "libfetch/2.0"
 

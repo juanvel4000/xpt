@@ -31,14 +31,14 @@
  * $FreeBSD: common.c,v 1.53 2007/12/19 00:26:36 des Exp $
  */
 
-#include <poll.h>
+#include <arpa/inet.h>
 #include <fcntl.h>
-#include <sys/types.h>
+#include <netinet/in.h>
+#include <poll.h>
 #include <sys/socket.h>
 #include <sys/time.h>
+#include <sys/types.h>
 #include <sys/uio.h>
-#include <netinet/in.h>
-#include <arpa/inet.h>
 
 #include <ctype.h>
 #include <errno.h>
@@ -46,13 +46,13 @@
 #include <netdb.h>
 #include <pwd.h>
 #include <stdarg.h>
-#include <stdlib.h>
 #include <stdio.h>
+#include <stdlib.h>
 #include <string.h>
 #include <unistd.h>
 
-#include "fetch.h"
 #include "common.h"
+#include "fetch.h"
 
 #include <openssl/x509v3.h>
 /*** Local data **************************************************************/

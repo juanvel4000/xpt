@@ -36,11 +36,11 @@
 #define HTTPS_DEFAULT_PORT 443
 #define HTTP_DEFAULT_PROXY_PORT 3128
 
-#include <sys/types.h>
 #include <limits.h>
-#include <openssl/ssl.h>
 #include <openssl/err.h>
+#include <openssl/ssl.h>
 #include <openssl/x509.h>
+#include <sys/types.h>
 
 #if defined(__GNUC__) && __GNUC__ >= 3
 #define LIBFETCH_PRINTFLIKE(fmtarg, firstvararg)                               \

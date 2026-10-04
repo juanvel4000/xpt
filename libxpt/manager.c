@@ -1,21 +1,21 @@
-#include <manifests.h>
-#include <packages.h>
+#include "config.h"
 #include <common.h>
 #include <database.h>
-#include <resolver.h>
 #include <manager.h>
-#include "config.h"
+#include <manifests.h>
+#include <packages.h>
+#include <resolver.h>
 
 #if !XPT_DISABLE_NETWORKING
 #include <repo.h>
 #endif
 
 #include <libgen.h>
-#include <stdio.h>
 #include <limits.h>
+#include <stdio.h>
+#include <stdlib.h>
 #include <string.h>
 #include <unistd.h>
-#include <stdlib.h>
 
 int xpt_package_install(const char *file, const char *destdir, int log,
                         int netinstall_deps)

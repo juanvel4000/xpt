@@ -1,7 +1,7 @@
 #ifndef MANIFESTS_H
 #define MANIFESTS_H
-#include <stdio.h>
 #include <stdint.h>
+#include <stdio.h>
 
 typedef struct {
     char *name;

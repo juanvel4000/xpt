@@ -63,8 +63,6 @@
  * SUCH DAMAGE.
  */
 
-#include <sys/types.h>
-#include <sys/socket.h>
 #include <ctype.h>
 #include <errno.h>
 #include <locale.h>
@@ -72,17 +70,19 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
+#include <strings.h>
+#include <sys/socket.h>
+#include <sys/types.h>
 #include <time.h>
 #include <unistd.h>
-#include <strings.h>
 
+#include <arpa/inet.h>
+#include <netdb.h>
 #include <netinet/in.h>
 #include <netinet/tcp.h>
-#include <netdb.h>
-#include <arpa/inet.h>
 
-#include "fetch.h"
 #include "common.h"
+#include "fetch.h"
 
 /* Maximum number of redirects to follow */
 #define MAX_REDIRECT 5

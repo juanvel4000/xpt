@@ -1,9 +1,9 @@
 #include <xpt/xpt.h>
 
+#include "config.h"
+#include <limits.h>
 #include <stdio.h>
 #include <unistd.h>
-#include <limits.h>
-#include "config.h"
 
 int main(int argc, char *argv[])
 {
