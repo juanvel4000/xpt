@@ -22,51 +22,36 @@ lines beginning with
 .Sq //
 are treated as comments and ignored.
 unknown keys are ignored with a warning.
-
 .Pp
 the following keys are required
 .Bl -tag -width Ds
-
 .It Va name
 name of the package.
-
 .It Va version
 version of the package.
-
 .It Va desc
 short description of the package.
-
 .It Va maintainer
 maintainer of the formula.
-
 .It Va arch
 architecture the package was built for.
-
 .El
 .Pp
-
 the following keys are optional:
-
 .Bl -tag -width Ds
-
 .It Va depends
 comma-separated list of runtime package dependencies
-
 .It Va license
 a SPDX-compatible license string.
-
 .It Va homepage
 a URL to the package's website.
-
 .It Va build_epoch
 unix timestamp of when the package was built.
-
 .It Va provides
 comma-separated list of provided virtual packages.
 if another package already provides a listed capability,
 .Xr xpt 8
 will prompt to replace it.
-
 .El
 .Sh SEE ALSO
 .Xr mkfhs 1 ,

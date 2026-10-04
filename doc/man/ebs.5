@@ -13,7 +13,6 @@ binary package
 .Pp
 a formula must define the following attributes
 .Bl -tag -width Ds
-
 .It Va ebsver
 currently
 .Sy 1 ,
@@ -28,55 +27,41 @@ version of the package.
 short description of the package.
 .It Va pkgmaintainer
 maintainer of the formula.
-
 .El
 .Pp
-
 optionally, a formula can also define the following attributes
-
 .Bl -tag -width Ds
-
 .It Va pkgdeps
 comma-separated list of runtime package dependencies.
-
 .It Va pkgsrc
 a URL to a downloadable source.
 if the source is a tar archive, it is extracted using
 .Xr tar 1 .
 if the source is a zip archive, it is extracted using
 .Xr unzip 1 .
-
 .It Va pkgchecksum
-sha256 or sha512 checksum used to verify the downloaded source, required if 
+sha256 or sha512 checksum used to verify the downloaded source, required if
 .Va pkgsrc
 is set.
-
 .It Va pkglicense
 a SPDX-compatible license string.
-
 .It Va pkghomepage
 a URL to the package's website.
-
 .It Va pkgcheck
 controls whether
 .Fn check
 is executed. (default true)
-
 .It Va pkgprovides
 comma-separated list of provided virtual packages.
 if another package already provides a listed capability,
 .Xr xpt 8
 will prompt to replace it.
-
 .El
 .Pp
-
 a formula must also define the following functions:
-
 .Bl -tag -width Ds
 .It Fn build
 compiles or packages the source.
-
 .It Fn package
 installs the package to the
 .Va pkgdir
@@ -84,7 +69,6 @@ staging directory.
 it is highly recommended that the
 .Xr fakeroot 1
 utility is used when performing filesystem-related actions.
-
 .It Fn install_to_toolchain
 optionally installs the built software into
 .Ev TOOLCHAIN_DIR .
@@ -93,26 +77,21 @@ this function is called by
 when
 .Cm buildt
 is used.
-
 .El
 .Pp
-
 optionally, a formula can also define the following functions
-
 .Bl -tag -width Ds
 .It Fn prepare
-executed before 
+executed before
 .Fn build ,
 .Fn prepare
 is intended to be used to modify the source files or configuring them.
-
 .It Fn check
 intended to run the package test suites.
 the attribute
 .Va pkgcheck
 can be used to enable or disable these.
 .El
-
 .Sh SEE ALSO
 .Xr mkfhs 1 ,
 .Xr ebs 1 ,

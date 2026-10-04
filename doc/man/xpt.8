@@ -1,91 +1,63 @@
 .Dd August 3, 2026
 .Dt XPT 8
 .Os
-
 .Sh NAME
-
 .Nm xpt
 .Nd package manager utility
-
 .Sh SYNOPSIS
-
 .Nm
 .Fl V | Fl i | Fl g | Fl h | Fl r | Fl l | Fl t | Fl s | Fl I | Fl B | Fl Q
 .Op Fl f Ar file | Fl p Ar package | Fl n Ar net-package
 .Op Fl q
 .Op Fl d Ar dir
-
 .Sh DESCRIPTION
-
 .Nm
 is a package management utility designed to install, remove and administer
 .Pa .xpt
 packages.
 it is designed as both a high-level and a medium-level interface for package management.
-
 .Sh COMMANDS
 .Bl -tag -width Ds
-
 .It Fl V
 show the current
 .Nm
 version.
-
 .It Fl i
 install a package, specified by one of the package reference flags.
-
 .It Fl g
 get the version of an installed package.
-
 .It Fl h
 show the help message.
-
 .It Fl r
 remove an installed package.
-
 .It Fl l
 list the installed packages.
-
 .It Fl t
 show the files used by a package.
-
 .It Fl s
 download the repository indexes.
-
 .It Fl I
 show information about an installed package
-
 .It Fl B
 print the libxpt build info
-
 .It Fl Q
 get information about a package from a repository.
-
 .El
-
 .Sh OPTIONS
-
 .Bl -tag -width Ds
-
 .It Fl f
 specify a
 .Pa .xpt
 package file.
-
 .It Fl p
 specify an installed package name.
-
 .It Fl d
 specify a destination directory for the operations.
-
 .It Fl n
 specify a package from one of the repositories.
-
 .It Fl q
 make the output of most operations quiet (doesn't hide errors).
-
 .El
-
 .Sh SEE ALSO
 .Xr mkfhs 1 ,
 .Xr ebs 5 ,
@@ -98,4 +70,3 @@ make the output of most operations quiet (doesn't hide errors).
 .Xr ebs 1
 .Sh LICENSE
 BSD-3-Clause, see the source code for details.
-

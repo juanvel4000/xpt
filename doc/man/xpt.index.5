@@ -5,49 +5,35 @@
 .Nm xpt.index
 .Nd xpt repository index format
 .Sh DESCRIPTION
-
 .Nm
 is a plain-text file containing metadata for packages available from an
 .Xr xpt 8
 repository.
-
 each non-empty line describes one package.
 fields are separated by the
 .Sq |
 character.
-
 the format of each entry is
-
 .Bd -literal -offset indent
 name|version|arch|depends|url|checksum
 .Ed
-
 .Sh FIELDS
-
 .Bl -tag -width -Ds
-
 .It Va name
 the name of the package.
-
 .It Va version
 the package version.
-
 .It Va arch
 the architecture the package was built for.
-
 .It Va depends
 comma-separate list of runtime dependencies.
-
 .It Va url
 the URL from which the
 .Pa .xpt
 package can be downloaded.
-
 .It Va checksum
 the SHA256 checksum of the package file.
-
 .El
-
 .Sh SEE ALSO
 .Xr mkfhs 1 ,
 .Xr ebs 5 ,
