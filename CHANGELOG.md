@@ -9,6 +9,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Added
 
+- add docblocks to public `xpt.h` functions
 - format all c source files and headers
 - properly format and standarize the ebt scripts
 - quick start section in README.md
@@ -16,14 +17,17 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Changed
 
+- drop redundancy and modernize README.md
 - usage section in README.md
 - specify the tools used by scripts/fmt.sh in CONTRIBUTING.md
+- simplify the fmt.sh syntax
 
 ### Fixed
 
 - formatting in libxpt/repo.c and xpt/main.c
 - doc/ path in test_ebs.sh
 - minor improvements to `libxpt(3)`, `rig(1)`, `xpt(8)` and `xpt.manifest(5)`
+- include `libfetch/fetch.h` in `libfetch/common.h`
 
 ## [0.8.0] - 2026-08-09
 
