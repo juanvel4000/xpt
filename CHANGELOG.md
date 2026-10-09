@@ -7,9 +7,19 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+### Added
+
+- add a `triggers=` list to `manifests.c`
+
 ### Changed
 
 - use docblocks for exit statuses
+- move `config.h.in` to project root
+
+### Fixed
+
+- fix `fetchIO_write` in `libfetch/common.c`
+- fix install order in `libxpt/manager.c`
 
 ## [0.9.0] - 2026-10-08
 
