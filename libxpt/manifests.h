@@ -21,6 +21,9 @@ typedef struct {
 
     uint64_t build_epoch;
 
+    char **triggers;
+    size_t triggers_count;
+
 } PackageInfo;
 
 #define MAX_LINE 1024

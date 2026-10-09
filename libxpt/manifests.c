@@ -9,7 +9,7 @@
 #include <stdlib.h>
 #include <string.h>
 
-char *trim(char *s)
+static char *trim(char *s)
 {
     while (isspace((unsigned char)*s))
         s++;
@@ -95,9 +95,15 @@ void delete_package_info(PackageInfo *pi)
 
     free(pi->provides);
 
+    for (size_t i = 0; i < pi->triggers_count; i++)
+        free(pi->triggers[i]);
+
+    free(pi->triggers);
+
     free(pi);
 }
-int safe_strdup(char **dst, const char *src)
+
+static int safe_strdup(char **dst, const char *src)
 {
     *dst = strdup(src);
     if (!*dst) {
@@ -106,6 +112,32 @@ int safe_strdup(char **dst, const char *src)
     }
     return XPT_EX_OK;
 }
+
+static int validate_triggers(char **list, size_t count)
+{
+    size_t i;
+    const char *name;
+    const char *p;
+
+    for (i = 0; i < count; i++) {
+        name = list[i];
+        if (name[0] == '\0' || name[0] == '/' || strstr(name, "..") != NULL) {
+            fprintf(stderr, "invalid trigger '%s'\n", name);
+            return XPT_EX_DATAERR;
+        }
+
+        for (p = name; *p != '\0'; p++) {
+            if (!isalnum((unsigned char)*p) && *p != '.' && *p != '_' &&
+                *p != '-' && *p != '/') {
+                fprintf(stderr, "invalid character in trigger '%s'\n", name);
+                return XPT_EX_DATAERR;
+            }
+        }
+    }
+
+    return XPT_EX_OK;
+}
+
 PackageInfo *parse_manifest(const char *file)
 {
     if (!is_file(file)) {
@@ -210,6 +242,13 @@ PackageInfo *parse_manifest(const char *file)
             pi->build_epoch = epoch;
         } else if (strcmp(key, "provides") == 0) {
             if (parse_list(val, &pi->provides, &pi->provides_count) != 0) {
+                fclose(fp);
+                delete_package_info(pi);
+                return NULL;
+            }
+        } else if (strcmp(key, "triggers") == 0) {
+            if (parse_list(val, &pi->triggers, &pi->triggers_count) != 0 ||
+                validate_triggers(pi->triggers, pi->triggers_count) != 0) {
                 fclose(fp);
                 delete_package_info(pi);
                 return NULL;
