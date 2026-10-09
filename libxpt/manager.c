@@ -70,6 +70,16 @@ int xpt_package_install(const char *file, const char *destdir, int log,
         return XPT_EX_EXISTS;
     }
 
+    NodeContainer container = {0};
+    if (resolve_package(&container, pi->name, pi, destdir, netinstall_deps,
+                        log) != 0) {
+        fprintf(stderr, "dependency resolution failed for %s\n", pi->name);
+        resolver_free(&container);
+        delete_package_info(pi);
+        return XPT_EX_NOINPUT;
+    }
+    resolver_free(&container);
+
     package_info_add_provide(pi, pi->name);
     for (size_t i = 0; i < pi->provides_count; i++) {
         char *owner = database_who_provides(pi->provides[i], destdir);
@@ -101,16 +111,6 @@ int xpt_package_install(const char *file, const char *destdir, int log,
     if (remove(manifest) != 0) {
         fprintf(stderr, "failed to delete %s\n", manifest);
     }
-
-    NodeContainer container = {0};
-    if (resolve_package(&container, pi->name, pi, destdir, netinstall_deps,
-                        log) != 0) {
-        fprintf(stderr, "dependency resolution failed for %s\n", pi->name);
-        resolver_free(&container);
-        delete_package_info(pi);
-        return XPT_EX_NOINPUT;
-    }
-    resolver_free(&container);
 
     if (database_add(pi, destdir) != 0) {
         fprintf(stderr, "error adding %s to database\n", pi->name);
