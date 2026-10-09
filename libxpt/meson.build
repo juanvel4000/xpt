@@ -1,10 +1,10 @@
 libxpt_sources = files(
     'common.c',
-    'lockfile.c',
     'database.c',
+    'lockfile.c',
     'manager.c',
-    'packages.c',
     'manifests.c',
+    'packages.c',
     'resolver.c',
 )
 
@@ -42,12 +42,12 @@ endif
 conf.set10('XPT_DISABLE_NETWORKING', networking_opt.disabled())
 conf.set_quoted(
     'XPT_LOCALSTATEDIR',
-    join_paths(get_option('prefix'), get_option('localstatedir')),
+    join_paths(get_option('localstatedir')),
 )
 
 conf.set_quoted(
     'XPT_SYSCONFDIR',
-    join_paths(get_option('prefix'), get_option('sysconfdir')),
+    join_paths(get_option('sysconfdir')),
 )
 
 config_h = configure_file(
