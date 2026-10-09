@@ -5,6 +5,5 @@
 *.so*
 
 build/
-clean/
 
 xpt/xpt

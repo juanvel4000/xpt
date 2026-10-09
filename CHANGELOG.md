@@ -24,6 +24,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Fixed
 
+- do not append prefixes to paths called in conf.set_quoted
 - formatting in libxpt/repo.c and xpt/main.c
 - doc/ path in test_ebs.sh
 - minor improvements to `libxpt(3)`, `rig(1)`, `xpt(8)` and `xpt.manifest(5)`

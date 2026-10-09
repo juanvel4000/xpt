@@ -16,13 +16,11 @@ xpt consists of the `libxpt(3)` package-management library and the `xpt(8)` comm
 setup the project
 
 ```sh
-meson setup build --sysconfdir=/etc --localstatedir=/var # setup the build
+meson setup build --prefix=/usr --sysconfdir=/etc --localstatedir=/var # setup the build with sensible defaults
 meson compile -C build # compile xpt, libxpt
 meson test -C build # run the test suite
-meson install -C build # install the project
+meson install -C build # install xpt, libxpt, ebt, and documentation
 ```
-
-> **note**: this command assumes the user has write-access in the directory specified by DESTDIR (default: `/`)
 
 ## dependencies
 
@@ -39,7 +37,7 @@ build-time dependencies include
 - OpenSSL (if networking is enabled)
 
 > libfetch is built as part of the project when networking support is enabled.
-> if built as a shared binary, xpt will require the previous as runtime dependencies.
+> dynamically-linked builds require `libarchive`, `sqlite3`, `zstd`, and `openssl` as available libraries
 
 ## building
 
@@ -94,7 +92,7 @@ xpt uses a unique verb-item argument system
 | `-f <file>` | file package                         |
 | `-p <pkg>`  | installed package                    |
 | `-n <pkg>`  | network package                      |
-| `-d <dir>`  | destination directory (default: `/`) |
+| `-d <dir>`  | target root directory (default: `/`) |
 
 ### verbs
 
