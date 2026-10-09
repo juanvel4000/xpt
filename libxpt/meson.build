@@ -50,6 +50,11 @@ conf.set_quoted(
   join_paths(get_option('sysconfdir')),
 )
 
+conf.set_quoted(
+  'XPT_DATADIR',
+  join_paths(get_option('datadir')),
+)
+
 configure_file(
   input: '../config.h.in',
   output: 'config.h',
