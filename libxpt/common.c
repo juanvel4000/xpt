@@ -55,23 +55,24 @@ int mkdir_p(const char *path)
 
 void xpt_print_build_info(FILE *out)
 {
+    char *networking;
+
     fprintf(out, "prefix:        %s\n", XPT_PREFIX);
     fprintf(out, "sysconfdir:    %s\n", XPT_SYSCONFDIR);
     fprintf(out, "localstatedir: %s\n", XPT_LOCALSTATEDIR);
+    fprintf(out, "datadir:       %s\n\n", XPT_DATADIR);
     fprintf(out, "compiler:      %s\n", XPT_COMPILER);
+    fprintf(out, "build type:    %s\n", XPT_BUILDTYPE);
+
 #if XPT_DISABLE_NETWORKING
     fprintf(out, "libraries:     sqlite3 %s, libarchive %s\n",
             XPT_SQLITE3_VERSION, XPT_LIBARCHIVE_VERSION);
+    networking = "no";
 #else
     fprintf(out, "libraries:     sqlite3 %s, libarchive %s, openssl %s\n",
             XPT_SQLITE3_VERSION, XPT_LIBARCHIVE_VERSION, XPT_OPENSSL_VERSION);
-#endif
-    fprintf(out, "build type:    %s\n", XPT_BUILDTYPE);
-    char *networking;
-#if XPT_DISABLE_NETWORKING
-    networking = "no";
-#else
     networking = "yes";
 #endif
+
     fprintf(out, "networking:    %s\n", networking);
 }

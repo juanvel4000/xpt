@@ -52,7 +52,7 @@ conf.set_quoted(
 
 conf.set_quoted(
   'XPT_DATADIR',
-  join_paths(get_option('datadir')),
+  join_paths(get_option('prefix'), get_option('datadir')),
 )
 
 configure_file(
