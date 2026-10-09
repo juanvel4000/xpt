@@ -1187,7 +1187,7 @@ ssize_t fetchIO_read(fetchIO *f, void *buf, size_t len)
 
 ssize_t fetchIO_write(fetchIO *f, const void *buf, size_t len)
 {
-    if (f->io_read == NULL)
+    if (f->io_write == NULL)
         return EBADF;
     return (*f->io_write)(f->io_cookie, buf, len);
 }
