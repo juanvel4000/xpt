@@ -10,6 +10,7 @@ mount_bind() {
     }
     mount --make-rslave "$2"
 }
+
 safe_umount() {
     umount -R "$1/dev" || {
         echo "! error umounting /dev"
@@ -32,9 +33,10 @@ safe_umount() {
         exit 1
     }
 }
+
 do_chroot() {
     [ -d "$1" ] || mkdir -p "$1"
-    ecw_shell="${2:-'/bin/sh'}"
+    ecw_shell="${2:-/bin/sh}"
     [ -f "$1/$ecw_shell" ] || {
         echo "! $1/$ecw_shell does not exist"
         exit 1

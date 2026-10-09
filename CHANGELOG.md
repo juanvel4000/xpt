@@ -9,6 +9,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Added
 
+- run triggers after install in `manager.c`
 - add a `triggers=` list to `manifests.c`
 - add a basic triggers runner in `triggers.c`
 

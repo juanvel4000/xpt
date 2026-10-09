@@ -1,10 +1,13 @@
 #!/bin/sh
+
+#shellcheck disable=SC1090
+#shellcheck disable=SC3040
+
 # ebs build system
 # build xpt packages from ebs.formula
 
 set -eu
 
-# shellcheck disable=SC3040
 if (set -o pipefail) 2>/dev/null; then
     set -o pipefail
 fi
@@ -47,7 +50,7 @@ print_ebs_help() {
     echo ""
     echo "build xpt packages from ebs formulae"
     echo ""
-    echo "commands"
+    echo "commands:"
     echo "  help    show this message"
     echo "  build   build from an ebs formula"
     echo "  buildt  build from an ebs formula and install to the toolchain specified in \$TOOLCHAIN_DIR"
@@ -141,7 +144,7 @@ build_formula() {
         echo "! formula $formula_path does not exist"
         exit 1
     fi
-    # shellcheck disable=SC1090
+
     . "$formula_path"
     [ -n "$ebsver" ] || {
         echo "! ebsver not set in $formula_script"

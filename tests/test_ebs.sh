@@ -17,14 +17,14 @@ pkgver=$(sed -n 's/^pkgver=//p' ebs.formula | tr -d '"'"'"'')
 
 expected="$pkgname-$pkgver.xpt"
 if [ ! -f "$WORKDIR/$expected" ]; then
-	echo "! expected package $expected was not produced" >&2
-	ls -la "$WORKDIR" >&2
-	exit 1
+    echo "! expected package $expected was not produced" >&2
+    ls -la "$WORKDIR" >&2
+    exit 1
 fi
 
 if ! tar --zstd -tf "$WORKDIR/$expected" | grep -q '^\./xpt\.manifest$'; then
-	echo "! $expected does not contain xpt.manifest" >&2
-	exit 1
+    echo "! $expected does not contain xpt.manifest" >&2
+    exit 1
 fi
 
 echo "ebs build smoke test passed: $expected"
