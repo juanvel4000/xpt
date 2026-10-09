@@ -10,11 +10,13 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ### Added
 
 - add a `triggers=` list to `manifests.c`
+- add a basic triggers runner in `triggers.c`
 
 ### Changed
 
 - use docblocks for exit statuses
 - move `config.h.in` to project root
+- show `datadir` in `xpt_print_build_info`
 
 ### Fixed
 

@@ -5,6 +5,7 @@
 #include <manifests.h>
 #include <packages.h>
 #include <resolver.h>
+#include <triggers.h>
 
 #if !XPT_DISABLE_NETWORKING
 #include <repo.h>
@@ -17,8 +18,55 @@
 #include <string.h>
 #include <unistd.h>
 
-int xpt_package_install(const char *file, const char *destdir, int log,
-                        int netinstall_deps)
+static int install_depth;
+static char **pending_triggers;
+static size_t pending_count;
+
+static int queue_trigger(const char *name)
+{
+    size_t i;
+    char **tmp;
+    char *copy;
+
+    for (i = 0; i < pending_count; i++) {
+        if (strcmp(pending_triggers[i], name) == 0)
+            return XPT_EX_OK;
+    }
+
+    copy = strdup(name);
+    if (!copy)
+        return XPT_EX_CANTCREAT;
+
+    tmp = realloc(pending_triggers, (pending_count + 1) * sizeof(char *));
+    if (!tmp) {
+        free(copy);
+        return XPT_EX_CANTCREAT;
+    }
+
+    pending_triggers = tmp;
+    pending_triggers[pending_count++] = copy;
+    return XPT_EX_OK;
+}
+
+static void run_pending_triggers(const char *destdir, int log)
+{
+    size_t i;
+
+    if (pending_count == 0)
+        return;
+
+    xpt_run_triggers(destdir, pending_triggers, pending_count, log);
+
+    for (i = 0; i < pending_count; i++)
+        free(pending_triggers[i]);
+    free(pending_triggers);
+
+    pending_triggers = NULL;
+    pending_count = 0;
+}
+
+static int install_one(const char *file, const char *destdir, int log,
+                       int netinstall_deps)
 {
 #if XPT_DISABLE_NETWORKING
     netinstall_deps = 0;
@@ -132,6 +180,14 @@ int xpt_package_install(const char *file, const char *destdir, int log,
         return XPT_EX_IOERR;
     }
 
+    size_t i;
+    for (i = 0; i < pi->triggers_count; i++) {
+        if (queue_trigger(pi->triggers[i]) != XPT_EX_OK) {
+            fprintf(stderr, "warning: could not queue trigger %s\n",
+                    pi->triggers[i]);
+        }
+    }
+
     if (remove(tree) != 0) {
         fprintf(stderr, "warning: failed to delete %s\n", tree);
     }
@@ -141,6 +197,21 @@ int xpt_package_install(const char *file, const char *destdir, int log,
 
     delete_package_info(pi);
     return XPT_EX_OK;
+}
+
+int xpt_package_install(const char *file, const char *destdir, int log,
+                        int netinstall_deps)
+{
+    int ret;
+
+    install_depth++;
+    ret = install_one(file, destdir, log, netinstall_deps);
+    install_depth--;
+
+    if (install_depth == 0)
+        run_pending_triggers(destdir, log);
+
+    return ret;
 }
 
 void prune_empty_dirs(const char *file_path, const char *root_dir)
