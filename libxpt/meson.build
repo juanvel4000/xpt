@@ -51,7 +51,7 @@ conf.set_quoted(
 )
 
 configure_file(
-  input: '../include/xpt/config.h.in',
+  input: '../config.h.in',
   output: 'config.h',
   configuration: conf,
 )
