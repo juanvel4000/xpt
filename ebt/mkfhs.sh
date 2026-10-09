@@ -33,7 +33,13 @@ mkdir -p "$ROOTFS/usr/bin" "$ROOTFS/usr/sbin" "$ROOTFS/usr/share/man" "$ROOTFS/u
     "$ROOTFS/var/lock" "$ROOTFS/var/mail" "$ROOTFS/var/local" "$ROOTFS/var/local/lib" \
     "$ROOTFS/var/local/cache" "$ROOTFS/usr/local/games" "$ROOTFS/usr/libexec" \
     "$ROOTFS/usr/games" "$ROOTFS/usr/local/etc" "$ROOTFS/etc/opt" "$ROOTFS/etc/X11" \
-    "$ROOTFS/etc/xml" "$ROOTFS/etc/skel" "$ROOTFS/usr/local/libexec"
+    "$ROOTFS/etc/xml" "$ROOTFS/etc/skel" "$ROOTFS/usr/local/libexec" "$ROOTFS/usr/share/doc" \
+    "$ROOTFS/usr/share/licenses" "$ROOTFS/usr/share/man/man1" "$ROOTFS/usr/share/man/man2" \
+    "$ROOTFS/usr/share/man/man3" "$ROOTFS/usr/share/man/man4" "$ROOTFS/usr/share/man/man5" \
+    "$ROOTFS/usr/share/man/man6" "$ROOTFS/usr/share/man/man7" "$ROOTFS/usr/share/man/man8" \
+    "$ROOTFS/usr/share/man/man9" "$ROOTFS/usr/share/misc" "$ROOTFS/usr/share/locale" \
+    "$ROOTFS/usr/share/zoneinfo" "$ROOTFS/usr/lib/pkgconfig" "$ROOTFS/usr/lib/modules" \
+    "$ROOTFS/usr/lib/firmware"
 
 case "$TARGETARCH" in
 x86_64)
