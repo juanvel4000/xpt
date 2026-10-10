@@ -15,13 +15,18 @@ endif
 
 install_data(
     'examples/ebs.formula',
-    install_dir: join_paths(get_option('datadir'), 'xpt'),
+    install_dir: join_paths(get_option('datadir'), 'xpt', 'examples'),
 )
 install_data(
     'examples/xpt.manifest',
-    install_dir: join_paths(get_option('datadir'), 'xpt'),
+    install_dir: join_paths(get_option('datadir'), 'xpt', 'examples'),
 )
 install_data(
     'examples/xpt.index',
-    install_dir: join_paths(get_option('datadir'), 'xpt'),
+    install_dir: join_paths(get_option('datadir'), 'xpt', 'examples'),
+)
+
+install_data(
+    'examples/example-trigger',
+    install_dir: join_paths(get_option('datadir'), 'xpt', 'examples'),
 )

@@ -1,0 +1,9 @@
+#!/bin/sh
+
+set -e
+
+# xpt: example trigger
+# prints a message, XPT_ROOT, and exits
+
+echo "hello, world!"
+echo "XPT_ROOT=${XPT_ROOT:-}"
