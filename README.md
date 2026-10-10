@@ -10,11 +10,13 @@ xpt consists of the `libxpt(3)` package-management library and the `xpt(8)` comm
 - lightweight libfetch implementation derived from NetBSD
 - sqlite3-backed local database storage
 - simple zstd-based package format
+- POSIX `sh`-based post-install triggers
+- virtual packages
 
 ## quick start
 
 ```sh
-meson setup build --prefix=/usr --sysconfdir=/etc --localstatedir=/var # setup the build with sensible defaults
+meson setup build --prefix=/usr --sysconfdir=/etc --localstatedir=/var --buildtype=release # setup the project
 meson compile -C build # compile xpt, libxpt
 meson test -C build # run the test suite
 meson install -C build # install xpt, libxpt, ebt, and documentation
@@ -186,7 +188,7 @@ meson install -C build
 
 ## known limitations
 
-- offline / installs do not resolve transitive dependencies.
+- offline installs do not resolve transitive dependencies.
 - no GPG-signed repositories or packages yet
 - package uninstall could use more polish
 
