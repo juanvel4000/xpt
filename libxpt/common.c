@@ -67,11 +67,11 @@ void xpt_print_build_info(FILE *out)
 #if XPT_DISABLE_NETWORKING
     fprintf(out, "libraries:     sqlite3 %s, libarchive %s\n",
             XPT_SQLITE3_VERSION, XPT_LIBARCHIVE_VERSION);
-    networking = "no";
+    networking = "disabled";
 #else
     fprintf(out, "libraries:     sqlite3 %s, libarchive %s, openssl %s\n",
             XPT_SQLITE3_VERSION, XPT_LIBARCHIVE_VERSION, XPT_OPENSSL_VERSION);
-    networking = "yes";
+    networking = "enabled";
 #endif
 
     fprintf(out, "networking:    %s\n", networking);
