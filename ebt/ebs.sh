@@ -146,7 +146,7 @@ build_formula() {
     fi
 
     . "$formula_path"
-    [ -n "$ebsver" ] || {
+    [ -n "${ebsver:-}" ] || {
         echo "! ebsver not set in $formula_script"
         exit 1
     }
@@ -170,19 +170,23 @@ build_formula() {
         echo "! function 'package()' not found"
         exit 1
     }
-    [ -n "$pkgname" ] || {
+
+    [ -n "${pkgname:-}" ] || {
         echo "! attribute 'pkgname=' not set in $formula_script"
         exit 1
     }
-    [ -n "$pkgver" ] || {
+
+    [ -n "${pkgver:-}" ] || {
         echo "! attribute 'pkgver=' not set in $formula_script"
         exit 1
     }
-    [ -n "$pkgmaintainer" ] || {
+
+    [ -n "${pkgmaintainer:-}" ] || {
         echo "! attribute 'pkgmaintainer=' not set in $formula_script "
         exit 1
     }
-    [ -n "$pkgdesc" ] || {
+
+    [ -n "${pkgdesc:-}" ] || {
         echo "! attribute 'pkgdesc=' not set in $formula_script"
         exit 1
     }

@@ -1,6 +1,7 @@
 #include <config.h>
 #include <limits.h>
 #include <stdio.h>
+#include <stdlib.h>
 #include <sys/wait.h>
 #include <unistd.h>
 #include <xpt/xpt.h>
@@ -28,6 +29,7 @@ int xpt_run_triggers(const char *destdir, char **names, size_t count, int log)
             continue;
         }
 
+        fflush(stdout);
         proc = fork();
         if (proc == -1) {
             perror("fork");
@@ -35,6 +37,7 @@ int xpt_run_triggers(const char *destdir, char **names, size_t count, int log)
         }
 
         if (proc == 0) {
+            setenv("XPT_ROOT", destdir, 1);
             execl(path, path, (char *)NULL);
             _exit(127);
         }
