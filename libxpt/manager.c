@@ -7,17 +7,16 @@
 #include <resolver.h>
 #include <triggers.h>
 #include <xpt/status.h>
-
-#if !XPT_DISABLE_NETWORKING
-#include <repo.h>
-#endif
-
 #include <libgen.h>
 #include <limits.h>
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
 #include <unistd.h>
+
+#if !XPT_DISABLE_NETWORKING
+#include <repo.h>
+#endif
 
 static int install_depth;
 static char **pending_triggers;

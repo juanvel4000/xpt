@@ -1,10 +1,8 @@
 #include <common.h>
 #include <database.h>
 #include <packages.h>
-
 #include <archive.h>
 #include <archive_entry.h>
-
 #include <limits.h>
 #include <stdio.h>
 #include <stdlib.h>

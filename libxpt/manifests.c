@@ -2,7 +2,6 @@
 #include <manifests.h>
 #include <packages.h>
 #include <xpt/status.h>
-
 #include <ctype.h>
 #include <errno.h>
 #include <stdint.h>

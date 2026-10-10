@@ -2,13 +2,11 @@
 #include <database.h>
 #include <manifests.h>
 #include <xpt/status.h>
-
 #include <limits.h>
 #include <sqlite3.h>
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
-
 #include "config.h"
 
 static int make_paths(char *db, size_t db_size, char *xptdir,
