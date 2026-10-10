@@ -1,11 +1,10 @@
-#include <xpt/xpt.h>
-
 #include "config.h"
 #include <limits.h>
 #include <stdio.h>
 #include <unistd.h>
+#include <xpt/xpt.h>
 
-int main(int argc, char *argv[])
+int main(int argc, char **argv)
 {
     char *xptver;
     if (XPT_VERSION[0] == 'v') {
