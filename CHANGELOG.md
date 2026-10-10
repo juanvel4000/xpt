@@ -12,17 +12,26 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - run triggers after install in `manager.c`
 - add a `triggers=` list to `manifests.c`
 - add a basic triggers runner in `triggers.c`
+- add an example trigger
+- add an `AUTHORS` section in manpages
+- add day numbers to manpages
 
 ### Changed
 
 - use docblocks for exit statuses
 - move `config.h.in` to project root
 - show `datadir` in `xpt_print_build_info`
+- split libxpt headers
+- change `networking: yes/no` to `networking: enabled/disabled` in `libxpt/common.c`
+- use oxford comma on -h short description in `xpt/main.c`
+- expand the `mkfhs` directory list
 
 ### Fixed
 
 - fix `fetchIO_write` in `libfetch/common.c`
 - fix install order in `libxpt/manager.c`
+- remove blank lines between include definitions
+- standarize blank lines in internal headers
 
 ## [0.9.0] - 2026-10-08
 
