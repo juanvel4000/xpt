@@ -23,23 +23,32 @@ echo "* creating a $TARGETARCH structure on $ROOTFS"
 mkdir -p "$ROOTFS"
 
 # create core structure
-mkdir -p "$ROOTFS/usr/bin" "$ROOTFS/usr/sbin" "$ROOTFS/usr/share/man" "$ROOTFS/usr/share/info" \
-    "$ROOTFS/usr/include" "$ROOTFS/usr/src" "$ROOTFS/usr/local/bin" "$ROOTFS/usr/local/sbin" \
-    "$ROOTFS/usr/local/include" "$ROOTFS/usr/local/share" "$ROOTFS/usr/local/lib" \
-    "$ROOTFS/var/cache" "$ROOTFS/var/lib" "$ROOTFS/var/log" "$ROOTFS/var/tmp" "$ROOTFS/var/spool" \
-    "$ROOTFS/etc" "$ROOTFS/run" "$ROOTFS/tmp" "$ROOTFS/dev" "$ROOTFS/proc" "$ROOTFS/sys" \
-    "$ROOTFS/mnt" "$ROOTFS/media" "$ROOTFS/home" "$ROOTFS/root" "$ROOTFS/srv/www" \
-    "$ROOTFS/srv/ftp" "$ROOTFS/opt" "$ROOTFS/boot" "$ROOTFS/usr/lib" "$ROOTFS/var/opt" \
-    "$ROOTFS/var/lock" "$ROOTFS/var/mail" "$ROOTFS/var/local" "$ROOTFS/var/local/lib" \
-    "$ROOTFS/var/local/cache" "$ROOTFS/usr/local/games" "$ROOTFS/usr/libexec" \
-    "$ROOTFS/usr/games" "$ROOTFS/usr/local/etc" "$ROOTFS/etc/opt" "$ROOTFS/etc/X11" \
-    "$ROOTFS/etc/xml" "$ROOTFS/etc/skel" "$ROOTFS/usr/local/libexec" "$ROOTFS/usr/share/doc" \
-    "$ROOTFS/usr/share/licenses" "$ROOTFS/usr/share/man/man1" "$ROOTFS/usr/share/man/man2" \
-    "$ROOTFS/usr/share/man/man3" "$ROOTFS/usr/share/man/man4" "$ROOTFS/usr/share/man/man5" \
-    "$ROOTFS/usr/share/man/man6" "$ROOTFS/usr/share/man/man7" "$ROOTFS/usr/share/man/man8" \
-    "$ROOTFS/usr/share/man/man9" "$ROOTFS/usr/share/misc" "$ROOTFS/usr/share/locale" \
-    "$ROOTFS/usr/share/zoneinfo" "$ROOTFS/usr/lib/pkgconfig" "$ROOTFS/usr/lib/modules" \
-    "$ROOTFS/usr/lib/firmware"
+mkdir -p "$ROOTFS/boot" "$ROOTFS/dev" "$ROOTFS/etc" "$ROOTFS/etc/opt" \
+    "$ROOTFS/etc/X11" "$ROOTFS/etc/xml" "$ROOTFS/etc/skel" \
+    "$ROOTFS/home" "$ROOTFS/media" "$ROOTFS/mnt" "$ROOTFS/opt" \
+    "$ROOTFS/proc" "$ROOTFS/root" "$ROOTFS/run" "$ROOTFS/srv/www" \
+    "$ROOTFS/srv/ftp" "$ROOTFS/sys" "$ROOTFS/tmp" \
+    "$ROOTFS/usr/bin" "$ROOTFS/usr/sbin" "$ROOTFS/usr/lib" \
+    "$ROOTFS/usr/libexec" "$ROOTFS/usr/lib/pkgconfig" \
+    "$ROOTFS/usr/lib/modules" "$ROOTFS/usr/lib/firmware" \
+    "$ROOTFS/usr/include" "$ROOTFS/usr/src" "$ROOTFS/usr/share" \
+    "$ROOTFS/usr/share/man" "$ROOTFS/usr/share/man/man1" \
+    "$ROOTFS/usr/share/man/man2" "$ROOTFS/usr/share/man/man3" \
+    "$ROOTFS/usr/share/man/man4" "$ROOTFS/usr/share/man/man5" \
+    "$ROOTFS/usr/share/man/man6" "$ROOTFS/usr/share/man/man7" \
+    "$ROOTFS/usr/share/man/man8" "$ROOTFS/usr/share/man/man9" \
+    "$ROOTFS/usr/share/info" "$ROOTFS/usr/share/doc" \
+    "$ROOTFS/usr/share/licenses" "$ROOTFS/usr/share/misc" \
+    "$ROOTFS/usr/share/locale" "$ROOTFS/usr/share/zoneinfo" \
+    "$ROOTFS/usr/share/src" "$ROOTFS/usr/games" \
+    "$ROOTFS/usr/local/bin" "$ROOTFS/usr/local/sbin" \
+    "$ROOTFS/usr/local/lib" "$ROOTFS/usr/local/libexec" \
+    "$ROOTFS/usr/local/include" "$ROOTFS/usr/local/share" \
+    "$ROOTFS/usr/local/etc" "$ROOTFS/usr/local/games" \
+    "$ROOTFS/var/cache" "$ROOTFS/var/lib" "$ROOTFS/var/lock" \
+    "$ROOTFS/var/log" "$ROOTFS/var/mail" "$ROOTFS/var/opt" \
+    "$ROOTFS/var/spool" "$ROOTFS/var/tmp" "$ROOTFS/var/local" \
+    "$ROOTFS/var/local/cache" "$ROOTFS/var/local/lib"
 
 case "$TARGETARCH" in
 x86_64)
@@ -51,9 +60,9 @@ esac
 echo "* symlinking sbin, bin and lib to root"
 (
     cd "$ROOTFS"
-    ln -sr "$ROOTFS/usr/lib" "$ROOTFS/lib"
-    ln -sr "$ROOTFS/usr/bin" "$ROOTFS/bin"
-    ln -sr "$ROOTFS/usr/sbin" "$ROOTFS/sbin"
+    [ -e bin ] || [ -L bin ] || ln -sr usr/bin bin
+    [ -e sbin ] || [ -L sbin ] || ln -sr usr/sbin sbin
+    [ -e lib ] || [ -L lib ] || ln -sr usr/lib lib
 )
 
 echo "* setting permissions"

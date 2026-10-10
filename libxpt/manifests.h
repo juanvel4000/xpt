@@ -1,5 +1,6 @@
 #ifndef MANIFESTS_H
 #define MANIFESTS_H
+
 #include <stdint.h>
 #include <stdio.h>
 
@@ -31,4 +32,5 @@ typedef struct {
 void delete_package_info(PackageInfo *pi);
 PackageInfo *parse_manifest(const char *file);
 int package_info_add_provide(PackageInfo *pi, const char *capability);
+
 #endif /* MANIFESTS_H */
