@@ -113,7 +113,7 @@ int main(int argc, char **argv)
             printf("usage: xpt command [options]\n\n");
             printf(
                 "xpt is a package management utility designed to install,\n"
-                "remove and administer .xpt packages. it is designed as\n"
+                "remove, and administer .xpt packages. it is designed as\n"
                 "both a high-level and a medium-level interface for package\n"
                 "management.\n\n");
             printf("commands:\n");
