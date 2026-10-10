@@ -6,6 +6,7 @@
 #include <packages.h>
 #include <resolver.h>
 #include <triggers.h>
+#include <xpt/status.h>
 
 #if !XPT_DISABLE_NETWORKING
 #include <repo.h>

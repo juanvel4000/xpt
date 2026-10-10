@@ -4,7 +4,7 @@
 #include <stdlib.h>
 #include <sys/wait.h>
 #include <unistd.h>
-#include <xpt/xpt.h>
+#include <xpt/status.h>
 
 int xpt_run_triggers(const char *destdir, char **names, size_t count, int log)
 {

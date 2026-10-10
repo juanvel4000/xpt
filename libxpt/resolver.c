@@ -3,6 +3,7 @@
 #include <manager.h>
 #include <manifests.h>
 #include <resolver.h>
+#include <xpt/status.h>
 
 #include <stdio.h>
 #include <stdlib.h>

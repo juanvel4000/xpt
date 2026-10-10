@@ -2,7 +2,11 @@
 #include <limits.h>
 #include <stdio.h>
 #include <unistd.h>
-#include <xpt/xpt.h>
+#include <xpt/info.h>
+#include <xpt/lock.h>
+#include <xpt/package.h>
+#include <xpt/repos.h>
+#include <xpt/status.h>
 
 int main(int argc, char **argv)
 {

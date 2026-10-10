@@ -1,5 +1,6 @@
 #include <common.h>
 #include <repo.h>
+#include <xpt/status.h>
 
 #include <ctype.h>
 #include <fetch.h>

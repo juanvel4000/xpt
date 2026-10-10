@@ -1,6 +1,7 @@
 #include <common.h>
 #include <database.h>
 #include <manifests.h>
+#include <xpt/status.h>
 
 #include <limits.h>
 #include <sqlite3.h>

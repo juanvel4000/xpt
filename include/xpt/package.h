@@ -1,59 +1,5 @@
-#ifndef XPT_H
-#define XPT_H
-
-#define XPT_LOG_OK 1
-#define XPT_LOG_NO 0
-
-/** ok */
-#define XPT_EX_OK 0
-
-/** bad flags / user error */
-#define XPT_EX_USAGE 1
-
-/* not found */
-#define XPT_EX_NOINPUT 2
-
-/* invalid entry */
-#define XPT_EX_DATAERR 3
-
-/** io failure */
-#define XPT_EX_IOERR 4
-
-/** couldn't create item */
-#define XPT_EX_CANTCREAT 5
-
-/** network / download failure */
-#define XPT_EX_TEMPFAIL 6
-
-/** checksum mismatch */
-#define XPT_EX_PROTOCOL 7
-
-/** lock held */
-#define XPT_EX_NOPERM 8
-
-/** internal err */
-#define XPT_EX_SOFTWARE 9
-
-/** exists */
-#define XPT_EX_EXISTS 10
-
-#include <stdio.h>
-
-/**
- * acquire the manager lock
- *
- * @param destdir the root directory containing the lock
- *
- * @return the lock file descriptor
- */
-int xpt_lock_acquire(const char *destdir);
-
-/**
- * release the manager lock
- *
- * @param fd the file descriptor of the lock
- */
-void xpt_lock_release(int fd);
+#ifndef XPT_PACKAGE_H
+#define XPT_PACKAGE_H
 
 /**
  * install a package
@@ -131,30 +77,4 @@ int xpt_package_printinfo(const char *package, const char *destdir);
  */
 char *xpt_package_getversion(const char *package, const char *destdir);
 
-/**
- * synchronize the network repositories
- *
- * @param destdir the root directory containing the repository data
- *
- * @return XPT_EX_*
- */
-int xpt_repos_sync(const char *destdir);
-
-/**
- * get information about a package from the network
- *
- * @param name the package to read from
- * @param destdir the root directory to read from
- *
- * @return XPT_EX_*
- */
-int xpt_repos_getpkginfo(const char *name, const char *destdir);
-
-/**
- * print build information about xpt
- *
- * @param out the file to print into
- */
-void xpt_print_build_info(FILE *out);
-
-#endif /* XPT_H */
+#endif /* XPT_PACKAGE_H */

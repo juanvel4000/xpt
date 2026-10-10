@@ -1,0 +1,5 @@
+install_headers('xpt/info.h', subdir: 'xpt')
+install_headers('xpt/lock.h', subdir: 'xpt')
+install_headers('xpt/package.h', subdir: 'xpt')
+install_headers('xpt/repos.h', subdir: 'xpt')
+install_headers('xpt/status.h', subdir: 'xpt')
