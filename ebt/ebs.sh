@@ -209,7 +209,9 @@ build_formula() {
             exit 1
         }
         echo "* downloading $pkgsrc"
-        srcfile=$(basename "${pkgsrc%%\?*}")
+
+        sourcedir="$(mktemp -d)"
+        srcfile="$sourcedir/$(basename "${pkgsrc%%\?*}")"
         download "$pkgsrc" "$srcfile" || {
             echo "! $DLPROG failed"
             exit 1
