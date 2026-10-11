@@ -1,4 +1,8 @@
 #!/bin/sh
+
+#shellcheck disable=SC2034
+#shellcheck disable=SC2154
+
 #ebs.formulae
 ebsver=1
 
@@ -8,15 +12,18 @@ pkgsrc=https://dl.juanvel400.com/hello/hello-$pkgver.tar.xz
 pkgchecksum=sha256:e1679b76db9ca718b943846cc21b75fe2180102b3d532be1a663db38e8fd78c1
 pkgdesc="simple hello world program"
 pkgmaintainer="juanvel400 <contact@juanvel400.com>"
+pkglicense="BSD-3-Clause"
+pkghomepage="https://dl.juanvel400.com"
+pkgcheck=true
 
 build() {
-    cd "hello-$pkgver"
-
     make
-    make check    
+}
+
+check() {
+    make check
 }
 
 package() {
-    fakeroot make install PREFIX="/usr" DESTDIR="$pkgdir"
+    "${FAKEROOT:-fakeroot}" make install PREFIX="/usr" DESTDIR="$pkgdir"
 }
-
