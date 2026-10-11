@@ -1,18 +1,18 @@
 #include "config.h"
 #include <common.h>
 #include <database.h>
+#include <libgen.h>
+#include <limits.h>
 #include <manager.h>
 #include <manifests.h>
 #include <packages.h>
 #include <resolver.h>
-#include <triggers.h>
-#include <xpt/status.h>
-#include <libgen.h>
-#include <limits.h>
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
+#include <triggers.h>
 #include <unistd.h>
+#include <xpt/status.h>
 
 #if !XPT_DISABLE_NETWORKING
 #include <repo.h>

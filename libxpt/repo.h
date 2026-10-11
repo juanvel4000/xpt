@@ -16,7 +16,6 @@ typedef struct {
     size_t depends_count;
 } RepoPackage;
 
-
 int repo_download(const char *url, const char *dest);
 int repo_fetch_index(const char *base_url, const char *cachefile);
 

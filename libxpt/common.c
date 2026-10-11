@@ -1,3 +1,4 @@
+#include "config.h"
 #include <errno.h>
 #include <limits.h>
 #include <stdio.h>
@@ -5,7 +6,6 @@
 #include <sys/stat.h>
 #include <sys/types.h>
 #include <unistd.h>
-#include "config.h"
 
 int is_file(const char *path)
 {

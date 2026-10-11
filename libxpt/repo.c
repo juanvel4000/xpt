@@ -1,14 +1,14 @@
+#include "config.h"
 #include <common.h>
-#include <repo.h>
-#include <xpt/status.h>
 #include <ctype.h>
 #include <fetch.h>
 #include <limits.h>
+#include <openssl/evp.h>
+#include <repo.h>
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
-#include <openssl/evp.h>
-#include "config.h"
+#include <xpt/status.h>
 
 static char *rtrim(char *s)
 {

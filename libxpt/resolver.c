@@ -3,10 +3,10 @@
 #include <manager.h>
 #include <manifests.h>
 #include <resolver.h>
-#include <xpt/status.h>
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
+#include <xpt/status.h>
 
 int resolver_seen(NodeContainer *container, const char *name)
 {

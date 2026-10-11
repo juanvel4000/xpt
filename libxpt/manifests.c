@@ -1,13 +1,13 @@
 #include <common.h>
-#include <manifests.h>
-#include <packages.h>
-#include <xpt/status.h>
 #include <ctype.h>
 #include <errno.h>
+#include <manifests.h>
+#include <packages.h>
 #include <stdint.h>
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
+#include <xpt/status.h>
 
 static char *trim(char *s)
 {
