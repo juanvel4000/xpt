@@ -30,7 +30,7 @@ command -v zstd >/dev/null 2>&1 || {
 
 download() {
     if command -v aria2c >/dev/null 2>&1; then
-        aria2c -o "$2" "$1" || {
+        aria2c --dir="$(dirname "$2")" --out="$(basename "$1")" "$1" || {
             echo "! aria2c failed" >&2
             return 1
         }
