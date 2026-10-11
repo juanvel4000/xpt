@@ -5,6 +5,13 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [0.10.1] - 2026-10-11
+
+### Changed
+
+- improve the `doc/examples/ebs.formula` structure
+- use explicit arguments for aria2c in `ebs.sh`
+
 ## [0.10.0] - 2026-10-10
 
 ### Added
