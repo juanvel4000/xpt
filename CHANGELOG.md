@@ -5,7 +5,7 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
-## [Unreleased]
+## [0.10.0] - 2026-10-10
 
 ### Added
 
@@ -25,6 +25,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - change `networking: yes/no` to `networking: enabled/disabled` in `libxpt/common.c`
 - use oxford comma on -h short description in `xpt/main.c`
 - expand the `mkfhs` directory list
+- improve ebs build cleanup and error handling
 
 ### Fixed
 
