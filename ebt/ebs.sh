@@ -98,45 +98,52 @@ extract_source() {
 
     mkdir -p "$builddir"
 
-    case "$archive" in
-    *.tar.gz | *.tgz)
-        command -v tar >/dev/null 2>&1 || {
-            echo "! tar not found"
+    case "${pkgsrcformat:-archive}" in
+    archive)
+        case "$archive" in
+        *.tar.gz | *.tgz)
+            command -v tar >/dev/null 2>&1 || {
+                echo "! tar not found"
+                exit 1
+            }
+            tar -xzf "$archive" -C "$builddir"
+            ;;
+        *.tar.xz)
+            command -v tar >/dev/null 2>&1 || {
+                echo "! tar not found"
+                exit 1
+            }
+            tar -xJf "$archive" -C "$builddir"
+            ;;
+        *.tar.bz2)
+            command -v tar >/dev/null 2>&1 || {
+                echo "! tar not found"
+                exit 1
+            }
+            tar -xjf "$archive" -C "$builddir"
+            ;;
+        *.tar.zst)
+            command -v tar >/dev/null 2>&1 || {
+                echo "! tar not found"
+                exit 1
+            }
+            tar --zstd -xf "$archive" -C "$builddir"
+            ;;
+        *.zip)
+            command -v unzip >/dev/null 2>&1 || {
+                echo "! unzip not found"
+                exit 1
+            }
+            unzip "$archive" -d "$builddir"
+            ;;
+        *)
+            echo "! unsupported archive format: $archive"
             exit 1
-        }
-        tar -xzf "$archive" -C "$builddir"
-        ;;
-    *.tar.xz)
-        command -v tar >/dev/null 2>&1 || {
-            echo "! tar not found"
-            exit 1
-        }
-        tar -xJf "$archive" -C "$builddir"
-        ;;
-    *.tar.bz2)
-        command -v tar >/dev/null 2>&1 || {
-            echo "! tar not found"
-            exit 1
-        }
-        tar -xjf "$archive" -C "$builddir"
-        ;;
-    *.tar.zst)
-        command -v tar >/dev/null 2>&1 || {
-            echo "! tar not found"
-            exit 1
-        }
-        tar --zstd -xf "$archive" -C "$builddir"
-        ;;
-    *.zip)
-        command -v unzip >/dev/null 2>&1 || {
-            echo "! unzip not found"
-            exit 1
-        }
-        unzip "$archive" -d "$builddir"
+            ;;
+        esac
         ;;
     *)
-        echo "! unsupported archive format: $archive"
-        exit 1
+        cp "$archive" "$builddir/$(basename $archive)"
         ;;
     esac
 }
