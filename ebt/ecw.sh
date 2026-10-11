@@ -46,7 +46,7 @@ do_chroot() {
     mount_bind "/tmp" "$1/tmp"
     mount_bind "/run" "$1/run"
     mount -t proc proc "$1/proc"
-    trap 'safe_umount $1' EXIT INT
+    trap 'safe_umount $1' HUP INT TERM
     chroot "$1" "$ecw_shell" || {
         echo "! chroot exited"
         safe_umount "$1"
