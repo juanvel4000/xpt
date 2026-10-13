@@ -49,11 +49,11 @@ xpt exposes several meson build-time options
 | option       | type    | default    | description                                                                      |
 | ------------ | ------- | ---------- | -------------------------------------------------------------------------------- |
 | `static`     | boolean | `false`    | build a statically linked xpt executable, requires static dependencies available |
-| `networking` | feature | `enabled`  | build xpt with `libfetch` networking support                                     |
-| `ebt`        | feature | `enabled`  | build the ebt build system                                                       |
-| `doc`        | feature | `enabled`  | xpt/ebt documentation                                                            |
-| `ebt_only`   | feature | `disabled` | only build ebt                                                                   |
-| `tests`      | feature | `enabled`  | enable the xpt test suite                                                        |
+| `networking` | feature | `enabled`  | build libxpt with `libfetch` networking support                                  |
+| `ebt`        | feature | `enabled`  | install the ebt build system                                                     |
+| `doc`        | feature | `enabled`  | documentation                                                                    |
+| `ebt_only`   | feature | `disabled` | only install ebt                                                                 |
+| `tests`      | feature | `enabled`  | enable the test suite                                                            |
 
 > set with, e.g.:
 >
@@ -84,36 +84,36 @@ meson install -C build
 
 ## usage
 
-xpt uses a unique verb-item argument system
+xpt uses a unique verb-item argument system, lacking GNU-style long-options completely.
 
 ### items
 
-| item        | description                          |
-| ----------- | ------------------------------------ |
-| `-f <file>` | file package                         |
-| `-p <pkg>`  | installed package                    |
-| `-n <pkg>`  | network package                      |
-| `-d <dir>`  | target root directory (default: `/`) |
+| item        | represents                             |
+| ----------- | -------------------------------------- |
+| `-f <file>` | a file package                         |
+| `-p <pkg>`  | an installed package                   |
+| `-n <pkg>`  | a network package                      |
+| `-d <dir>`  | a target root directory (default: `/`) |
 
 ### verbs
 
-| verb | description                                  | usable items     |
+| verb | description                                  | supports items   |
 | ---- | -------------------------------------------- | ---------------- |
-| `-V` | show the current xpt version                 | --               |
+| `-V` | show the xpt version                         | —                |
 | `-i` | install a package                            | `-d`, `-f`, `-n` |
 | `-g` | get the version of an installed package      | `-d`             |
-| `-h` | show the help message                        | --               |
+| `-h` | show the help message                        | —                |
 | `-r` | remove a package                             | `-d`, `-p`       |
 | `-l` | list the packages installed in the system    | `-d`             |
 | `-t` | show the files used by a package             | `-d`, `-p`       |
 | `-s` | download the repository indexes              | `-d`             |
 | `-Q` | get information of a package in a repository | `-d`, `-n`       |
 | `-I` | show metadata about a package                | `-d`, `-p`       |
-| `-B` | print the libxpt build info                  | --               |
+| `-B` | print the libxpt build info                  | —                |
 
 ### examples
 
-examples use a package called `hello`, as shown in `doc/examples/ebs.formula` and `doc/examples/xpt.manifest`
+examples use a package called `hello`, as shown in `doc/examples/ebs.formula` and `doc/examples/xpt.manifest`.
 
 #### install a local package
 
@@ -156,24 +156,22 @@ manpages are installed when documentation is enabled at build time
 | `xpt.tree(5)`     | the xpt.tree file format           |
 | `xpt.index(5)`    | the xpt.index file format          |
 
-> view any of them with, e.g.:
+> view the installed manual pages with `man`
 >
 > ```sh
 > man 8 xpt
 > ```
->
-> you will need a manpage viewer such as mandoc or man-db
 
 ## ebt
 
-a lightweight package build toolkit.
+a build suite for xpt packages.
 
 ebt bundles a set of tools written in POSIX `sh` for building `.xpt` packages from source.
 
 ### tools
 
-- `mkfhs(1)`: creates a `hier(7)` directory tree
-- `ecw(8)`: a wrapper around `chroot(8)`
+- `mkfhs(1)`: creates a `hier(7)` directory tree in the specified directory
+- `ecw(8)`: a wrapper around `chroot(8)` with better shell detection and proper bind mounting
 - `ebs(1)`: a build system for `ebs(5)` formulae, producing zstd-based `.xpt` packages
 - `rig(1)`: a `xpt.index(5)` repository index generator
 
