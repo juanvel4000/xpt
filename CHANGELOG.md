@@ -24,6 +24,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ### Fixed
 
 - improve overview prose in `README.md`
+- clarify descriptions and tables in `README.md`
 
 ## [0.10.2] - 2026-10-11
 

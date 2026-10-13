@@ -4,12 +4,14 @@ option(
     value: false,
     description: 'build a statically linked xpt executable.',
 )
+
 option(
     'networking',
     type: 'feature',
     value: 'enabled',
     description: 'build xpt with networking support.',
 )
+
 option(
     'ebt',
     type: 'feature',
@@ -37,15 +39,24 @@ option(
     value: 'enabled',
     description: 'run the test suite.',
 )
+
 option(
     'libxpt',
     type: 'feature',
     value: 'enabled',
     description: 'build the libxpt library.',
 )
+
 option(
     'xpt',
     type: 'feature',
     value: 'enabled',
     description: 'build the xpt binary.',
+)
+
+option(
+    'doxygen',
+    type: 'feature',
+    value: 'auto',
+    description: 'generate API documentation with Doxygen',
 )

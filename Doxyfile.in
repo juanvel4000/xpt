@@ -1,0 +1,33 @@
+PROJECT_NAME           = "xpt"
+PROJECT_BRIEF          = "the xpt package-management suite"
+PROJECT_NUMBER         = "@PROJECT_VERSION@"
+OUTPUT_DIRECTORY       = "@BUILD_ROOT@"
+
+INPUT                  = "@SOURCE_ROOT@/libxpt"
+FILE_PATTERNS          = *.h *.c
+RECURSIVE              = YES
+EXCLUDE                =
+EXCLUDE_PATTERNS       =
+
+EXTRACT_ALL            = NO
+EXTRACT_PRIVATE        = NO
+EXTRACT_STATIC         = NO
+HIDE_UNDOC_MEMBERS     = YES
+HIDE_UNDOC_CLASSES     = YES
+
+QUIET                  = NO
+WARNINGS               = YES
+WARN_IF_UNDOCUMENTED   = YES
+WARN_IF_DOC_ERROR      = YES
+WARN_AS_ERROR          = NO
+
+GENERATE_HTML          = YES
+HTML_OUTPUT            = html
+GENERATE_LATEX         = NO
+GENERATE_MAN            = NO
+GENERATE_XML            = NO
+
+HAVE_DOT               = NO
+
+SOURCE_BROWSER         = NO
+INLINE_SOURCES         = NO

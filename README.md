@@ -1,6 +1,6 @@
 # xpt
 
-a package manager for `.xpt` packages, written in C.
+a package management suite for `.xpt` packages, written in C.
 
 xpt consists of the `libxpt(3)` package-management library and the `xpt(8)` command-line frontend, and the `ebt` build suite.
 
@@ -54,6 +54,7 @@ xpt exposes several meson build-time options
 | `doc`        | feature | `enabled`  | documentation                                                                    |
 | `ebt_only`   | feature | `disabled` | only install ebt                                                                 |
 | `tests`      | feature | `enabled`  | enable the test suite                                                            |
+| `doxygen`    | feature | `auto`     | generate API documentation with doxygen                                          |
 
 > set with, e.g.:
 >
