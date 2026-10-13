@@ -38,7 +38,7 @@ int main(int argc, char **argv)
     int loglevel = XPT_LOG_OK;
 
     if (argc == 1) {
-        fprintf(stderr, "usage: xpt command [options]\n");
+        fprintf(stderr, "usage: xpt action [options]\n");
         fprintf(stderr, "try 'xpt -h' for more information.\n");
         return XPT_EX_USAGE;
     }
@@ -114,7 +114,7 @@ int main(int argc, char **argv)
             return XPT_EX_OK;
         case 'h':
             printf("xpt v%s\n", xptver);
-            printf("usage: xpt command [options]\n\n");
+            printf("usage: xpt action [options]\n\n");
             printf(
                 "xpt is a package management utility designed to install,\n"
                 "remove, and administer .xpt packages. it is designed as\n"

@@ -11,12 +11,15 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 - add support for `EBS_SKIP_CLEANUP`, `EBS_RESUME`, and `EBS_FORCE_DOWNLOAD` in `ebs.sh`
 - support line-comments in `xpt.d/index` files
-- 
+- add an `xpt.d/index` example
 
 ### Changed
 
 - split `doc/meson.build` into subdirectories
 - rewrite the libxpt `pkg-config` documentation
+- update example ebs formula
+- update example `xpt.d/index` repository urls
+- use action in xpt usage text
 
 ### Fixed
 
