@@ -4,7 +4,12 @@
 #include <stdio.h>
 
 /**
- * print build information about xpt
+ * @file info.h
+ * @brief interfaces to display build information about libxpt
+ */
+
+/**
+ * print build information about libxpt
  *
  * @param out the file to print into
  */

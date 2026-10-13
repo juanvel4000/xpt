@@ -2,6 +2,11 @@
 #define XPT_REPOS_H
 
 /**
+ * @file repos.h
+ * @brief interfaces to read and synchronize network repositories
+ */
+
+/**
  * synchronize the network repositories
  *
  * @param destdir the root directory containing the repository data

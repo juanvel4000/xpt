@@ -2,6 +2,11 @@
 #define XPT_PACKAGE_H
 
 /**
+ * @file package.h
+ * @brief core package-management interfaces
+ */
+
+/**
  * install a package
  *
  * @param file the package file

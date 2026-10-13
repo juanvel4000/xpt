@@ -2,6 +2,11 @@
 #define XPT_LOCK_H
 
 /**
+ * @file lock.h
+ * @brief simple flock-based locking interface
+ */
+
+/**
  * acquire the manager lock
  *
  * @param destdir the root directory containing the lock

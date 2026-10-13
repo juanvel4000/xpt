@@ -1,6 +1,11 @@
 #ifndef XPT_STATUS_H
 #define XPT_STATUS_H
 
+/**
+ * @file status.h
+ * @brief simple loglevels and exit values for use with libxpt interfaces
+ */
+
 /** semi-verbose */
 #define XPT_LOG_OK 1
 
