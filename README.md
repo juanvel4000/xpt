@@ -1,8 +1,8 @@
 # xpt
 
-a minimalistic, lightweight package manager for `.xpt` packages, written in C.
+a package manager for `.xpt` packages, written in C.
 
-xpt consists of the `libxpt(3)` package-management library and the `xpt(8)` command-line frontend. the repository also contains ebt, a separate set of POSIX shell tools for building `.xpt` packages.
+xpt consists of the `libxpt(3)` package-management library and the `xpt(8)` command-line frontend, and the `ebt` build suite.
 
 ## features
 
