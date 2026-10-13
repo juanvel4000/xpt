@@ -1,8 +1,8 @@
 # contributing to xpt
 
-xpt is maintained on [sourcehut](https://sr.ht/~juanvel400/xpt) -- this document explains how to report bugs and send patches there.
+xpt is maintained on [sourcehut](https://sr.ht/~juanvel400/xpt) — this document explains how to report bugs and send patches there.
 
-## reporting bugs / requesting features
+## reporting bugs or features
 
 use the [ticket tracker](https://todo.sr.ht/~juanvel400/xpt). when filing a bug include
 
@@ -16,12 +16,12 @@ xpt doesn't use GitHub-style pull requests. instead:
 
 1. clone the repo and make your changes on a branch
 2. commit with a clear, scoped message (see "commit style" below)
-3. configure `git send-email` if you haven't already -- see
+3. configure `git send-email` if you haven't already — see
    [sr.ht's send-email tutorial](https://git-send-email.io/)
 4. send your patch to: **~juanvel400/xpt-devel@lists.sr.ht**
 
 ```sh
- $ git send-email --to=~juanvel400/xpt-devel@lists.sr.ht origin/main..HEAD
+git send-email --to=~juanvel400/xpt-devel@lists.sr.ht origin/main..HEAD
 ```
 
 ## commit style
@@ -38,7 +38,7 @@ xpt doesn't use GitHub-style pull requests. instead:
 
 ## code style
 
-- shell scripts are POSIX sh -- avoid bashisms
+- shell scripts are POSIX sh — avoid bashisms or extensions
 - see existing code for naming conventions (`xpt_`-prefixed public functions in libxpt, etc.)
 
 > `scripts/fmt.sh` formats all of the above in one pass
