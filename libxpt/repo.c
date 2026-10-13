@@ -231,6 +231,9 @@ int xpt_repos_sync(const char *destdir)
         if (line[0] == '\0')
             continue;
 
+        if (line[0] == '#')
+            continue;
+
         snprintf(tmpfile, sizeof(tmpfile), "%s.tmp", cachefile);
 
         if (repo_fetch_index(line, tmpfile) != 0) {
