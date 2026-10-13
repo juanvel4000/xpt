@@ -12,13 +12,13 @@ cd "$WORKDIR"
 
 if "$EBS" build ebs.formula >out.log 2>&1; then
     echo "! expected ebs.sh to fail on checksum mismatch." >&2
-    cat err.log >&2
+    cat out.log >&2
     exit 1
 fi
 
 if ! grep -q "checksum mismatch" out.log; then
     echo "! expected 'checksum mismatch' in stderr, got:" >&2
-    cat err.log >&2
+    cat out.log >&2
     exit 1
 fi
 
