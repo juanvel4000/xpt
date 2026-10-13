@@ -1,0 +1,4 @@
+# xpt.d/index - newline-separated repository URLs
+https://xpt.example.com/x86_64/main
+https://xpt.example.com/x86_64/extra
+https://xpt.example.com/x86_64/multilib

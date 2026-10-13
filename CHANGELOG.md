@@ -5,6 +5,23 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [Unreleased]
+
+### Added
+
+- add support for `EBS_SKIP_CLEANUP`, `EBS_RESUME`, and `EBS_FORCE_DOWNLOAD` in `ebs.sh`
+- support line-comments in `xpt.d/index` files
+- 
+
+### Changed
+
+- split `doc/meson.build` into subdirectories
+- rewrite the libxpt `pkg-config` documentation
+
+### Fixed
+
+- improve overview prose in `README.md`
+
 ## [0.10.2] - 2026-10-11
 
 ### Fixed
