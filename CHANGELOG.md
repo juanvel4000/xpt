@@ -15,6 +15,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - add doxygen api docs generation support
 - add docblocks to xpt headers
 - add examples to `xpt(8)`
+- use a `github/gitignore`-based gitignore
 
 ### Changed
 
