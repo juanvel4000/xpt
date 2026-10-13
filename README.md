@@ -163,6 +163,12 @@ manpages are installed when documentation is enabled at build time
 > man 8 xpt
 > ```
 
+### doxygen
+
+doxygen documentation based on the docblocks defined in `include/xpt`, is built when the `doxygen` binary is available.
+
+by default, it is installed to `PREFIX/doc/xpt`.
+
 ## ebt
 
 a build suite for xpt packages.

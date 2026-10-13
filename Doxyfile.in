@@ -3,7 +3,7 @@ PROJECT_BRIEF          = "the xpt package-management suite"
 PROJECT_NUMBER         = "@PROJECT_VERSION@"
 OUTPUT_DIRECTORY       = "@BUILD_ROOT@"
 
-INPUT                  = "@SOURCE_ROOT@/libxpt"
+INPUT                  = "@SOURCE_ROOT@/include"
 FILE_PATTERNS          = *.h *.c
 RECURSIVE              = YES
 EXCLUDE                =
@@ -31,3 +31,4 @@ HAVE_DOT               = NO
 
 SOURCE_BROWSER         = NO
 INLINE_SOURCES         = NO
+FULL_PATH_NAMES        = NO
