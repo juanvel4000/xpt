@@ -159,7 +159,9 @@ build_formula() {
         [ -z "$sourcedir" ] || rm -rf "$sourcedir"
     }
 
-    trap cleanup EXIT
+    if [ -z "${EBS_SKIP_CLEANUP:-}" ]; then
+        trap cleanup EXIT
+    fi
 
     formula_script=${1:-ebs.formula}
     output_file=${2:-ebs.auto}
@@ -234,39 +236,41 @@ build_formula() {
         exit 1
     fi
 
-    buildroot=$(mktemp -d)
+    buildroot="${EBS_RESUME:-$(mktemp -d)}"
 
-    if [ -n "${pkgsrc:-}" ]; then
-        [ -n "${pkgchecksum:-}" ] || {
-            echo "! attribute 'pkgchecksum=' not set in $formula_script"
-            exit 1
-        }
-        echo "* downloading $pkgsrc"
+    if [ -z "${EBS_RESUME:-}" ] || [ -n "${EBS_FORCE_DOWNLOAD:-}" ]; then
+        if [ -n "${pkgsrc:-}" ]; then
+            [ -n "${pkgchecksum:-}" ] || {
+                echo "! attribute 'pkgchecksum=' not set in $formula_script"
+                exit 1
+            }
+            echo "* downloading $pkgsrc"
 
-        sourcedir="$(mktemp -d)"
-        srcfile="$sourcedir/$(basename "${pkgsrc%%\?*}")"
-        download "$pkgsrc" "$srcfile" || exit 1
+            sourcedir="$(mktemp -d)"
+            srcfile="$sourcedir/$(basename "${pkgsrc%%\?*}")"
+            download "$pkgsrc" "$srcfile" || exit 1
 
-        echo "* verifying source"
+            echo "* verifying source"
 
-        algo="${pkgchecksum%%:*}"
-        sum="${pkgchecksum#*:}"
-        case "$algo" in
-        sha256) cmd=sha256sum ;;
-        sha512) cmd=sha512sum ;;
-        *)
-            echo "! unknown checksum algorithm: $algo"
-            exit 1
-            ;;
-        esac
+            algo="${pkgchecksum%%:*}"
+            sum="${pkgchecksum#*:}"
+            case "$algo" in
+            sha256) cmd=sha256sum ;;
+            sha512) cmd=sha512sum ;;
+            *)
+                echo "! unknown checksum algorithm: $algo"
+                exit 1
+                ;;
+            esac
 
-        printf '%s  %s\n' "$sum" "$srcfile" | "$cmd" -c - || {
-            echo "! checksum mismatch"
-            exit 1
-        }
+            printf '%s  %s\n' "$sum" "$srcfile" | "$cmd" -c - || {
+                echo "! checksum mismatch"
+                exit 1
+            }
 
-        echo "* extracting source"
-        extract_source "$srcfile" "$buildroot"
+            echo "* extracting source"
+            extract_source "$srcfile" "$buildroot"
+        fi
     fi
 
     cd "$buildroot"
