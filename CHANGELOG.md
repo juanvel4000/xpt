@@ -14,6 +14,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - add an `xpt.d/index` example
 - add doxygen api docs generation support
 - add docblocks to xpt headers
+- add examples to `xpt(8)`
 
 ### Changed
 
@@ -24,6 +25,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - use action in xpt usage text
 - install licenses in `meson.build`
 - install `README.md` and `CHANGELOG.md` in `meson.build`
+- move internal libfetch and libxpt headers to `include/`
 
 ### Fixed
 

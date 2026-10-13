@@ -68,6 +68,31 @@ make the output of most operations quiet (doesn't hide errors).
 .Xr xpt.tree 5 ,
 .Xr xpt.index 5 ,
 .Xr ebs 1
+.Sh EXAMPLES
+.Ss display package information
+.Pp
+display information about an installed package:
+.Bd -literal -offset indent
+xpt -Ip hello
+.Ed
+.Ss install a package
+.Pp
+install a package archive:
+.Bd -literal -offset indent
+xpt -if ./hello-0.1.3.xpt
+.Ed
+.Ss uninstall a package
+.Pp
+uninstall a package from the system:
+.Bd -literal -offset indent
+xpt -rp hello
+.Ed
+.Ss get a package version
+.Pp
+get the version of an installed package
+.Bd -literal -offset indent
+xpt -gp hello
+.Ed
 .Sh LICENSE
 BSD-3-Clause, see the source code for details.
 .Sh AUTHORS
