@@ -3,7 +3,7 @@ PROJECT_BRIEF          = "the xpt package-management suite"
 PROJECT_NUMBER         = "@PROJECT_VERSION@"
 OUTPUT_DIRECTORY       = "@BUILD_ROOT@"
 
-INPUT                  = "@SOURCE_ROOT@/include"
+INPUT                  = "@SOURCE_ROOT@/include/xpt"
 FILE_PATTERNS          = *.h *.c
 RECURSIVE              = YES
 EXCLUDE                =

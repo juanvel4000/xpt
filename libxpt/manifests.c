@@ -1,8 +1,8 @@
-#include <common.h>
 #include <ctype.h>
 #include <errno.h>
-#include <manifests.h>
-#include <packages.h>
+#include <internal/common.h>
+#include <internal/manifests.h>
+#include <internal/packages.h>
 #include <stdint.h>
 #include <stdio.h>
 #include <stdlib.h>

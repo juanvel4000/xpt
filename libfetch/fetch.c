@@ -36,8 +36,8 @@
 #include <stdlib.h>
 #include <string.h>
 
-#include "common.h"
-#include "fetch.h"
+#include <libfetch/common.h>
+#include <libfetch/fetch.h>
 
 fetch_redirect_t fetchRedirectMethod;
 auth_t fetchAuthMethod;

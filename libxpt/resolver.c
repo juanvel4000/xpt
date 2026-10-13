@@ -1,8 +1,8 @@
-#include <common.h>
-#include <database.h>
-#include <manager.h>
-#include <manifests.h>
-#include <resolver.h>
+#include <internal/common.h>
+#include <internal/database.h>
+#include <internal/manager.h>
+#include <internal/manifests.h>
+#include <internal/resolver.h>
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>

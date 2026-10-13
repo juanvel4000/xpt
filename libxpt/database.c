@@ -1,8 +1,8 @@
 #include "config.h"
-#include <common.h>
-#include <database.h>
+#include <internal/common.h>
+#include <internal/database.h>
+#include <internal/manifests.h>
 #include <limits.h>
-#include <manifests.h>
 #include <sqlite3.h>
 #include <stdio.h>
 #include <stdlib.h>

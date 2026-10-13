@@ -1,6 +1,7 @@
 #ifndef DATABASE_H
 #define DATABASE_H
-#include <manifests.h>
+
+#include <internal/manifests.h>
 
 char *xpt_package_getversion(const char *package, const char *destdir);
 

@@ -1,9 +1,9 @@
 #include <archive.h>
 #include <archive_entry.h>
-#include <common.h>
-#include <database.h>
+#include <internal/common.h>
+#include <internal/database.h>
+#include <internal/packages.h>
 #include <limits.h>
-#include <packages.h>
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>

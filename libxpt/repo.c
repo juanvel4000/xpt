@@ -1,10 +1,10 @@
 #include "config.h"
-#include <common.h>
 #include <ctype.h>
-#include <fetch.h>
+#include <internal/common.h>
+#include <internal/repo.h>
+#include <libfetch/fetch.h>
 #include <limits.h>
 #include <openssl/evp.h>
-#include <repo.h>
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>

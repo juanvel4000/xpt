@@ -1,21 +1,21 @@
 #include "config.h"
-#include <common.h>
-#include <database.h>
+#include <internal/common.h>
+#include <internal/database.h>
+#include <internal/manager.h>
+#include <internal/manifests.h>
+#include <internal/packages.h>
+#include <internal/resolver.h>
+#include <internal/triggers.h>
 #include <libgen.h>
 #include <limits.h>
-#include <manager.h>
-#include <manifests.h>
-#include <packages.h>
-#include <resolver.h>
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
-#include <triggers.h>
 #include <unistd.h>
 #include <xpt/status.h>
 
 #if !XPT_DISABLE_NETWORKING
-#include <repo.h>
+#include <internal/repo.h>
 #endif
 
 static int install_depth;

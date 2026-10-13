@@ -81,8 +81,8 @@
 #include <netinet/in.h>
 #include <netinet/tcp.h>
 
-#include "common.h"
-#include "fetch.h"
+#include <libfetch/common.h>
+#include <libfetch/fetch.h>
 
 /* Maximum number of redirects to follow */
 #define MAX_REDIRECT 5

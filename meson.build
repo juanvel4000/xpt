@@ -101,3 +101,9 @@ install_data(
   'THIRD-PARTY-LICENSES',
   install_dir: get_option('datadir') / 'licenses' / 'xpt',
 )
+
+install_data(
+  'README.md',
+  'CHANGELOG.md',
+  install_dir: get_option('datadir') / 'doc' / 'xpt',
+)

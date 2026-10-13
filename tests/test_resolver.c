@@ -1,7 +1,7 @@
 #include <assert.h>
 #include <string.h>
 
-#include <resolver.h>
+#include <internal/resolver.h>
 
 static void test_seen_and_resolved(void)
 {

@@ -51,8 +51,8 @@
 #include <string.h>
 #include <unistd.h>
 
-#include "common.h"
-#include "fetch.h"
+#include <libfetch/common.h>
+#include <libfetch/fetch.h>
 
 #include <openssl/x509v3.h>
 /*** Local data **************************************************************/

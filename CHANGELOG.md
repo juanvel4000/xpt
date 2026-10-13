@@ -23,6 +23,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - update example `xpt.d/index` repository urls
 - use action in xpt usage text
 - install licenses in `meson.build`
+- install `README.md` and `CHANGELOG.md` in `meson.build`
 
 ### Fixed
 

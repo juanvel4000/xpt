@@ -1,7 +1,7 @@
 #include <assert.h>
 #include <string.h>
 
-#include <manifests.h>
+#include <internal/manifests.h>
 
 static void test_manifest_parsing(void)
 {
