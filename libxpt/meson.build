@@ -86,7 +86,7 @@ pkg = import('pkgconfig')
 pkg.generate(
     libxpt,
     name: 'libxpt',
-    description: 'XPT package management library',
+    description: 'the xpt package management library',
     filebase: 'libxpt',
     version: meson.project_version(),
 )
