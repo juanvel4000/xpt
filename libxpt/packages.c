@@ -47,8 +47,12 @@ int preflight_payload(const char *file, const char *destdir)
         if (strlen(cfil) >= 4 && strcmp(cfil + strlen(cfil) - 4, ".xpt") == 0)
             continue;
 
+        const char *rel = cfil;
+        if (rel[0] == '.' && rel[1] == '/')
+            rel += 2;
+
         int owned;
-        if (database_file_has_owner(cfil, destdir, &owned) != 0) {
+        if (database_file_has_owner(rel, destdir, &owned) != 0) {
             archive_read_close(a);
             archive_read_free(a);
             return 1;
