@@ -1,7 +1,6 @@
 #include "config.h"
 #include <internal/common.h>
 #include <internal/database.h>
-#include <internal/manager.h>
 #include <internal/manifests.h>
 #include <internal/packages.h>
 #include <internal/resolver.h>
@@ -221,7 +220,7 @@ int xpt_package_install(const char *file, const char *destdir, int log,
     return ret;
 }
 
-void prune_empty_dirs(const char *file_path, const char *root_dir)
+static void prune_empty_dirs(const char *file_path, const char *root_dir)
 {
     char path_buf[PATH_MAX];
     char *dir;
