@@ -13,14 +13,6 @@ int is_file(const char *path)
     return (stat(path, &buf) == 0 && S_ISREG(buf.st_mode));
 }
 
-int item_exists(const char *path)
-{
-    if (access(path, F_OK) == 0)
-        return 0;
-    else
-        return 1;
-}
-
 int mkdir_p(const char *path)
 {
     char tmp[PATH_MAX];
