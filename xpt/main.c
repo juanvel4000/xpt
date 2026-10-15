@@ -10,12 +10,6 @@
 
 int main(int argc, char **argv)
 {
-    char *xptver;
-    if (XPT_VERSION[0] == 'v') {
-        xptver = XPT_VERSION + 1;
-    } else {
-        xptver = XPT_VERSION;
-    }
     int opt;
     char *filename = NULL;
     char *package = NULL;
@@ -94,7 +88,7 @@ int main(int argc, char **argv)
             action = ACTION_NPKGINFO;
             break;
         case 'V':
-            printf("xpt (xpt package tool) v%s\n", xptver);
+            printf("xpt (xpt package tool) v%s\n", XPT_VERSION);
             printf("copyright (c) 2025-2026 juanvel400.\n");
             printf("license BSD-3-Clause "
                    "<http://spdx.org/licenses/BSD-3-Clause.html>\n");
@@ -113,7 +107,7 @@ int main(int argc, char **argv)
             xpt_print_build_info(stdout);
             return XPT_EX_OK;
         case 'h':
-            printf("xpt v%s\n", xptver);
+            printf("xpt v%s\n", XPT_VERSION);
             printf("usage: xpt action [options]\n\n");
             printf(
                 "xpt is a package management utility designed to install,\n"
