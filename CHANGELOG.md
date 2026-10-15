@@ -20,6 +20,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - extract `xpt.manifest` and `xpt.tree` to temporary files and resolve dependencies before extracting the payload
 - remove obsolete `xptver` check from `xpt/main.c`
 - use portable symlink creation in `mkfhs.sh`
+- use `help` instead of `--help` in `mkfhs.sh`
+- use a `no_networking_error` helper in `xpt/main.c`
 
 ### Removed
 

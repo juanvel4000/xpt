@@ -8,6 +8,11 @@
 #include <xpt/repos.h>
 #include <xpt/status.h>
 
+static int no_networking_error(void)
+{
+    fprintf(stderr, "libxpt has been built without networking support.\n");
+    return XPT_EX_USAGE;
+}
 int main(int argc, char **argv)
 {
     int opt;
@@ -50,9 +55,7 @@ int main(int argc, char **argv)
             break;
         case 'n':
 #if XPT_DISABLE_NETWORKING
-            fprintf(stderr,
-                    "libxpt has been built without networking support.\n");
-            return XPT_EX_USAGE;
+            return no_networking_error();
 #endif
             net_package = optarg;
             break;
@@ -73,17 +76,13 @@ int main(int argc, char **argv)
             break;
         case 's':
 #if XPT_DISABLE_NETWORKING
-            fprintf(stderr,
-                    "libxpt has been built without networking support.\n");
-            return XPT_EX_USAGE;
+            return no_networking_error();
 #endif
             action = ACTION_SYNC;
             break;
         case 'Q':
 #if XPT_DISABLE_NETWORKING
-            fprintf(stderr,
-                    "libxpt has been built without networking support.\n");
-            return XPT_EX_USAGE;
+            return no_networking_error();
 #endif
             action = ACTION_NPKGINFO;
             break;
@@ -93,7 +92,7 @@ int main(int argc, char **argv)
             printf("license BSD-3-Clause "
                    "<http://spdx.org/licenses/BSD-3-Clause.html>\n");
 #if XPT_DISABLE_NETWORKING
-            printf("libxpt has been built without networking support.\n");
+            no_networking_error();
 #endif
 
             return XPT_EX_OK;
@@ -230,9 +229,8 @@ int main(int argc, char **argv)
         int result = xpt_repos_sync(destdir);
         xpt_lock_release(lockfd);
         return result;
-#else
-        fprintf(stderr, "libxpt has been built without networking support.\n");
-        return XPT_EX_USAGE;
+#if XPT_DISABLE_NETWORKING
+        return no_networking_error();
 #endif
     } else if (action == ACTION_INFO) {
         if (package == NULL) {
@@ -247,7 +245,9 @@ int main(int argc, char **argv)
 
         return XPT_EX_OK;
     } else if (action == ACTION_NPKGINFO) {
-#if !XPT_DISABLE_NETWORKING
+#if XPT_DISABLE_NETWORKING
+        return no_networking_error();
+#else
         if (net_package == NULL) {
             fprintf(stderr, "please specify a network-package with -n <pkg>\n");
             return XPT_EX_USAGE;
@@ -255,9 +255,6 @@ int main(int argc, char **argv)
 
         xpt_repos_getpkginfo(net_package, destdir);
         return XPT_EX_OK;
-#else
-        fprintf(stderr, "libxpt has been built without networking support.\n");
-        return XPT_EX_USAGE;
 #endif
     } else if (action == ACTION_NONE) {
         fprintf(stderr, "no action specified; try 'xpt -h'\n");
