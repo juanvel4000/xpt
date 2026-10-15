@@ -71,36 +71,38 @@ static int install_one(const char *file, const char *destdir, int log,
 #if XPT_DISABLE_NETWORKING
     netinstall_deps = 0;
 #endif
+    int ret;
+    char tmp_manifest[] = "/tmp/xpt-manifest-XXXXXX";
+    char tmp_tree[] = "/tmp/xpt-tree-XXXXXX";
+    PackageInfo *pi = NULL;
 
     if (!is_file(file)) {
         fprintf(stderr, "%s not found\n", file);
-        return XPT_EX_NOINPUT;
+        ret = XPT_EX_NOINPUT;
+        goto out;
+    }
+
+    if (extract_member(file, "xpt.manifest", tmp_manifest) != 0) {
+        ret = XPT_EX_DATAERR;
+        goto out;
+    }
+
+    if (extract_member(file, "xpt.tree", tmp_tree) != 0) {
+        ret = XPT_EX_DATAERR;
+        goto out;
     }
 
     if (preflight_payload(file, destdir) != 0) {
         fprintf(stderr, "could not extract %s\n", file);
-        return XPT_EX_DATAERR;
+        ret = XPT_EX_DATAERR;
+        goto out;
     }
 
-    if (extract_payload(file, destdir) != 0) {
-        fprintf(stderr, "could not extract %s\n", file);
-        return XPT_EX_IOERR;
-    }
-
-    char manifest[PATH_MAX];
-    char tree[PATH_MAX];
-
-    snprintf(manifest, sizeof(manifest), "%s/xpt.manifest", destdir);
-    snprintf(tree, sizeof(tree), "%s/xpt.tree", destdir);
-    if (!is_file(tree) || !is_file(manifest)) {
-        fprintf(stderr, "either the manifest OR the treefile doesn't exist\n");
-        return XPT_EX_NOINPUT;
-    }
-
-    PackageInfo *pi = parse_manifest(manifest);
+    pi = parse_manifest(tmp_manifest);
     if (!pi) {
-        fprintf(stderr, "invalid manifest: %s\n", manifest);
-        return XPT_EX_DATAERR;
+        fprintf(stderr, "invalid manifest: %s\n", tmp_manifest);
+        ret = XPT_EX_DATAERR;
+        goto out;
     }
 
     if (log == XPT_LOG_OK)
@@ -108,8 +110,8 @@ static int install_one(const char *file, const char *destdir, int log,
 
     if (database_exists(pi->name, destdir) == 0) {
         fprintf(stderr, "this package is already installed\n");
-        delete_package_info(pi);
-        return XPT_EX_EXISTS;
+        ret = XPT_EX_EXISTS;
+        goto out;
     }
 
     NodeContainer container = {0};
@@ -117,9 +119,10 @@ static int install_one(const char *file, const char *destdir, int log,
                         log) != 0) {
         fprintf(stderr, "dependency resolution failed for %s\n", pi->name);
         resolver_free(&container);
-        delete_package_info(pi);
-        return XPT_EX_NOINPUT;
+        ret = XPT_EX_NOINPUT;
+        goto out;
     }
+
     resolver_free(&container);
 
     package_info_add_provide(pi, pi->name);
@@ -136,42 +139,47 @@ static int install_one(const char *file, const char *destdir, int log,
         if (scanf(" %c", &answer) != 1 || (answer != 'y' && answer != 'Y')) {
             fprintf(stderr, "could not install %s\n", pi->name);
             free(owner);
-            delete_package_info(pi);
-            return XPT_EX_USAGE;
+
+            ret = XPT_EX_USAGE;
+            goto out;
         }
 
         if (xpt_package_remove(owner, destdir, log) != XPT_EX_OK) {
             fprintf(stderr, "could not remove %s\n", owner);
             free(owner);
-            delete_package_info(pi);
-            return XPT_EX_IOERR;
+
+            ret = XPT_EX_IOERR;
+            goto out;
         }
 
         free(owner);
     }
 
-    if (remove(manifest) != 0) {
-        fprintf(stderr, "failed to delete %s\n", manifest);
+    if (extract_payload(file, destdir) != 0) {
+        fprintf(stderr, "could not extract %s\n", file);
+        ret = XPT_EX_IOERR;
+        goto out;
     }
 
     if (database_add(pi, destdir) != 0) {
         fprintf(stderr, "error adding %s to database\n", pi->name);
-        return XPT_EX_IOERR;
+        ret = XPT_EX_IOERR;
+        goto out;
     }
 
-    if (database_files_add(pi->name, tree, destdir) != 0) {
+    if (database_files_add(pi->name, tmp_tree, destdir) != 0) {
         fprintf(stderr, "error saving file list for %s\n", pi->name);
         database_delete(pi->name, destdir);
-        delete_package_info(pi);
-        return XPT_EX_IOERR;
+        ret = XPT_EX_IOERR;
+        goto out;
     }
 
     if (database_provides_add(pi->name, pi->provides, pi->provides_count,
                               destdir) != 0) {
         fprintf(stderr, "error saving capabilities to database\n");
         database_delete(pi->name, destdir);
-        delete_package_info(pi);
-        return XPT_EX_IOERR;
+        ret = XPT_EX_IOERR;
+        goto out;
     }
 
     size_t i;
@@ -182,15 +190,19 @@ static int install_one(const char *file, const char *destdir, int log,
         }
     }
 
-    if (remove(tree) != 0) {
-        fprintf(stderr, "warning: failed to delete %s\n", tree);
-    }
-
     if (log == XPT_LOG_OK)
         printf("installed %s.\n", pi->name);
 
-    delete_package_info(pi);
-    return XPT_EX_OK;
+    ret = XPT_EX_OK;
+
+out:
+    if (tmp_manifest[0])
+        unlink(tmp_manifest);
+    if (tmp_tree[0])
+        unlink(tmp_tree);
+    if (pi)
+        delete_package_info(pi);
+    return ret;
 }
 
 int xpt_package_install(const char *file, const char *destdir, int log,

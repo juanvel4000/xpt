@@ -15,6 +15,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - delete redundant directory creation block in `manager.c`
 - use `S_ISREG` in `is_file`
 - skip leading `./`, if any, in `preflight_payload`
+- extract `xpt.manifest` and `xpt.tree` to temporary files and resolve dependencies before extracting the payload
 
 ## [0.11.0] - 2026-10-13
 
