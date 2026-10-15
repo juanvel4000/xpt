@@ -246,7 +246,7 @@ int main(int argc, char **argv)
             return XPT_EX_USAGE;
         }
         int result = xpt_package_printinfo(package, destdir);
-        if (result == 1) {
+        if (result == XPT_EX_NOINPUT) {
             fprintf(stderr, "package not found\n");
             return XPT_EX_NOINPUT;
         }
