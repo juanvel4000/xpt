@@ -20,6 +20,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ### Removed
 
 - remove unused `internal/lockfile.h` header
+- remove duplicated declarations from various internal headers
 
 ## [0.11.0] - 2026-10-13
 

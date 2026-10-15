@@ -1,8 +1,8 @@
 # xpt
 
-a package-management suite for `.xpt` packages, written in C.
+a package-management suite for `.xpt` packages.
 
-xpt consists of the `libxpt(3)` package-management library and the `xpt(8)` command-line frontend, and the `ebt` build suite.
+xpt consists of the `libxpt(3)` package-management library, the `xpt(8)` command-line frontend, and the `ebt` build suite.
 
 ## features
 
@@ -206,6 +206,6 @@ xpt is in active development. while functional, it is **not yet production-ready
 
 ## license
 
-BSD-3-Clause, see [LICENSE](LICENSE).
+[BSD-3-Clause](https://spdx.org/licenses/BSD-3-Clause.html), see [LICENSE](LICENSE).
 
-third-party source is specified in [THIRD-PARTY-LICENSES](THIRD-PARTY-LICENSES).
+> third-party source is specified in [THIRD-PARTY-LICENSES](THIRD-PARTY-LICENSES).

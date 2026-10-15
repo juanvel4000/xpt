@@ -12,6 +12,7 @@
 #include <stdlib.h>
 #include <string.h>
 #include <unistd.h>
+#include <xpt/package.h>
 #include <xpt/status.h>
 
 #if !XPT_DISABLE_NETWORKING

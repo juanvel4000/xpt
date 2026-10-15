@@ -1,11 +1,11 @@
 #include <internal/common.h>
 #include <internal/database.h>
-#include <internal/manager.h>
 #include <internal/manifests.h>
 #include <internal/resolver.h>
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
+#include <xpt/package.h>
 #include <xpt/status.h>
 
 int resolver_seen(NodeContainer *container, const char *name)
