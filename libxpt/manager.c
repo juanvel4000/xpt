@@ -87,12 +87,6 @@ static int install_one(const char *file, const char *destdir, int log,
         return XPT_EX_IOERR;
     }
 
-    char xptdir[PATH_MAX];
-    snprintf(xptdir, sizeof(xptdir), "%s%s/lib/xpt", destdir, XPT_SYSCONFDIR);
-
-    if (mkdir_p(xptdir) != 0)
-        return XPT_EX_CANTCREAT;
-
     char manifest[PATH_MAX];
     char tree[PATH_MAX];
 
