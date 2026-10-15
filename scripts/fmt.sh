@@ -26,7 +26,7 @@ while getopts "mcsh" opt; do
         fmt_meson=true
         ;;
     *)
-        echo "usage: fmt.sh [-amcsH]" >&2
+        echo "usage: fmt.sh [-mcsh]" >&2
         exit 1
         ;;
     esac
