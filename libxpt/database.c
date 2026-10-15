@@ -198,43 +198,6 @@ char *xpt_package_getversion(const char *package, const char *destdir)
     return version;
 }
 
-int database_update(const char *package, const char *version,
-                    const char *destdir)
-{
-    sqlite3 *conn = open_db(destdir);
-    if (!conn)
-        return 1;
-
-    tbegin(conn);
-    sqlite3_stmt *stmt;
-    const char *sql = "UPDATE packages SET version = ? WHERE name = ?;";
-    if (sqlite3_prepare_v2(conn, sql, -1, &stmt, NULL) != SQLITE_OK) {
-        fprintf(stderr, "could not update the package: %s\n",
-                sqlite3_errmsg(conn));
-        trollback(conn);
-        sqlite3_close(conn);
-        return 1;
-    }
-
-    sqlite3_bind_text(stmt, 1, version, -1, SQLITE_STATIC);
-    sqlite3_bind_text(stmt, 2, package, -1, SQLITE_STATIC);
-
-    if (sqlite3_step(stmt) != SQLITE_DONE) {
-        fprintf(stderr, "could not update the package: %s\n",
-                sqlite3_errmsg(conn));
-
-        trollback(conn);
-        sqlite3_finalize(stmt);
-        sqlite3_close(conn);
-        return 1;
-    }
-
-    tcommit(conn);
-    sqlite3_finalize(stmt);
-    sqlite3_close(conn);
-    return 0;
-}
-
 int database_delete(const char *package, const char *destdir)
 {
     sqlite3 *conn = open_db(destdir);
