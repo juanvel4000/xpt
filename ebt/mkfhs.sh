@@ -54,15 +54,15 @@ case "$TARGETARCH" in
 x86_64)
     echo "* creating lib64"
     mkdir -p "$ROOTFS/usr/lib64"
-    ln -sr "$ROOTFS/usr/lib64" "$ROOTFS/lib64"
+    ln -s usr/lib64 "$ROOTFS/lib64"
     ;;
 esac
 echo "* symlinking sbin, bin and lib to root"
 (
     cd "$ROOTFS"
-    [ -e bin ] || [ -L bin ] || ln -sr usr/bin bin
-    [ -e sbin ] || [ -L sbin ] || ln -sr usr/sbin sbin
-    [ -e lib ] || [ -L lib ] || ln -sr usr/lib lib
+    [ -e bin ] || [ -L bin ] || ln -s usr/bin bin
+    [ -e sbin ] || [ -L sbin ] || ln -s usr/sbin sbin
+    [ -e lib ] || [ -L lib ] || ln -s usr/lib lib
 )
 
 echo "* setting permissions"
