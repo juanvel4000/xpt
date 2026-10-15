@@ -4,7 +4,7 @@ set -e
 
 ROOTFS=${1:-$(pwd)}
 TARGETARCH=${2:-$(uname -m)}
-if [ "$ROOTFS" = '--help' ]; then
+if [ "$ROOTFS" = 'help' ]; then
     echo "mkfhs"
     echo "usage: mkfhs [rootfs] [arch]"
     echo ""
