@@ -84,6 +84,8 @@ void delete_package_info(PackageInfo *pi)
     free(pi->version);
     free(pi->arch);
     free(pi->maintainer);
+    free(pi->license);
+    free(pi->homepage);
 
     for (size_t i = 0; i < pi->depends_count; i++)
         free(pi->depends[i]);
