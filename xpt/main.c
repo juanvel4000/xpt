@@ -8,11 +8,16 @@
 #include <xpt/repos.h>
 #include <xpt/status.h>
 
+#if XPT_DISABLE_NETWORKING
 static int no_networking_error(void)
 {
     fprintf(stderr, "libxpt has been built without networking support.\n");
     return XPT_EX_USAGE;
 }
+#endif
+
+
+
 int main(int argc, char **argv)
 {
     int opt;
@@ -220,7 +225,9 @@ int main(int argc, char **argv)
         int result = xpt_package_listfiles(package, destdir);
         return result;
     } else if (action == ACTION_SYNC) {
-#if !XPT_DISABLE_NETWORKING
+#if XPT_DISABLE_NETWORKING
+        return no_networking_error();
+#else
         int lockfd = xpt_lock_acquire(destdir);
         if (lockfd < 0) {
             fprintf(stderr, "error: could not acquire the lock.\n");
@@ -229,8 +236,6 @@ int main(int argc, char **argv)
         int result = xpt_repos_sync(destdir);
         xpt_lock_release(lockfd);
         return result;
-#if XPT_DISABLE_NETWORKING
-        return no_networking_error();
 #endif
     } else if (action == ACTION_INFO) {
         if (package == NULL) {
