@@ -62,7 +62,6 @@ x86_64)
     echo "* creating lib64"
     mkdir -p "$ROOTFS/usr/lib64" "$ROOTFS/usr/local/lib64"
     [ -e "$ROOTFS/lib64" ] || [ -L "$ROOTFS/lib64" ] || ln -s usr/lib64 "$ROOTFS/lib64"
-
     ;;
 esac
 echo "* symlinking sbin, bin and lib to usr"
