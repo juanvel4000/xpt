@@ -11,7 +11,7 @@
 /**
  * print build information about libxpt
  *
- * @param out the file to print into
+ * @param out the stream to print into
  */
 void xpt_print_build_info(FILE *out);
 

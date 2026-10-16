@@ -1,4 +1,6 @@
+#include "config.h"
 #include <fcntl.h>
+#include <internal/common.h>
 #include <limits.h>
 #include <stdio.h>
 #include <sys/file.h>
@@ -6,10 +8,19 @@
 
 int xpt_lock_acquire(const char *destdir)
 {
+    char dir[PATH_MAX];
     char path[PATH_MAX];
     int fd;
 
-    snprintf(path, sizeof(path), "%s/.xpt.lock", destdir);
+    if (snprintf(dir, sizeof(dir), "%s/%s/lib/xpt", destdir,
+                 XPT_LOCALSTATEDIR) >= (int)sizeof(dir))
+        return -1;
+
+    if (mkdir_p(dir) == -1)
+        return -1;
+
+    if (snprintf(path, sizeof(path), "%s/xpt.lock", dir) >= (int)sizeof(path))
+        return -1;
 
     fd = open(path, O_CREAT | O_RDWR, 0644);
     if (fd < 0)
