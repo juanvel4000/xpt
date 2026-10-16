@@ -98,19 +98,18 @@ xpt uses a unique verb-item argument system, lacking GNU-style long-options comp
 
 ### verbs
 
-| verb | description                                  | supports items   |
-| ---- | -------------------------------------------- | ---------------- |
-| `-V` | show the xpt version                         | —                |
-| `-i` | install a package                            | `-d`, `-f`, `-n` |
-| `-g` | get the version of an installed package      | `-d`             |
-| `-h` | show the help message                        | —                |
-| `-r` | remove a package                             | `-d`, `-p`       |
-| `-l` | list the packages installed in the system    | `-d`             |
-| `-t` | show the files used by a package             | `-d`, `-p`       |
-| `-s` | download the repository indexes              | `-d`             |
-| `-Q` | get information of a package in a repository | `-d`, `-n`       |
-| `-I` | show metadata about a package                | `-d`, `-p`       |
-| `-B` | print the libxpt build info                  | —                |
+| verb | description                               | supports items   |
+| ---- | ----------------------------------------- | ---------------- |
+| `-V` | show the xpt version                      | —                |
+| `-i` | install a package                         | `-d`, `-f`, `-n` |
+| `-g` | get the version of an installed package   | `-d`             |
+| `-h` | show the help message                     | —                |
+| `-r` | remove a package                          | `-d`, `-p`       |
+| `-l` | list the packages installed in the system | `-d`             |
+| `-t` | show the files used by a package          | `-d`, `-p`       |
+| `-s` | download the repository indexes           | `-d`             |
+| `-Q` | query a package                           | `-d`, `-n`, `-p` |
+| `-B` | print the libxpt build info               | —                |
 
 ### examples
 
