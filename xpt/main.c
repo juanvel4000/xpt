@@ -1,6 +1,6 @@
 #include "config.h"
-#include <limits.h>
 #include <stdio.h>
+#include <stdlib.h>
 #include <unistd.h>
 #include <xpt/info.h>
 #include <xpt/lock.h>
@@ -16,253 +16,258 @@ static int no_networking_error(void)
 }
 #endif
 
+typedef enum {
+    ACTION_NONE,
+    ACTION_INSTALL,
+    ACTION_REMOVE,
+    ACTION_GETVER,
+    ACTION_LIST,
+    ACTION_TREE,
+    ACTION_SYNC,
+    ACTION_QUERY
+} xpt_action_t;
 
+static int action_set(xpt_action_t *action, xpt_action_t new_action)
+{
+    if (*action != ACTION_NONE) {
+        fprintf(stderr, "only one action can be given\n");
+        return XPT_EX_USAGE;
+    }
+
+    *action = new_action;
+    return XPT_EX_OK;
+}
+
+static void print_usage(void) { printf("usage: xpt action [options]\n"); }
+static void print_version(void)
+{
+    printf("xpt package tool %s (%s)\n", XPT_VERSION, XPT_ARCH);
+}
+
+static void print_help(void)
+{
+
+    print_version();
+    print_usage();
+    printf("\nxpt is a package-management utility designed to install,\n"
+           "remove, and administer .xpt packages. it is designed as\n"
+           "both a high-level and a medium-level interface for package\n"
+           "management.\n\n");
+    printf("commands:\n");
+    printf("  %-10s %s\n", "-i", "install a package");
+    printf("  %-10s %s\n", "-r", "remove a package");
+    printf("  %-10s %s\n", "-g", "get a package's version");
+    printf("  %-10s %s\n", "-l", "list installed packages");
+    printf("  %-10s %s\n", "-t", "list files from a package");
+    printf("  %-10s %s\n", "-Q", "query a package");
+#if !XPT_DISABLE_NETWORKING
+    printf("  %-10s %s\n", "-s", "synchronize network repositories");
+#endif
+    printf("\n  %-10s %s\n", "-h", "show this message");
+    printf("  %-10s %s\n", "-V", "show the xpt version");
+    printf("\noptions:\n");
+    printf("  %-10s %s\n", "-f <file>", "operate on a file");
+    printf("  %-10s %s\n", "-p <pkg>", "operate on an installed package");
+#if !XPT_DISABLE_NETWORKING
+    printf("  %-10s %s\n", "-n <pkg>", "operate on a network package");
+#endif
+    printf("  %-10s %s\n\n", "-q", "hide all output except errors");
+    printf("view xpt(8) for more information about the available "
+           "commands and options\n");
+}
+
+static int lock_init(const char *destdir)
+{
+    int lockfd = xpt_lock_acquire(destdir);
+    if (lockfd < 0) {
+        fprintf(stderr, "error: could not acquire the lock.\n");
+        return -1;
+    }
+
+    return lockfd;
+}
+
+static void lock_close(int lockfd) { xpt_lock_release(lockfd); }
 
 int main(int argc, char **argv)
 {
     int opt;
-    char *filename = NULL;
-    char *package = NULL;
-    char *net_package = NULL;
-    typedef enum {
-        ACTION_NONE,
-        ACTION_INSTALL,
-        ACTION_GETVER,
-        ACTION_REMOVE,
-        ACTION_LIST,
-        ACTION_TREE,
-        ACTION_SYNC,
-        ACTION_INFO,
-        ACTION_NPKGINFO
-    } xpt_action_t;
-
     xpt_action_t action = ACTION_NONE;
-
-    char destdir[PATH_MAX] = "/";
+    int lockfd;
+    int res;
     int loglevel = XPT_LOG_OK;
 
-    if (argc == 1) {
-        fprintf(stderr, "usage: xpt action [options]\n");
-        fprintf(stderr, "try 'xpt -h' for more information.\n");
-        return XPT_EX_USAGE;
-    }
+    const char *filename = NULL;
+    const char *destdir = "/";
+    const char *pkgname = NULL;
+    const char *netpkg = NULL;
+    char *version = NULL;
 
-    while ((opt = getopt(argc, argv, "iqsVghltrIBQf:p:n:d:")) != -1) {
+    while ((opt = getopt(argc, argv, "VBQstlhirqgf:p:n:d:")) != -1) {
         switch (opt) {
+        case 'h':
+            print_help();
+            return XPT_EX_OK;
+        case 'B':
+            xpt_print_build_info(stdout);
+            return XPT_EX_OK;
+        case 'i':
+            if (action_set(&action, ACTION_INSTALL) != 0)
+                return XPT_EX_USAGE;
+            break;
+        case 'r':
+            if (action_set(&action, ACTION_REMOVE) != 0)
+                return XPT_EX_USAGE;
+
+            break;
+        case 'g':
+            if (action_set(&action, ACTION_GETVER) != 0)
+                return XPT_EX_USAGE;
+            break;
+        case 'l':
+            if (action_set(&action, ACTION_LIST) != 0)
+                return XPT_EX_USAGE;
+            break;
+        case 't':
+            if (action_set(&action, ACTION_TREE) != 0)
+                return XPT_EX_USAGE;
+            break;
+        case 's':
+            if (action_set(&action, ACTION_SYNC) != 0)
+                return XPT_EX_USAGE;
+            break;
+        case 'Q':
+            if (action_set(&action, ACTION_QUERY) != 0)
+                return XPT_EX_USAGE;
+            break;
         case 'f':
             filename = optarg;
             break;
-        case 'i':
-            action = ACTION_INSTALL;
-            break;
         case 'p':
-            package = optarg;
+            pkgname = optarg;
             break;
         case 'n':
-#if XPT_DISABLE_NETWORKING
-            return no_networking_error();
-#endif
-            net_package = optarg;
+            netpkg = optarg;
+            break;
+        case 'd':
+            destdir = optarg;
             break;
         case 'q':
             loglevel = XPT_LOG_NO;
             break;
-        case 'g':
-            action = ACTION_GETVER;
-            break;
-        case 'r':
-            action = ACTION_REMOVE;
-            break;
-        case 'l':
-            action = ACTION_LIST;
-            break;
-        case 't':
-            action = ACTION_TREE;
-            break;
-        case 's':
-#if XPT_DISABLE_NETWORKING
-            return no_networking_error();
-#endif
-            action = ACTION_SYNC;
-            break;
-        case 'Q':
-#if XPT_DISABLE_NETWORKING
-            return no_networking_error();
-#endif
-            action = ACTION_NPKGINFO;
-            break;
         case 'V':
-            printf("xpt (xpt package tool) v%s\n", XPT_VERSION);
-            printf("copyright (c) 2025-2026 juanvel400.\n");
-            printf("license BSD-3-Clause "
-                   "<http://spdx.org/licenses/BSD-3-Clause.html>\n");
-#if XPT_DISABLE_NETWORKING
-            no_networking_error();
-#endif
-
-            return XPT_EX_OK;
-        case 'd':
-            snprintf(destdir, sizeof(destdir), "%s", optarg);
-            break;
-        case 'I':
-            action = ACTION_INFO;
-            break;
-        case 'B':
-            xpt_print_build_info(stdout);
-            return XPT_EX_OK;
-        case 'h':
-            printf("xpt v%s\n", XPT_VERSION);
-            printf("usage: xpt action [options]\n\n");
-            printf(
-                "xpt is a package management utility designed to install,\n"
-                "remove, and administer .xpt packages. it is designed as\n"
-                "both a high-level and a medium-level interface for package\n"
-                "management.\n\n");
-            printf("commands:\n");
-            printf("  %-10s %s\n", "-V", "show the current xpt version");
-            printf("  %-10s %s\n", "-i", "install a package");
-            printf("  %-10s %s\n", "-g",
-                   "get the version of an installed package");
-            printf("  %-10s %s\n", "-h", "show this message");
-            printf("  %-10s %s\n", "-r", "remove a package");
-            printf("  %-10s %s\n", "-l",
-                   "list the packages installed in the system");
-            printf("  %-10s %s\n", "-t", "show the files used by a package");
-#if !XPT_DISABLE_NETWORKING
-            printf("  %-10s %s\n", "-s", "download the repository indexes");
-            printf("  %-10s %s\n", "-Q",
-                   "get information of a package in a repository");
-#endif
-            printf("  %-10s %s\n", "-I", "show metadata about a package");
-            printf("  %-10s %s\n\n", "-B", "print the libxpt build info");
-
-            printf("options:\n");
-            printf("  %-10s %s\n", "-f <file>",
-                   "operate on a .xpt package file");
-            printf("  %-10s %s\n", "-p <pkg>",
-                   "operate on an installed package");
-#if !XPT_DISABLE_NETWORKING
-            printf("  %-10s %s\n", "-n <pkg>", "operate on a network package");
-#endif
-            printf("  %-10s %s\n", "-d <dir>",
-                   "specify a destination directory for the operations");
-            printf("  %-10s %s\n", "-q",
-                   "make the output of most operations quiet (doesn't hide "
-                   "errors)");
-            printf("\nsee xpt(8) for more information about the available "
-                   "commands\n");
+            print_version();
             return XPT_EX_OK;
         default:
-            fprintf(stderr, "usage: xpt <action> [-q] [-d dir] [-f file | -p "
-                            "package | -n net-package]\n");
+            print_usage();
             return XPT_EX_USAGE;
         }
     }
 
-    if (action == ACTION_INSTALL) {
-        int lockfd = xpt_lock_acquire(destdir);
-        if (lockfd < 0) {
-            fprintf(stderr, "error: could not acquire the lock.\n");
+    switch (action) {
+    case ACTION_INSTALL:
+        if ((lockfd = lock_init(destdir)) == -1)
             return XPT_EX_NOPERM;
+
+        if (filename && netpkg) {
+            fprintf(
+                stderr,
+                "specify either a filename (-f) or package (-n), not both\n");
+            lock_close(lockfd);
+            return XPT_EX_USAGE;
         }
 
-        if (filename && net_package) {
-            fprintf(stderr, "specify either -f or -n, not both\n");
-            xpt_lock_release(lockfd);
-            return XPT_EX_USAGE;
-        }
         if (filename) {
-            int result = xpt_package_install(filename, destdir, loglevel, 0);
-            xpt_lock_release(lockfd);
-            return result;
-        } else if (net_package) {
-            int result =
-                xpt_package_install_from_repo(net_package, destdir, loglevel);
-            xpt_lock_release(lockfd);
-            return result;
+            res = xpt_package_install(filename, destdir, loglevel, 0);
+        } else if (netpkg) {
+#if XPT_DISABLE_NETWORKING
+            lock_close(lockfd);
+            return no_networking_error();
+#else
+            res = xpt_package_install_from_repo(netpkg, destdir, loglevel);
+#endif
         } else {
-            fprintf(stderr, "please specify a file with -f <file> or a package "
-                            "with -n <pkg>\n");
-            xpt_lock_release(lockfd);
+            fprintf(stderr, "specify a package with -f <file> or -n <pkg>\n");
+            res = XPT_EX_USAGE;
+        }
+
+        lock_close(lockfd);
+        return res;
+    case ACTION_REMOVE:
+        if ((lockfd = lock_init(destdir)) == -1)
+            return XPT_EX_NOPERM;
+
+        if (pkgname == NULL) {
+            fprintf(stderr, "specify a package with -p <pkg>\n");
+            res = XPT_EX_USAGE;
+        } else {
+            res = xpt_package_remove(pkgname, destdir, loglevel);
+        }
+        lock_close(lockfd);
+        return res;
+    case ACTION_GETVER:
+        if (pkgname == NULL) {
+            fprintf(stderr, "specify a package with -p <pkg>\n");
             return XPT_EX_USAGE;
         }
-    } else if (action == ACTION_GETVER) {
-        if (package == NULL) {
-            fprintf(stderr, "please specify a package with -p <pkg>\n");
-            return XPT_EX_USAGE;
-        }
-        char *version = xpt_package_getversion(package, destdir);
+
+        version = xpt_package_getversion(pkgname, destdir);
         if (!version) {
             fprintf(stderr, "package not found\n");
             return XPT_EX_NOINPUT;
         }
-        printf("%s\n", version);
 
+        printf("%s@%s\n", pkgname, version);
+        free(version);
         return XPT_EX_OK;
-    } else if (action == ACTION_REMOVE) {
-        int lockfd = xpt_lock_acquire(destdir);
-        if (lockfd < 0) {
-            fprintf(stderr, "error: could not acquire the lock.\n");
-            return XPT_EX_NOPERM;
-        }
-        if (package == NULL) {
-            fprintf(stderr, "please specify a package with -p <pkg>\n");
-            xpt_lock_release(lockfd);
+    case ACTION_LIST:
+        return xpt_package_list(destdir);
+    case ACTION_TREE:
+        if (pkgname == NULL) {
+            fprintf(stderr, "specify a package with -p <pkg>\n");
             return XPT_EX_USAGE;
         }
 
-        int result = xpt_package_remove(package, destdir, loglevel);
-        xpt_lock_release(lockfd);
-        return result;
-    } else if (action == ACTION_LIST) {
-        int result = xpt_package_list(destdir);
-        return result;
-    } else if (action == ACTION_TREE) {
-        if (package == NULL) {
-            fprintf(stderr, "please specify a package with -p <pkg>\n");
-            return XPT_EX_USAGE;
-        }
-        int result = xpt_package_listfiles(package, destdir);
-        return result;
-    } else if (action == ACTION_SYNC) {
+        return xpt_package_listfiles(pkgname, destdir);
+    case ACTION_SYNC:
 #if XPT_DISABLE_NETWORKING
         return no_networking_error();
 #else
-        int lockfd = xpt_lock_acquire(destdir);
-        if (lockfd < 0) {
-            fprintf(stderr, "error: could not acquire the lock.\n");
+        if ((lockfd = lock_init(destdir)) == -1)
             return XPT_EX_NOPERM;
-        }
-        int result = xpt_repos_sync(destdir);
-        xpt_lock_release(lockfd);
-        return result;
+        res = xpt_repos_sync(destdir);
+        lock_close(lockfd);
+        return res;
 #endif
-    } else if (action == ACTION_INFO) {
-        if (package == NULL) {
-            fprintf(stderr, "please specify a package with -p <pkg>\n");
+    case ACTION_QUERY:
+        if (pkgname && netpkg) {
+            fprintf(stderr,
+                    "specify a package with either -n or -p, not both\n");
             return XPT_EX_USAGE;
         }
-        int result = xpt_package_printinfo(package, destdir);
-        if (result == XPT_EX_NOINPUT) {
-            fprintf(stderr, "package not found\n");
-            return XPT_EX_NOINPUT;
-        }
 
-        return XPT_EX_OK;
-    } else if (action == ACTION_NPKGINFO) {
+        if (pkgname) {
+            res = xpt_package_printinfo(pkgname, destdir);
+            if (res == XPT_EX_NOINPUT) {
+                fprintf(stderr, "package not found\n");
+                return XPT_EX_NOINPUT;
+            }
+        } else if (netpkg) {
 #if XPT_DISABLE_NETWORKING
-        return no_networking_error();
+            return no_networking_error();
 #else
-        if (net_package == NULL) {
-            fprintf(stderr, "please specify a network-package with -n <pkg>\n");
+            return xpt_repos_getpkginfo(netpkg, destdir);
+#endif
+        } else {
+            fprintf(stderr, "specify a package with -n or -p\n");
             return XPT_EX_USAGE;
         }
 
-        xpt_repos_getpkginfo(net_package, destdir);
-        return XPT_EX_OK;
-#endif
-    } else if (action == ACTION_NONE) {
-        fprintf(stderr, "no action specified; try 'xpt -h'\n");
+        return res;
+
+    case ACTION_NONE:
+        fprintf(stderr, "no action specified\n");
+        fprintf(stderr, "view 'xpt -h' for a list of actions\n");
         return XPT_EX_USAGE;
     }
 

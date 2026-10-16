@@ -36,6 +36,10 @@ conf.set_quoted('XPT_SQLITE3_VERSION', sqlite3.version())
 conf.set_quoted('XPT_LIBARCHIVE_VERSION', libarchive.version())
 conf.set_quoted('XPT_VERSION', meson.project_version())
 
+conf.set_quoted(
+    'XPT_ARCH',
+    host_machine.cpu_family(),
+)
 if not networking_opt.disabled()
     conf.set_quoted('XPT_OPENSSL_VERSION', openssl.version())
 endif
