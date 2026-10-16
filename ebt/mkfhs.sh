@@ -1,5 +1,8 @@
 #!/bin/sh
-# mkfhs: create a hier(7) tree layout
+# mkfhs: create a layout compliant with
+#
+# usr-merge: https://wiki.debian.org/UsrMerge
+# FHS: https://specifications.freedesktop.org/fhs/latest/
 set -e
 
 ROOTFS=${1:-$(pwd)}
@@ -8,14 +11,15 @@ if [ "$ROOTFS" = 'help' ]; then
     echo "mkfhs"
     echo "usage: mkfhs [rootfs] [arch]"
     echo ""
-    echo "create a hier(7)-compiliant directory tree in [rootfs]"
+    echo "create a FHS-compliant usr-merge directory tree in [rootfs]"
     echo ""
     echo "  rootfs      defaults to '.'"
     echo "  arch        defaults to $(uname -m)"
     echo ""
     echo "if [arch] is 'x86_64', then a lib64 directory will be created."
     echo ""
-    echo "part of ebt build tools (ebt); see mkfhs(1) for more information."
+    echo "part of ebt build tools"
+    echo "see mkfhs(1) for more information."
     exit 0
 fi
 
@@ -42,22 +46,26 @@ mkdir -p "$ROOTFS/boot" "$ROOTFS/dev" "$ROOTFS/etc" "$ROOTFS/etc/opt" \
     "$ROOTFS/usr/share/locale" "$ROOTFS/usr/share/zoneinfo" \
     "$ROOTFS/usr/share/src" "$ROOTFS/usr/games" \
     "$ROOTFS/usr/local/bin" "$ROOTFS/usr/local/sbin" \
-    "$ROOTFS/usr/local/lib" "$ROOTFS/usr/local/libexec" \
     "$ROOTFS/usr/local/include" "$ROOTFS/usr/local/share" \
     "$ROOTFS/usr/local/etc" "$ROOTFS/usr/local/games" \
     "$ROOTFS/var/cache" "$ROOTFS/var/lib" "$ROOTFS/var/lock" \
     "$ROOTFS/var/log" "$ROOTFS/var/mail" "$ROOTFS/var/opt" \
     "$ROOTFS/var/spool" "$ROOTFS/var/tmp" "$ROOTFS/var/local" \
-    "$ROOTFS/var/local/cache" "$ROOTFS/var/local/lib"
+    "$ROOTFS/var/local/cache" "$ROOTFS/var/local/lib" \
+    "$ROOTFS/usr/local/src" "$ROOTFS/var/lib/misc" \
+    "$ROOTFS/usr/local/man" "$ROOTFS/usr/local/lib"
+
+[ -e "$ROOTFS/var/run" ] || [ -L "$ROOTFS/var/run" ] || ln -s ../run "$ROOTFS/var/run"
 
 case "$TARGETARCH" in
 x86_64)
     echo "* creating lib64"
-    mkdir -p "$ROOTFS/usr/lib64"
-    ln -s usr/lib64 "$ROOTFS/lib64"
+    mkdir -p "$ROOTFS/usr/lib64" "$ROOTFS/usr/local/lib64"
+    [ -e "$ROOTFS/lib64" ] || [ -L "$ROOTFS/lib64" ] || ln -s usr/lib64 "$ROOTFS/lib64"
+
     ;;
 esac
-echo "* symlinking sbin, bin and lib to root"
+echo "* symlinking sbin, bin and lib to usr"
 (
     cd "$ROOTFS"
     [ -e bin ] || [ -L bin ] || ln -s usr/bin bin
@@ -69,4 +77,4 @@ echo "* setting permissions"
 chmod 1777 "$ROOTFS/tmp" "$ROOTFS/var/tmp"
 chmod 0700 "$ROOTFS/root"
 
-echo "successfully created a hier(7) tree in $ROOTFS for $TARGETARCH"
+echo "successfully created an FHS usr-merge tree in $ROOTFS for $TARGETARCH"
