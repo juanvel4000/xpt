@@ -75,6 +75,10 @@ static int install_one(const char *file, const char *destdir, int log,
     char tmp_manifest[] = "/tmp/xpt-manifest-XXXXXX";
     char tmp_tree[] = "/tmp/xpt-tree-XXXXXX";
     PackageInfo *pi = NULL;
+    NodeContainer container = {0};
+    size_t i;
+    char *owner;
+    char answer;
 
     if (!is_file(file)) {
         fprintf(stderr, "%s not found\n", file);
@@ -114,7 +118,6 @@ static int install_one(const char *file, const char *destdir, int log,
         goto out;
     }
 
-    NodeContainer container = {0};
     if (resolve_package(&container, pi->name, pi, destdir, netinstall_deps,
                         log) != 0) {
         fprintf(stderr, "dependency resolution failed for %s\n", pi->name);
@@ -126,8 +129,8 @@ static int install_one(const char *file, const char *destdir, int log,
     resolver_free(&container);
 
     package_info_add_provide(pi, pi->name);
-    for (size_t i = 0; i < pi->provides_count; i++) {
-        char *owner = database_who_provides(pi->provides[i], destdir);
+    for (i = 0; i < pi->provides_count; i++) {
+        owner = database_who_provides(pi->provides[i], destdir);
 
         if (owner == NULL)
             continue;
@@ -135,7 +138,6 @@ static int install_one(const char *file, const char *destdir, int log,
         printf("%s provides %s\n", owner, pi->provides[i]);
         printf("do you want to replace %s with %s? [y/N]: ", owner, pi->name);
 
-        char answer;
         if (scanf(" %c", &answer) != 1 || (answer != 'y' && answer != 'Y')) {
             fprintf(stderr, "could not install %s\n", pi->name);
             free(owner);
@@ -182,7 +184,6 @@ static int install_one(const char *file, const char *destdir, int log,
         goto out;
     }
 
-    size_t i;
     for (i = 0; i < pi->triggers_count; i++) {
         if (queue_trigger(pi->triggers[i]) != XPT_EX_OK) {
             fprintf(stderr, "warning: could not queue trigger %s\n",
@@ -250,12 +251,11 @@ static int uninstall_file(const char *path, void *userdata)
 {
 
     struct uninstall_ctx *ctx = userdata;
-
     char full[PATH_MAX];
+    int shared;
 
     snprintf(full, sizeof(full), "%s/%s", ctx->destdir, path);
 
-    int shared;
     if (database_file_has_other_owners(ctx->name, path, ctx->destdir,
                                        &shared) != 0)
 
@@ -277,6 +277,7 @@ static int uninstall_file(const char *path, void *userdata)
 
 int xpt_package_remove(const char *name, const char *destdir, int log)
 {
+    struct uninstall_ctx ctx;
     if (database_exists(name, destdir) != 0) {
         fprintf(stderr, "package %s is not installed\n", name);
         return XPT_EX_NOINPUT;
@@ -284,7 +285,9 @@ int xpt_package_remove(const char *name, const char *destdir, int log)
     if (log == XPT_LOG_OK)
         printf("uninstalling %s...\n", name);
 
-    struct uninstall_ctx ctx = {.name = name, .destdir = destdir, .log = log};
+    ctx.name = name;
+    ctx.destdir = destdir;
+    ctx.log = log;
 
     if (database_foreach_file(name, destdir, uninstall_file, &ctx) != 0) {
         fprintf(stderr, "failed to enumerate files for %s\n", name);
@@ -327,11 +330,12 @@ int xpt_package_install_from_repo(const char *name, const char *destdir,
     char cachefile[PATH_MAX];
     char destfile[PATH_MAX];
     char destdir_copy[PATH_MAX];
+    RepoPackage *rp;
 
     snprintf(cachefile, sizeof(cachefile), "%s%s/cache/xpt.repositories",
              destdir, XPT_LOCALSTATEDIR);
 
-    RepoPackage *rp = repo_index_lookup(cachefile, name);
+    rp = repo_index_lookup(cachefile, name);
     if (!rp) {
         fprintf(stderr, "package %s not found in any repository\n", name);
         return XPT_EX_NOINPUT;

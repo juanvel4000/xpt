@@ -906,7 +906,7 @@ static fetchIO *http_request(struct url *URL, const char *op,
         else
             http_cmd(conn, "User-Agent: %s\r\n", _LIBFETCH_VER);
         if (url->offset > 0)
-            http_cmd(conn, "Range: bytes=%lld-\r\n", (long long)url->offset);
+            http_cmd(conn, "Range: bytes=%ld-\r\n", (long)url->offset);
         http_cmd(conn, "\r\n");
 
         /*
@@ -1387,8 +1387,6 @@ static struct http_index_cache *index_cache;
 int fetchListHTTP(struct url_list *ue, struct url *url, const char *pattern,
                   const char *flags)
 {
-    (void)pattern;
-
     fetchIO *f;
     char buf[2 * PATH_MAX];
     size_t buf_len, sum_processed;
@@ -1396,6 +1394,8 @@ int fetchListHTTP(struct url_list *ue, struct url *url, const char *pattern,
     struct index_parser state;
     struct http_index_cache *cache = NULL;
     int do_cache, ret;
+
+    (void)pattern;
 
     do_cache = CHECK_FLAG('c');
 

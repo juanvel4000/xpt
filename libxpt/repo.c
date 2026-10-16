@@ -12,12 +12,13 @@
 
 static char *rtrim(char *s)
 {
+    char *e;
     while (isspace((unsigned char)*s))
         s++;
     if (!*s)
         return s;
 
-    char *e = s + strlen(s) - 1;
+    e = s + strlen(s) - 1;
     while (e > s && isspace((unsigned char)*e))
         e--;
     *(e + 1) = 0;
@@ -27,14 +28,16 @@ static char *rtrim(char *s)
 
 static int parse_depends(RepoPackage *rp, const char *value)
 {
+    char *copy;
+    char *tok;
     if (value[0] == '\0')
         return XPT_EX_OK;
 
-    char *copy = strdup(value);
+    copy = strdup(value);
     if (!copy)
         return 1;
 
-    char *tok = strtok(copy, ",");
+    tok = strtok(copy, ",");
 
     while (tok) {
         char **tmp =
@@ -63,6 +66,7 @@ static int parse_depends(RepoPackage *rp, const char *value)
 
 void repo_package_free(RepoPackage *rp)
 {
+    size_t i;
     if (!rp)
         return;
 
@@ -72,7 +76,6 @@ void repo_package_free(RepoPackage *rp)
     free(rp->url);
     free(rp->sha256);
 
-    size_t i;
     for (i = 0; i < rp->depends_count; i++)
         free(rp->depends[i]);
     free(rp->depends);
@@ -81,26 +84,28 @@ void repo_package_free(RepoPackage *rp)
 
 RepoPackage *repo_index_lookup(const char *indexfile, const char *name)
 {
-    FILE *fp = fopen(indexfile, "r");
+    FILE *fp;
+    char line[MAX_REPO_LINE];
+
+    fp = fopen(indexfile, "r");
     if (!fp) {
         perror("fopen");
         return NULL;
     }
 
-    char line[MAX_REPO_LINE];
-
     while (fgets(line, sizeof(line), fp)) {
         char *trmd = rtrim(line);
-        if (trmd[0] == '\0')
-            continue;
-
         char *fields[6] = {0};
         char *cursor = trmd;
         int i;
+        RepoPackage *rp;
+
+        if (trmd[0] == '\0')
+            continue;
 
         for (i = 0; i < 6; i++) {
-            fields[i] = cursor;
             char *pipe = strchr(cursor, '|');
+            fields[i] = cursor;
             if (pipe == NULL) {
                 if (i < 5) {
                     fprintf(stderr, "malformed index line: '%s'\n", line);
@@ -118,7 +123,7 @@ RepoPackage *repo_index_lookup(const char *indexfile, const char *name)
         if (strcmp(fields[0], name) != 0)
             continue;
 
-        RepoPackage *rp = malloc(sizeof(RepoPackage));
+        rp = malloc(sizeof(RepoPackage));
         if (!rp) {
             perror("malloc");
             fclose(fp);
@@ -159,6 +164,8 @@ int repo_download(const char *url, const char *dest)
 {
     fetchIO *src;
     FILE *dst;
+    char buf[4096];
+    ssize_t n;
 
     src = fetchXGetURL(url, NULL, "");
     if (!src) {
@@ -172,9 +179,6 @@ int repo_download(const char *url, const char *dest)
         fetchIO_close(src);
         return XPT_EX_IOERR;
     }
-
-    char buf[4096];
-    ssize_t n;
 
     while ((n = fetchIO_read(src, buf, sizeof(buf))) > 0)
         fwrite(buf, 1, n, dst);
@@ -203,19 +207,23 @@ int xpt_repos_sync(const char *destdir)
     char indexfile[PATH_MAX];
     char cachefile[PATH_MAX];
     char tmpfile[PATH_MAX + 5];
+    FILE *fp;
+    FILE *out;
+    char line[MAX_REPO_LINE];
+    int had_error = 0;
 
     snprintf(indexfile, sizeof(indexfile), "%s%s/xpt.d/index", destdir,
              XPT_SYSCONFDIR);
     snprintf(cachefile, sizeof(cachefile), "%s%s/cache/xpt.repositories",
              destdir, XPT_LOCALSTATEDIR);
 
-    FILE *fp = fopen(indexfile, "r");
+    fp = fopen(indexfile, "r");
     if (!fp) {
         perror("fopen");
         return 1;
     }
 
-    FILE *out = fopen(cachefile, "w");
+    out = fopen(cachefile, "w");
     if (!out) {
         perror("fopen");
         fclose(fp);
@@ -223,10 +231,10 @@ int xpt_repos_sync(const char *destdir)
     }
 
     fclose(out);
-    char line[MAX_REPO_LINE];
-    int had_error = 0;
 
     while (fgets(line, sizeof(line), fp)) {
+        FILE *src;
+        FILE *dst;
         line[strcspn(line, "\n")] = '\0';
         if (line[0] == '\0')
             continue;
@@ -242,8 +250,8 @@ int xpt_repos_sync(const char *destdir)
             continue;
         }
 
-        FILE *src = fopen(tmpfile, "r");
-        FILE *dst = fopen(cachefile, "a");
+        src = fopen(tmpfile, "r");
+        dst = fopen(cachefile, "a");
         if (src && dst) {
             char buf[4096];
             size_t n;
@@ -263,30 +271,31 @@ int xpt_repos_sync(const char *destdir)
 
 int verify_sha256(const char *file, const char *expected_hex)
 {
-    FILE *fp = fopen(file, "rb");
+    FILE *fp;
+    EVP_MD_CTX *ctx;
+    unsigned char buf[4096];
+    size_t n;
+    unsigned char hash[EVP_MAX_MD_SIZE];
+    unsigned int hash_len;
+    char hex[EVP_MAX_MD_SIZE * 2 + 1];
+    unsigned int i;
+
+    fp = fopen(file, "rb");
     if (!fp) {
         perror("fopen");
         return 1;
     }
 
-    EVP_MD_CTX *ctx = EVP_MD_CTX_new();
+    ctx = EVP_MD_CTX_new();
     EVP_DigestInit_ex(ctx, EVP_sha256(), NULL);
 
-    unsigned char buf[4096];
-
-    size_t n;
     while ((n = fread(buf, 1, sizeof(buf), fp)) > 0)
         EVP_DigestUpdate(ctx, buf, n);
     fclose(fp);
 
-    unsigned char hash[EVP_MAX_MD_SIZE];
-    unsigned int hash_len;
-
     EVP_DigestFinal_ex(ctx, hash, &hash_len);
     EVP_MD_CTX_free(ctx);
 
-    char hex[EVP_MAX_MD_SIZE * 2 + 1];
-    unsigned int i;
     for (i = 0; i < hash_len; i++)
         sprintf(hex + i * 2, "%02x", hash[i]);
     hex[hash_len * 2] = '\0';
@@ -297,10 +306,10 @@ int verify_sha256(const char *file, const char *expected_hex)
 int xpt_repos_getpkginfo(const char *name, const char *destdir)
 {
     char cachefile[PATH_MAX];
+    RepoPackage *rp;
+
     snprintf(cachefile, sizeof(cachefile), "%s%s/cache/xpt.repositories",
              destdir, XPT_LOCALSTATEDIR);
-
-    RepoPackage *rp;
 
     rp = repo_index_lookup(cachefile, name);
     if (rp == NULL) {

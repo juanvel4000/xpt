@@ -11,12 +11,14 @@
 
 static char *trim(char *s)
 {
+    char *e;
+
     while (isspace((unsigned char)*s))
         s++;
     if (!*s)
         return s;
 
-    char *e = s + strlen(s) - 1;
+    e = s + strlen(s) - 1;
     while (e > s && isspace((unsigned char)*e))
         e--;
     *(e + 1) = 0;
@@ -79,6 +81,7 @@ int verify_package_info(PackageInfo *pi)
 
 void delete_package_info(PackageInfo *pi)
 {
+    size_t i;
     free(pi->name);
     free(pi->desc);
     free(pi->version);
@@ -87,17 +90,17 @@ void delete_package_info(PackageInfo *pi)
     free(pi->license);
     free(pi->homepage);
 
-    for (size_t i = 0; i < pi->depends_count; i++)
+    for (i = 0; i < pi->depends_count; i++)
         free(pi->depends[i]);
 
     free(pi->depends);
 
-    for (size_t i = 0; i < pi->provides_count; i++)
+    for (i = 0; i < pi->provides_count; i++)
         free(pi->provides[i]);
 
     free(pi->provides);
 
-    for (size_t i = 0; i < pi->triggers_count; i++)
+    for (i = 0; i < pi->triggers_count; i++)
         free(pi->triggers[i]);
 
     free(pi->triggers);
@@ -142,34 +145,42 @@ static int validate_triggers(char **list, size_t count)
 
 PackageInfo *parse_manifest(const char *file)
 {
+    PackageInfo *pi;
+    FILE *fp;
+    char line[MAX_LINE];
+    char *trmd;
+    char *eq;
+    char *key;
+    char *val;
+    char *end;
+    unsigned long epoch;
+
     if (!is_file(file)) {
         fprintf(stderr, "%s does not exist\n", file);
         return NULL;
     }
 
-    PackageInfo *pi = malloc(sizeof(PackageInfo));
+    pi = malloc(sizeof(PackageInfo));
     if (!pi) {
         perror("malloc");
         return NULL;
     }
     memset(pi, 0, sizeof(PackageInfo));
 
-    FILE *fp = fopen(file, "r");
+    fp = fopen(file, "r");
     if (!fp) {
         perror("fopen");
         delete_package_info(pi);
         return NULL;
     }
 
-    char line[MAX_LINE];
-
     while (fgets(line, sizeof(line), fp)) {
-        char *trmd = trim(line);
+        trmd = trim(line);
         if (trmd[0] == '\0' || (trmd[0] == '/' && trmd[1] == '/')) {
             continue;
         }
 
-        char *eq = strchr(trmd, '=');
+        eq = strchr(trmd, '=');
         if (!eq) {
             fprintf(stderr, "invalid line: '%s'\n", line);
             continue;
@@ -177,8 +188,8 @@ PackageInfo *parse_manifest(const char *file)
 
         *eq = '\0';
 
-        char *key = trim(trmd);
-        char *val = trim(eq + 1);
+        key = trim(trmd);
+        val = trim(eq + 1);
         if (strcmp(key, "name") == 0) {
             if (safe_strdup(&pi->name, val) == 1) {
                 fclose(fp);
@@ -228,11 +239,8 @@ PackageInfo *parse_manifest(const char *file)
                 return NULL;
             }
         } else if (strcmp(key, "build_epoch") == 0) {
-            char *end;
-            unsigned long long epoch;
-
             errno = 0;
-            epoch = strtoull(val, &end, 10);
+            epoch = strtoul(val, &end, 10);
 
             if (errno == ERANGE || *end != '\0') {
                 fprintf(stderr, "invalid build_epoch: %s\n", val);
@@ -272,11 +280,12 @@ PackageInfo *parse_manifest(const char *file)
 int package_info_add_provide(PackageInfo *pi, const char *capability)
 {
     char **tmp;
+    size_t i;
 
     if (pi == NULL || capability == NULL || capability[0] == '\0')
         return 1;
 
-    for (size_t i = 0; i < pi->provides_count; i++) {
+    for (i = 0; i < pi->provides_count; i++) {
         if (strcmp(pi->provides[i], capability) == 0)
             return 0;
     }

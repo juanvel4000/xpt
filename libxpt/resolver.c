@@ -45,6 +45,7 @@ int resolver_add_seen(NodeContainer *container, const char *name)
 int resolver_add_resolved(NodeContainer *container, const char *name)
 {
     PackageNode *node = malloc(sizeof(PackageNode));
+    PackageNode *current;
 
     if (!node)
         return 1;
@@ -63,7 +64,7 @@ int resolver_add_resolved(NodeContainer *container, const char *name)
         return 0;
     }
 
-    PackageNode *current = container->resolved;
+    current = container->resolved;
 
     while (current->next != NULL)
         current = current->next;
@@ -76,6 +77,7 @@ int resolver_add_resolved(NodeContainer *container, const char *name)
 void resolver_free(NodeContainer *container)
 {
     PackageNode *node;
+
     while (container->seen) {
         node = container->seen;
         container->seen = node->next;
@@ -97,13 +99,14 @@ int resolve_package(NodeContainer *container, const char *name,
                     PackageInfo *pkg, const char *destdir, int netinstall_deps,
                     int log)
 {
+    size_t i;
+
     if (resolver_seen(container, name))
         return XPT_EX_OK;
 
     if (resolver_add_seen(container, name))
         return 1;
 
-    size_t i;
     for (i = 0; i < pkg->depends_count; i++) {
         if (database_exists(pkg->depends[i], destdir) != 0) {
             if (netinstall_deps) {

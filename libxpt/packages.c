@@ -21,6 +21,10 @@ int extract_member(const char *file, const char *member, char *tmppath)
     struct archive *a;
     struct archive_entry *entry;
     int ret = 1;
+    int fd;
+    char buf[8192];
+    la_ssize_t n;
+    int ok;
 
     a = archive_read_new();
     archive_read_support_filter_zstd(a);
@@ -38,16 +42,13 @@ int extract_member(const char *file, const char *member, char *tmppath)
         if (strcmp(name, member) != 0)
             continue;
 
-        int fd = mkstemp(tmppath);
+        fd = mkstemp(tmppath);
         if (fd < 0) {
             perror("mkstemp");
             break;
         }
 
-        char buf[8192];
-        la_ssize_t n;
-        int ok = 1;
-
+        ok = 1;
         while ((n = archive_read_data(a, buf, sizeof(buf))) > 0) {
             if (write(fd, buf, (size_t)n) != (ssize_t)n) {
                 ok = 0;
@@ -78,15 +79,17 @@ int extract_member(const char *file, const char *member, char *tmppath)
 
 int preflight_payload(const char *file, const char *destdir)
 {
+    struct archive *a;
+    struct archive_entry *entry;
+    int r;
+    int hr;
+    const char *rel;
+    int owned;
 
     if (!is_file(file)) {
         fprintf(stderr, "%s does not exist\n", file);
         return 1;
     }
-
-    struct archive *a;
-    struct archive_entry *entry;
-    int r;
 
     a = archive_read_new();
 
@@ -102,7 +105,6 @@ int preflight_payload(const char *file, const char *destdir)
         return 1;
     }
 
-    int hr;
     while ((hr = archive_read_next_header(a, &entry)) == ARCHIVE_OK) {
         const char *cfil = archive_entry_pathname(entry);
         if (cfil[0] == '/' || strstr(cfil, "..") != NULL) {
@@ -115,11 +117,10 @@ int preflight_payload(const char *file, const char *destdir)
         if (strlen(cfil) >= 4 && strcmp(cfil + strlen(cfil) - 4, ".xpt") == 0)
             continue;
 
-        const char *rel = cfil;
+        rel = cfil;
         if (rel[0] == '.' && rel[1] == '/')
             rel += 2;
 
-        int owned;
         if (database_file_has_owner(rel, destdir, &owned) != 0) {
             archive_read_close(a);
             archive_read_free(a);
@@ -151,16 +152,22 @@ int preflight_payload(const char *file, const char *destdir)
 
 int extract_payload(const char *file, const char *destdir)
 {
+    int hr;
+    struct archive *a;
+    struct archive *ext;
+    struct archive_entry *entry;
+    int r;
+    const char *rel;
+    char target[PATH_MAX];
+    const void *buff;
+    size_t size;
+    la_int64_t offset;
+    int rr;
 
     if (!is_file(file)) {
         fprintf(stderr, "%s does not exist\n", file);
         return 1;
     }
-
-    struct archive *a;
-    struct archive *ext;
-    struct archive_entry *entry;
-    int r;
 
     a = archive_read_new();
 
@@ -185,7 +192,6 @@ int extract_payload(const char *file, const char *destdir)
                  ARCHIVE_EXTRACT_XATTR | ARCHIVE_EXTRACT_SECURE_SYMLINKS |
                  ARCHIVE_EXTRACT_SECURE_NODOTDOT);
 
-    int hr;
     while ((hr = archive_read_next_header(a, &entry)) == ARCHIVE_OK) {
         const char *cfil = archive_entry_pathname(entry);
 
@@ -198,13 +204,12 @@ int extract_payload(const char *file, const char *destdir)
             return 1;
         }
 
-        const char *rel = strip_dot_slash(cfil);
+        rel = strip_dot_slash(cfil);
         if (strcmp(rel, "xpt.manifest") == 0 || strcmp(rel, "xpt.tree") == 0) {
             archive_read_data_skip(a);
             continue;
         }
 
-        char target[PATH_MAX];
         snprintf(target, sizeof(target), "%s/%s", destdir, cfil);
 
         archive_entry_set_pathname(entry, target);
@@ -214,10 +219,6 @@ int extract_payload(const char *file, const char *destdir)
         if (r != ARCHIVE_OK) {
             fprintf(stderr, "warning: %s\n", archive_error_string(ext));
         } else {
-            const void *buff;
-            size_t size;
-            la_int64_t offset;
-            int rr;
 
             while ((rr = archive_read_data_block(a, &buff, &size, &offset)) ==
                    ARCHIVE_OK) {

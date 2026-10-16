@@ -114,9 +114,8 @@ err:
  */
 int fetch_default_port(const char *scheme)
 {
-    (void)scheme;
-
     struct servent *se;
+    (void)scheme;
 
     if ((se = getservbyname(scheme, "tcp")) != NULL)
         return (ntohs(se->s_port));
@@ -236,8 +235,11 @@ conn_t *fetch_connect(struct url *cache_url, struct url *url, int af,
 
         if (fetchTimeout) {
             struct timeval timeout_end;
-            struct pollfd pfd = {.fd = sd, .events = POLLOUT};
+            struct pollfd pfd;
             int r = -1;
+
+            pfd.fd = sd;
+            pfd.events = POLLOUT;
 
             gettimeofday(&timeout_end, NULL);
             timeout_end.tv_sec += fetchTimeout;
@@ -393,9 +395,8 @@ void fetch_cache_put(conn_t *conn, int (*closecb)(conn_t *))
  */
 static int fetch_ssl_setup_peer_verification(SSL_CTX *ctx, int verbose)
 {
-    (void)verbose;
-
     const char *ca_file = NULL;
+    (void)verbose;
 
 #ifdef CA_CERT_FILE
     if (access(CA_CERT_FILE, R_OK) == 0) {

@@ -47,21 +47,9 @@ static sqlite3 *open_db(const char *destdir)
 {
     char db[PATH_MAX];
     char xptdir[PATH_MAX];
-
-    if (make_paths(db, sizeof(db), xptdir, sizeof(xptdir), destdir) != 0)
-        return NULL;
-
-    if (mkdir_p(xptdir) != 0)
-        return NULL;
-
     sqlite3 *conn;
-    if (sqlite3_open(db, &conn) != SQLITE_OK) {
-        fprintf(stderr, "could not open database: %s\n", sqlite3_errmsg(conn));
-        return NULL;
-    }
-
-    sqlite3_exec(conn, "PRAGMA foreign_keys = ON;", NULL, NULL, NULL);
-    const char *schema =
+    size_t i;
+    const char *schema[] = {
         "CREATE TABLE IF NOT EXISTS packages ("
         "  name TEXT PRIMARY KEY,"
         "  version TEXT NOT NULL,"
@@ -71,26 +59,42 @@ static sqlite3 *open_db(const char *destdir)
         "  license TEXT DEFAULT NULL,"
         "  homepage TEXT DEFAULT NULL,"
         "  build_epoch INTEGER NOT NULL DEFAULT 0"
-        ");"
+        ");",
         "CREATE TABLE IF NOT EXISTS files ("
         "  path TEXT NOT NULL,"
         "  pkgname TEXT NOT NULL,"
         "  FOREIGN KEY (pkgname) REFERENCES packages(name) ON DELETE CASCADE,"
         "  UNIQUE (pkgname, path)"
-        ");"
+        ");",
         "CREATE TABLE IF NOT EXISTS provides ("
         "  capability TEXT NOT NULL,"
         "  pkgname  TEXT NOT NULL,"
         "  FOREIGN KEY (pkgname) REFERENCES packages(name) ON DELETE CASCADE,"
         "  UNIQUE (capability)"
-        ");";
+        ");"};
+    char *errmsg;
 
-    char *errmsg = NULL;
-    if (sqlite3_exec(conn, schema, NULL, NULL, &errmsg) != SQLITE_OK) {
-        fprintf(stderr, "could not create schema: %s\n", sqlite3_errmsg(conn));
-        sqlite3_free(errmsg);
-        sqlite3_close(conn);
+    if (make_paths(db, sizeof(db), xptdir, sizeof(xptdir), destdir) != 0)
         return NULL;
+
+    if (mkdir_p(xptdir) != 0)
+        return NULL;
+
+    if (sqlite3_open(db, &conn) != SQLITE_OK) {
+        fprintf(stderr, "could not open database: %s\n", sqlite3_errmsg(conn));
+        return NULL;
+    }
+
+    sqlite3_exec(conn, "PRAGMA foreign_keys = ON;", NULL, NULL, NULL);
+
+    for (i = 0; i < sizeof(schema) / sizeof(schema[0]); i++) {
+        errmsg = NULL;
+        if (sqlite3_exec(conn, schema[i], NULL, NULL, &errmsg) != SQLITE_OK) {
+            fprintf(stderr, "could not create schema: %s\n", errmsg);
+            sqlite3_free(errmsg);
+            sqlite3_close(conn);
+            return NULL;
+        }
     }
 
     return conn;
@@ -98,19 +102,23 @@ static sqlite3 *open_db(const char *destdir)
 
 int database_exists(const char *package, const char *destdir)
 {
-    sqlite3 *conn = open_db(destdir);
+    sqlite3 *conn;
+    sqlite3_stmt *stmt;
+    const char *sql;
+    int found;
+
+    conn = open_db(destdir);
     if (!conn)
         return 1;
 
-    sqlite3_stmt *stmt;
-    const char *sql = "SELECT 1 FROM packages WHERE name = ?;";
+    sql = "SELECT 1 FROM packages WHERE name = ?;";
     if (sqlite3_prepare_v2(conn, sql, -1, &stmt, NULL) != SQLITE_OK) {
         sqlite3_close(conn);
         return 1;
     }
 
     sqlite3_bind_text(stmt, 1, package, -1, SQLITE_STATIC);
-    int found = (sqlite3_step(stmt) == SQLITE_ROW);
+    found = (sqlite3_step(stmt) == SQLITE_ROW);
 
     sqlite3_finalize(stmt);
     sqlite3_close(conn);
@@ -119,16 +127,19 @@ int database_exists(const char *package, const char *destdir)
 
 int database_add(PackageInfo *pi, const char *destdir)
 {
-    sqlite3 *conn = open_db(destdir);
+    sqlite3 *conn;
+    sqlite3_stmt *stmt;
+    const char *sql;
+
+    conn = open_db(destdir);
     if (!conn)
         return 1;
 
     tbegin(conn);
 
-    sqlite3_stmt *stmt;
-    const char *sql = "INSERT INTO packages (name, version, desc, maintainer, "
-                      "arch, license, homepage, build_epoch) VALUES (?, ?, ?, "
-                      "?, ?, ?, ?, ?);";
+    sql = "INSERT INTO packages (name, version, desc, maintainer, "
+          "arch, license, homepage, build_epoch) VALUES (?, ?, ?, "
+          "?, ?, ?, ?, ?);";
     if (sqlite3_prepare_v2(conn, sql, -1, &stmt, NULL) != SQLITE_OK) {
         fprintf(stderr, "could not add package to database: %s\n",
                 sqlite3_errmsg(conn));
@@ -174,12 +185,17 @@ int database_add(PackageInfo *pi, const char *destdir)
 
 char *xpt_package_getversion(const char *package, const char *destdir)
 {
-    sqlite3 *conn = open_db(destdir);
+    sqlite3 *conn;
+    sqlite3_stmt *stmt;
+    const char *sql;
+    char *version;
+    const unsigned char *text;
+
+    conn = open_db(destdir);
     if (!conn)
         return NULL;
 
-    sqlite3_stmt *stmt;
-    const char *sql = "SELECT version FROM packages WHERE name = ?;";
+    sql = "SELECT version FROM packages WHERE name = ?;";
     if (sqlite3_prepare_v2(conn, sql, -1, &stmt, NULL) != SQLITE_OK) {
         sqlite3_close(conn);
         return NULL;
@@ -187,9 +203,9 @@ char *xpt_package_getversion(const char *package, const char *destdir)
 
     sqlite3_bind_text(stmt, 1, package, -1, SQLITE_STATIC);
 
-    char *version = NULL;
+    version = NULL;
     if (sqlite3_step(stmt) == SQLITE_ROW) {
-        const unsigned char *text = sqlite3_column_text(stmt, 0);
+        text = sqlite3_column_text(stmt, 0);
         version = strdup((const char *)text);
     }
 
@@ -200,13 +216,16 @@ char *xpt_package_getversion(const char *package, const char *destdir)
 
 int database_delete(const char *package, const char *destdir)
 {
-    sqlite3 *conn = open_db(destdir);
+    sqlite3 *conn;
+    sqlite3_stmt *stmt;
+    const char *sql;
+
+    conn = open_db(destdir);
     if (!conn)
         return 1;
 
     tbegin(conn);
-    sqlite3_stmt *stmt;
-    const char *sql = "DELETE FROM packages WHERE name = ?;";
+    sql = "DELETE FROM packages WHERE name = ?;";
     if (sqlite3_prepare_v2(conn, sql, -1, &stmt, NULL) != SQLITE_OK) {
         fprintf(stderr, "could not delete package: %s\n", sqlite3_errmsg(conn));
         trollback(conn);
@@ -233,12 +252,18 @@ int database_delete(const char *package, const char *destdir)
 
 int xpt_package_list(const char *destdir)
 {
-    sqlite3 *conn = open_db(destdir);
+    sqlite3 *conn;
+    sqlite3_stmt *stmt;
+    const char *sql;
+    int pkgcount;
+    const unsigned char *name;
+    const unsigned char *version;
+
+    conn = open_db(destdir);
     if (!conn)
         return XPT_EX_IOERR;
 
-    sqlite3_stmt *stmt;
-    const char *sql = "SELECT name, version FROM packages ORDER BY name;";
+    sql = "SELECT name, version FROM packages ORDER BY name;";
     if (sqlite3_prepare_v2(conn, sql, -1, &stmt, NULL) != SQLITE_OK) {
         fprintf(stderr, "could not list packages: %s\n", sqlite3_errmsg(conn));
         sqlite3_close(conn);
@@ -247,11 +272,11 @@ int xpt_package_list(const char *destdir)
 
     printf("%-20s %s\n", "package", "version");
     printf("------------------------------\n");
-    int pkgcount = 0;
+    pkgcount = 0;
 
     while (sqlite3_step(stmt) == SQLITE_ROW) {
-        const unsigned char *name = sqlite3_column_text(stmt, 0);
-        const unsigned char *version = sqlite3_column_text(stmt, 1);
+        name = sqlite3_column_text(stmt, 0);
+        version = sqlite3_column_text(stmt, 1);
         printf("%-20s %s\n", name, version);
         pkgcount++;
     }
@@ -264,14 +289,26 @@ int xpt_package_list(const char *destdir)
 
 int xpt_package_printinfo(const char *package, const char *destdir)
 {
-    sqlite3 *conn = open_db(destdir);
+    sqlite3 *conn;
+    sqlite3_stmt *stmt;
+    const char *sql;
+    int rc;
+    const char *name;
+    const char *version;
+    const char *desc;
+    const char *maintainer;
+    const char *arch;
+    const char *license;
+    const char *homepage;
+    const char *build_epoch;
+
+    conn = open_db(destdir);
     if (!conn)
         return XPT_EX_IOERR;
 
-    sqlite3_stmt *stmt;
-    const char *sql = "SELECT name, version, desc, maintainer, arch, license, "
-                      "homepage, build_epoch FROM "
-                      "packages WHERE name = ?;";
+    sql = "SELECT name, version, desc, maintainer, arch, license, "
+          "homepage, build_epoch FROM "
+          "packages WHERE name = ?;";
     if (sqlite3_prepare_v2(conn, sql, -1, &stmt, NULL) != SQLITE_OK) {
         sqlite3_close(conn);
         return XPT_EX_IOERR;
@@ -279,17 +316,17 @@ int xpt_package_printinfo(const char *package, const char *destdir)
 
     sqlite3_bind_text(stmt, 1, package, -1, SQLITE_STATIC);
 
-    int rc = sqlite3_step(stmt);
+    rc = sqlite3_step(stmt);
 
     if (rc == SQLITE_ROW) {
-        const char *name = (const char *)sqlite3_column_text(stmt, 0);
-        const char *version = (const char *)sqlite3_column_text(stmt, 1);
-        const char *desc = (const char *)sqlite3_column_text(stmt, 2);
-        const char *maintainer = (const char *)sqlite3_column_text(stmt, 3);
-        const char *arch = (const char *)sqlite3_column_text(stmt, 4);
-        const char *license = (const char *)sqlite3_column_text(stmt, 5);
-        const char *homepage = (const char *)sqlite3_column_text(stmt, 6);
-        const char *build_epoch = (const char *)sqlite3_column_text(stmt, 7);
+        name = (const char *)sqlite3_column_text(stmt, 0);
+        version = (const char *)sqlite3_column_text(stmt, 1);
+        desc = (const char *)sqlite3_column_text(stmt, 2);
+        maintainer = (const char *)sqlite3_column_text(stmt, 3);
+        arch = (const char *)sqlite3_column_text(stmt, 4);
+        license = (const char *)sqlite3_column_text(stmt, 5);
+        homepage = (const char *)sqlite3_column_text(stmt, 6);
+        build_epoch = (const char *)sqlite3_column_text(stmt, 7);
 
         printf("package: %s\n", name);
         printf("version: %s \n", version);
@@ -312,11 +349,16 @@ int xpt_package_printinfo(const char *package, const char *destdir)
 int database_files_add(const char *pkgname, const char *treefile,
                        const char *destdir)
 {
-    sqlite3 *conn = open_db(destdir);
+    sqlite3 *conn;
+    FILE *fp;
+    sqlite3_stmt *stmt;
+    char line[PATH_MAX];
+
+    conn = open_db(destdir);
     if (!conn)
         return 1;
 
-    FILE *fp = fopen(treefile, "r");
+    fp = fopen(treefile, "r");
     if (!fp) {
         perror("fopen");
         sqlite3_close(conn);
@@ -324,7 +366,6 @@ int database_files_add(const char *pkgname, const char *treefile,
     }
 
     tbegin(conn);
-    sqlite3_stmt *stmt;
 
     if (sqlite3_prepare_v2(conn,
                            "INSERT INTO files (path, pkgname) VALUES (?, ?);",
@@ -333,7 +374,6 @@ int database_files_add(const char *pkgname, const char *treefile,
         return 1;
     }
 
-    char line[PATH_MAX];
     while (fgets(line, sizeof(line), fp) != NULL) {
         line[strcspn(line, "\n")] = '\0';
 
@@ -366,13 +406,16 @@ int database_files_add(const char *pkgname, const char *treefile,
 int database_foreach_file(const char *pkgname, const char *destdir,
                           database_file_callback cb, void *userdata)
 {
-    sqlite3 *conn = open_db(destdir);
+    sqlite3 *conn;
+    sqlite3_stmt *stmt;
+    const char *sql;
+    const char *path;
+
+    conn = open_db(destdir);
     if (!conn)
         return 1;
 
-    sqlite3_stmt *stmt;
-
-    const char *sql = "SELECT path FROM files WHERE pkgname = ? ORDER BY path;";
+    sql = "SELECT path FROM files WHERE pkgname = ? ORDER BY path;";
 
     if (sqlite3_prepare_v2(conn, sql, -1, &stmt, NULL) != SQLITE_OK) {
         sqlite3_close(conn);
@@ -382,7 +425,7 @@ int database_foreach_file(const char *pkgname, const char *destdir,
     sqlite3_bind_text(stmt, 1, pkgname, -1, SQLITE_STATIC);
 
     while (sqlite3_step(stmt) == SQLITE_ROW) {
-        const char *path = (const char *)sqlite3_column_text(stmt, 0);
+        path = (const char *)sqlite3_column_text(stmt, 0);
 
         if (cb(path, userdata) != 0)
             break;
@@ -397,15 +440,18 @@ int database_foreach_file(const char *pkgname, const char *destdir,
 int database_file_has_other_owners(const char *name, const char *path,
                                    const char *destdir, int *shared)
 {
-    sqlite3 *conn = open_db(destdir);
+    sqlite3 *conn;
+    sqlite3_stmt *stmt;
+    const char *sql;
+    int result;
+
+    conn = open_db(destdir);
     if (!conn)
         return 1;
 
-    sqlite3_stmt *stmt;
-
-    const char *sql = "SELECT EXISTS("
-                      "SELECT 1 FROM files WHERE path = ? AND pkgname != ?"
-                      ");";
+    sql = "SELECT EXISTS("
+          "SELECT 1 FROM files WHERE path = ? AND pkgname != ?"
+          ");";
 
     if (sqlite3_prepare_v2(conn, sql, -1, &stmt, NULL) != SQLITE_OK) {
         sqlite3_close(conn);
@@ -415,7 +461,6 @@ int database_file_has_other_owners(const char *name, const char *path,
     sqlite3_bind_text(stmt, 1, path, -1, SQLITE_STATIC);
     sqlite3_bind_text(stmt, 2, name, -1, SQLITE_STATIC);
 
-    int result;
     if (sqlite3_step(stmt) == SQLITE_ROW) {
         *shared = sqlite3_column_int(stmt, 0);
         result = 0;
@@ -430,15 +475,18 @@ int database_file_has_other_owners(const char *name, const char *path,
 
 int database_file_has_owner(const char *path, const char *destdir, int *owned)
 {
-    sqlite3 *conn = open_db(destdir);
+    sqlite3 *conn;
+    sqlite3_stmt *stmt;
+    const char *sql;
+    int result;
+
+    conn = open_db(destdir);
     if (!conn)
         return 1;
 
-    sqlite3_stmt *stmt;
-
-    const char *sql = "SELECT EXISTS("
-                      "SELECT 1 FROM files WHERE path = ?"
-                      ");";
+    sql = "SELECT EXISTS("
+          "SELECT 1 FROM files WHERE path = ?"
+          ");";
 
     if (sqlite3_prepare_v2(conn, sql, -1, &stmt, NULL) != SQLITE_OK) {
         sqlite3_close(conn);
@@ -447,7 +495,6 @@ int database_file_has_owner(const char *path, const char *destdir, int *owned)
 
     sqlite3_bind_text(stmt, 1, path, -1, SQLITE_STATIC);
 
-    int result;
     if (sqlite3_step(stmt) == SQLITE_ROW) {
         *owned = sqlite3_column_int(stmt, 0);
         result = 0;
@@ -464,12 +511,16 @@ int database_file_has_owner(const char *path, const char *destdir, int *owned)
 int database_provides_add(const char *pkgname, char *const *capabilities,
                           size_t capability_count, const char *destdir)
 {
-    sqlite3 *conn = open_db(destdir);
+    sqlite3 *conn;
+    sqlite3_stmt *stmt;
+    size_t i;
+    const char *capability;
+
+    conn = open_db(destdir);
     if (!conn)
         return 1;
 
     tbegin(conn);
-    sqlite3_stmt *stmt;
 
     if (sqlite3_prepare_v2(
             conn, "INSERT INTO provides (capability, pkgname) VALUES (?, ?);",
@@ -478,8 +529,8 @@ int database_provides_add(const char *pkgname, char *const *capabilities,
         return 1;
     }
 
-    for (size_t i = 0; i < capability_count; i++) {
-        const char *capability = capabilities[i];
+    for (i = 0; i < capability_count; i++) {
+        capability = capabilities[i];
         sqlite3_bind_text(stmt, 1, capability, -1, SQLITE_TRANSIENT);
         sqlite3_bind_text(stmt, 2, pkgname, -1, SQLITE_TRANSIENT);
 
@@ -503,11 +554,14 @@ int database_provides_add(const char *pkgname, char *const *capabilities,
 
 char *database_who_provides(const char *capability, const char *destdir)
 {
-    sqlite3 *conn = open_db(destdir);
+    sqlite3 *conn;
+    sqlite3_stmt *stmt;
+    char *pkgname;
+    const unsigned char *text;
+
+    conn = open_db(destdir);
     if (!conn)
         return NULL;
-
-    sqlite3_stmt *stmt;
 
     if (sqlite3_prepare_v2(conn,
                            "SELECT pkgname FROM provides WHERE capability = ?;",
@@ -517,9 +571,9 @@ char *database_who_provides(const char *capability, const char *destdir)
     }
 
     sqlite3_bind_text(stmt, 1, capability, -1, SQLITE_STATIC);
-    char *pkgname = NULL;
+    pkgname = NULL;
     if (sqlite3_step(stmt) == SQLITE_ROW) {
-        const unsigned char *text = sqlite3_column_text(stmt, 0);
+        text = sqlite3_column_text(stmt, 0);
         pkgname = strdup((const char *)text);
     }
 

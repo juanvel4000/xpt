@@ -16,17 +16,19 @@ int is_file(const char *path)
 int mkdir_p(const char *path)
 {
     char tmp[PATH_MAX];
+    size_t len;
+    char *p;
+
     strncpy(tmp, path, sizeof(tmp));
     tmp[sizeof(tmp) - 1] = '\0';
 
-    size_t len = strlen(tmp);
+    len = strlen(tmp);
     if (len == 0)
         return -1;
 
     if (tmp[len - 1] == '/')
         tmp[len - 1] = '\0';
 
-    char *p;
     for (p = tmp + 1; *p; p++) {
         if (*p == '/') {
             *p = '\0';

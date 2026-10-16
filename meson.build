@@ -4,7 +4,7 @@ project(
     version: files('VERSION'),
     default_options: [
         'warning_level=3',
-        'c_std=c99',
+        'c_std=c89',
         'werror=true',
         'c_args=-Wall -Wextra',
     ],

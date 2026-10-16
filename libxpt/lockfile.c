@@ -7,10 +7,11 @@
 int xpt_lock_acquire(const char *destdir)
 {
     char path[PATH_MAX];
+    int fd;
 
     snprintf(path, sizeof(path), "%s/.xpt.lock", destdir);
 
-    int fd = open(path, O_CREAT | O_RDWR, 0644);
+    fd = open(path, O_CREAT | O_RDWR, 0644);
     if (fd < 0)
         return -1;
 

@@ -107,14 +107,12 @@ int fetch_netrc_auth(struct url *url);
 int fetch_no_proxy_match(const char *);
 int fetch_urlpath_safe(char);
 
-static inline void _fetch_seterr(unsigned int category, int code)
+static void _fetch_seterr(unsigned int category, int code)
 {
-    fetchLastErrCode = (struct fetch_error){.category = category, .code = code};
+    fetchLastErrCode.category = category;
+    fetchLastErrCode.code = code;
 }
-static inline void fetch_syserr(void)
-{
-    _fetch_seterr(FETCH_ERRCAT_ERRNO, errno);
-}
+static void fetch_syserr(void) { _fetch_seterr(FETCH_ERRCAT_ERRNO, errno); }
 
 #define fetch_seterr(n) _fetch_seterr(FETCH_ERRCAT_FETCH, n)
 #define url_seterr(n) _fetch_seterr(FETCH_ERRCAT_URL, FETCH_ERR_##n)
