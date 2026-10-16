@@ -27,7 +27,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - use `help` instead of `--help` in `mkfhs.sh`
 - use a `no_networking_error` helper in `xpt/main.c`
 - replace the `-Ip` example in `xpt(8)`
-- standarize the ebt help footer
+- standardize the ebt help footer
 
 ### Removed
 
@@ -107,7 +107,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - fix `fetchIO_write` in `libfetch/common.c`
 - fix install order in `libxpt/manager.c`
 - remove blank lines between include definitions
-- standarize blank lines in internal headers
+- standardize blank lines in internal headers
 
 ## [0.9.0] - 2026-10-08
 
@@ -115,7 +115,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 - add docblocks to public `xpt.h` functions
 - format all c source files and headers
-- properly format and standarize the ebt scripts
+- properly format and standardize the ebt scripts
 - quick start section in README.md
 - xpt/libxpt guard in meson.build
 
