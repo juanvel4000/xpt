@@ -66,7 +66,7 @@ print_ebs_help() {
     echo "  build   build from an ebs formula"
     echo "  buildt  build from an ebs formula and install to the toolchain specified in \$TOOLCHAIN_DIR"
     echo ""
-    echo "part of ebt build tools (ebt)"
+    echo "part of ebt build tools"
     echo "see ebs(1) for more information about the available commands and ebs(5) for the formulae specification"
 }
 
@@ -381,7 +381,7 @@ buildt | -t | t)
     ;;
 
 *)
-    echo "ebs: invalid option -- '$1'"
+    echo "invalid option: '$1'"
     exit 1
     ;;
 esac

@@ -10,6 +10,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ### Changed
 
 - refactor `xpt/main.c`
+- merge the `-Q` and `-I` commands to `-Q` (`xpt/main.c`)
+- make mkfhs usr-merge compliant
 
 ### Fixed
 
@@ -24,6 +26,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - use portable symlink creation in `mkfhs.sh`
 - use `help` instead of `--help` in `mkfhs.sh`
 - use a `no_networking_error` helper in `xpt/main.c`
+- replace the `-Ip` example in `xpt(8)`
+- standarize the ebt help footer
 
 ### Removed
 

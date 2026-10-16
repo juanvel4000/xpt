@@ -65,7 +65,8 @@ help | -h | --help | h)
     echo "safely chroot to a directory."
     echo ""
     echo "if no command is provided but a chroot is provided, it will open the chroot."
-    echo "part of ebt build tools (ebt); see ecw(1) for more information"
+    echo "part of ebt build tools"
+    echo "see ecw(1) for more information"
     ;;
 *)
     [ -d "$1" ] || {

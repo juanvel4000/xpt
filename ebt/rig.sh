@@ -57,7 +57,8 @@ while getopts "hqru:d:o:" opt; do
         echo "  -h              show this message"
         echo ""
         echo "if -o is set as -, the final index will be printed to stdout."
-        echo "part of ebt build tools (ebt); see rig(1) for more information."
+        echo "part of ebt build tools"
+        echo "see rig(1) for more information."
         exit 0
         ;;
     *)
