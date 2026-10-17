@@ -1,0 +1,24 @@
+_ebs_complete() {
+    local cur
+    cur="${COMP_WORDS[COMP_CWORD]}"
+    COMPREPLY=()
+
+    if [ "$COMP_CWORD" -eq 1 ]; then
+        mapfile -t COMPREPLY < <(compgen -W "help build buildt" -- "$cur")
+        return
+    fi
+
+    case "${COMP_WORDS[1]}" in
+    build | buildt)
+        if [ "$COMP_CWORD" -eq 2 ]; then
+            compopt -o filenames 2>/dev/null
+            mapfile -t COMPREPLY < <(
+                compgen -d -- "$cur"
+                compgen -f -X '!*.formula' -- "$cur"
+            )
+        fi
+        ;;
+    esac
+}
+
+complete -F _ebs_complete ebs

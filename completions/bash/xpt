@@ -1,0 +1,78 @@
+_xpt_installed() {
+    xpt -l 2>/dev/null | awk 'NR > 2 && NF == 2 { print $1 }'
+}
+
+_xpt_repo_packages() {
+    awk -F'|' 'NF > 1 { print $1 }' /var/cache/xpt.repositories 2>/dev/null
+}
+
+_xpt_complete() {
+    local cur verb="" expect="" items i j word c
+    cur="${COMP_WORDS[COMP_CWORD]}"
+    COMPREPLY=()
+
+    for ((i = 1; i < COMP_CWORD; i++)); do
+        word="${COMP_WORDS[i]}"
+        if [ -n "$expect" ]; then
+            expect=""
+            continue
+        fi
+        case "$word" in
+        -?*)
+            for ((j = 1; j < ${#word}; j++)); do
+                c="${word:j:1}"
+                case "$c" in
+                f | p | n | d)
+                    if [ "$j" -eq $((${#word} - 1)) ]; then
+                        expect="$c"
+                    fi
+                    break
+                    ;;
+                i | r | g | l | t | s | Q | h | V | B)
+                    [ -z "$verb" ] && verb="$c"
+                    ;;
+                esac
+            done
+            ;;
+        esac
+    done
+
+    case "$expect" in
+    f)
+        compopt -o filenames 2>/dev/null
+        mapfile -t COMPREPLY < <(compgen -f -- "$cur")
+        return
+        ;;
+    d)
+        compopt -o dirnames 2>/dev/null
+        mapfile -t COMPREPLY < <(compgen -d -- "$cur")
+        return
+        ;;
+    p)
+        mapfile -t COMPREPLY < <(compgen -W "$(_xpt_installed)" -- "$cur")
+        return
+        ;;
+    n)
+        mapfile -t COMPREPLY < <(compgen -W "$(_xpt_repo_packages)" -- "$cur")
+        return
+        ;;
+    esac
+
+    if [ -z "$verb" ]; then
+        mapfile -t COMPREPLY < <(compgen -W "-i -r -g -l -t -Q -s -h -V -B" -- "$cur")
+        return
+    fi
+
+    case "$verb" in
+    i) items="-f -n -d" ;;
+    r | g | t) items="-p -d" ;;
+    l | s) items="-d" ;;
+    Q) items="-p -n -d" ;;
+    *) items="" ;;
+    esac
+    [ -n "$items" ] && items="$items -q"
+
+    mapfile -t COMPREPLY < <(compgen -W "$items" -- "$cur")
+}
+
+complete -F _xpt_complete xpt

@@ -1,5 +1,7 @@
 # xpt
 
+![AUR Version](https://img.shields.io/aur/version/xpt)
+
 a package-management suite for `.xpt` packages.
 
 xpt consists of the `libxpt(3)` package-management library, the `xpt(8)` command-line frontend, and the `ebt` build suite.
@@ -46,15 +48,16 @@ build-time dependencies include
 
 xpt exposes several meson build-time options
 
-| option       | type    | default    | description                                                                      |
-| ------------ | ------- | ---------- | -------------------------------------------------------------------------------- |
-| `static`     | boolean | `false`    | build a statically linked xpt executable, requires static dependencies available |
-| `networking` | feature | `enabled`  | build libxpt with `libfetch` networking support                                  |
-| `ebt`        | feature | `enabled`  | install the ebt build system                                                     |
-| `doc`        | feature | `enabled`  | documentation                                                                    |
-| `ebt_only`   | feature | `disabled` | only install ebt                                                                 |
-| `tests`      | feature | `enabled`  | enable the test suite                                                            |
-| `doxygen`    | feature | `auto`     | generate API documentation with doxygen                                          |
+| option              | type    | default    | description                                                                      |
+| ------------------- | ------- | ---------- | -------------------------------------------------------------------------------- |
+| `static`            | boolean | `false`    | build a statically linked xpt executable, requires static dependencies available |
+| `networking`        | feature | `enabled`  | build libxpt with `libfetch` networking support                                  |
+| `ebt`               | feature | `enabled`  | install the ebt build system                                                     |
+| `doc`               | feature | `enabled`  | documentation                                                                    |
+| `ebt_only`          | feature | `disabled` | only install ebt                                                                 |
+| `tests`             | feature | `enabled`  | enable the test suite                                                            |
+| `doxygen`           | feature | `auto`     | generate API documentation with doxygen                                          |
+| `shell_completions` | feature | `enabled`  | install shell completions                                                        |
 
 > set with, e.g.:
 >

@@ -7,6 +7,11 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+### Added
+
+- add a basic color output system
+- add basic shell completions for `bash`
+
 ### Changed
 
 - migrate the codebase to C89
