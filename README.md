@@ -193,6 +193,15 @@ meson setup build -Debt_only=enabled
 meson install -C build
 ```
 
+## standards & conventions
+
+- [CHANGELOG.md](CHANGELOG.md): [Keep a Changelog](https://keepachangelog.com/en/1.1.0/)
+- [VERSION](VERSION): [SemVer](https://semver.org/spec/v2.0.0.html)
+- `xpt(8)`: [POSIX.1-2008 Utility Conventions](https://pubs.opengroup.org/onlinepubs/9699919799/basedefs/V1_chap12.html)
+- `libxpt(3)`, `xpt(8)`: [NO_COLOR](https://no-color.org)
+- `mkfhs(1)`: [FHS 3.0](https://refspecs.linuxfoundation.org/FHS_3.0/fhs/index.html)
+- `mkfhs(1)`: [usr-merge](https://wiki.debian.org/UsrMerge)
+
 ## known limitations
 
 - offline installs do not resolve transitive dependencies.
