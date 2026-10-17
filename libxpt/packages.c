@@ -1,5 +1,6 @@
 #include <archive.h>
 #include <archive_entry.h>
+#include <internal/colorize.h>
 #include <internal/common.h>
 #include <internal/database.h>
 #include <internal/packages.h>
@@ -31,8 +32,7 @@ int extract_member(const char *file, const char *member, char *tmppath)
     archive_read_support_format_tar(a);
 
     if (archive_read_open_filename(a, file, 10240) != ARCHIVE_OK) {
-        fprintf(stderr, "could not open %s: %s\n", file,
-                archive_error_string(a));
+        xpt_print_err("could not open %s: %s\n", file, archive_error_string(a));
         archive_read_free(a);
         return 1;
     }
@@ -61,7 +61,7 @@ int extract_member(const char *file, const char *member, char *tmppath)
 
         close(fd);
         if (!ok) {
-            fprintf(stderr, "could not extract %s from %s\n", member, file);
+            xpt_print_err("could not extract %s from %s\n", member, file);
             unlink(tmppath);
             break;
         }
@@ -71,7 +71,7 @@ int extract_member(const char *file, const char *member, char *tmppath)
     }
 
     if (ret != 0 && tmppath[0] != '\0' && access(tmppath, F_OK) != 0)
-        fprintf(stderr, "%s not found in %s\n", member, file);
+        xpt_print_err("%s not found in %s\n", member, file);
 
     archive_read_free(a);
     return ret;
@@ -87,7 +87,7 @@ int preflight_payload(const char *file, const char *destdir)
     int owned;
 
     if (!is_file(file)) {
-        fprintf(stderr, "%s does not exist\n", file);
+        xpt_print_err("%s does not exist\n", file);
         return 1;
     }
 
@@ -97,8 +97,7 @@ int preflight_payload(const char *file, const char *destdir)
     archive_read_support_format_tar(a);
 
     if ((r = archive_read_open_filename(a, file, 10240))) {
-        fprintf(stderr, "could not open %s: %s\n", file,
-                archive_error_string(a));
+        xpt_print_err("could not open %s: %s\n", file, archive_error_string(a));
 
         archive_read_close(a);
         archive_read_free(a);
@@ -108,7 +107,7 @@ int preflight_payload(const char *file, const char *destdir)
     while ((hr = archive_read_next_header(a, &entry)) == ARCHIVE_OK) {
         const char *cfil = archive_entry_pathname(entry);
         if (cfil[0] == '/' || strstr(cfil, "..") != NULL) {
-            fprintf(stderr, "refusing to extract unsafe path: %s\n", cfil);
+            xpt_print_err("refusing to extract unsafe path: %s\n", cfil);
             archive_read_close(a);
             archive_read_free(a);
             return 1;
@@ -128,9 +127,8 @@ int preflight_payload(const char *file, const char *destdir)
         }
 
         if (owned) {
-            fprintf(stderr,
-                    "refusing to install file %s: file is already owned\n",
-                    cfil);
+            xpt_print_err(
+                "refusing to install file %s: file is already owned\n", cfil);
             archive_read_close(a);
             archive_read_free(a);
             return 1;
@@ -138,7 +136,7 @@ int preflight_payload(const char *file, const char *destdir)
     }
 
     if (hr != ARCHIVE_EOF) {
-        fprintf(stderr, "read error: %s\n", archive_error_string(a));
+        xpt_print_err("read error: %s\n", archive_error_string(a));
 
         archive_read_close(a);
         archive_read_free(a);
@@ -165,7 +163,7 @@ int extract_payload(const char *file, const char *destdir)
     int rr;
 
     if (!is_file(file)) {
-        fprintf(stderr, "%s does not exist\n", file);
+        xpt_print_err("%s does not exist\n", file);
         return 1;
     }
 
@@ -175,8 +173,7 @@ int extract_payload(const char *file, const char *destdir)
     archive_read_support_format_tar(a);
 
     if ((r = archive_read_open_filename(a, file, 10240))) {
-        fprintf(stderr, "could not open %s: %s\n", file,
-                archive_error_string(a));
+        xpt_print_err("could not open %s: %s\n", file, archive_error_string(a));
 
         archive_read_close(a);
         archive_read_free(a);
@@ -196,7 +193,7 @@ int extract_payload(const char *file, const char *destdir)
         const char *cfil = archive_entry_pathname(entry);
 
         if (cfil[0] == '/' || strstr(cfil, "..") != NULL) {
-            fprintf(stderr, "refusing to extract unsafe path: %s\n", cfil);
+            xpt_print_err("refusing to extract unsafe path: %s\n", cfil);
             archive_read_close(a);
             archive_read_free(a);
             archive_write_close(ext);
@@ -217,15 +214,15 @@ int extract_payload(const char *file, const char *destdir)
         r = archive_write_header(ext, entry);
 
         if (r != ARCHIVE_OK) {
-            fprintf(stderr, "warning: %s\n", archive_error_string(ext));
+            xpt_print_warn("%s\n", archive_error_string(ext));
         } else {
 
             while ((rr = archive_read_data_block(a, &buff, &size, &offset)) ==
                    ARCHIVE_OK) {
                 if (archive_write_data_block(ext, buff, size, offset) !=
                     ARCHIVE_OK) {
-                    fprintf(stderr, "write error: %s\n",
-                            archive_error_string(ext));
+                    xpt_print_err("write error: %s\n",
+                                  archive_error_string(ext));
 
                     archive_read_close(a);
                     archive_read_free(a);
@@ -236,7 +233,7 @@ int extract_payload(const char *file, const char *destdir)
                 }
             }
             if (rr != ARCHIVE_EOF) {
-                fprintf(stderr, "read error: %s\n", archive_error_string(a));
+                xpt_print_err("read error: %s\n", archive_error_string(a));
 
                 archive_read_close(a);
                 archive_read_free(a);
@@ -249,7 +246,7 @@ int extract_payload(const char *file, const char *destdir)
     }
 
     if (hr != ARCHIVE_EOF) {
-        fprintf(stderr, "read error: %s\n", archive_error_string(a));
+        xpt_print_err("read error: %s\n", archive_error_string(a));
 
         archive_read_close(a);
         archive_read_free(a);

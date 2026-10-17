@@ -1,5 +1,6 @@
 #include <ctype.h>
 #include <errno.h>
+#include <internal/colorize.h>
 #include <internal/common.h>
 #include <internal/manifests.h>
 #include <internal/packages.h>
@@ -127,14 +128,14 @@ static int validate_triggers(char **list, size_t count)
     for (i = 0; i < count; i++) {
         name = list[i];
         if (name[0] == '\0' || name[0] == '/' || strstr(name, "..") != NULL) {
-            fprintf(stderr, "invalid trigger '%s'\n", name);
+            xpt_print_err("invalid trigger '%s'\n", name);
             return XPT_EX_DATAERR;
         }
 
         for (p = name; *p != '\0'; p++) {
             if (!isalnum((unsigned char)*p) && *p != '.' && *p != '_' &&
                 *p != '-' && *p != '/') {
-                fprintf(stderr, "invalid character in trigger '%s'\n", name);
+                xpt_print_err("invalid character in trigger '%s'\n", name);
                 return XPT_EX_DATAERR;
             }
         }
@@ -156,7 +157,7 @@ PackageInfo *parse_manifest(const char *file)
     unsigned long epoch;
 
     if (!is_file(file)) {
-        fprintf(stderr, "%s does not exist\n", file);
+        xpt_print_err("%s does not exist\n", file);
         return NULL;
     }
 
@@ -243,7 +244,7 @@ PackageInfo *parse_manifest(const char *file)
             epoch = strtoul(val, &end, 10);
 
             if (errno == ERANGE || *end != '\0') {
-                fprintf(stderr, "invalid build_epoch: %s\n", val);
+                xpt_print_err("invalid build_epoch: %s\n", val);
                 fclose(fp);
                 delete_package_info(pi);
                 return NULL;
@@ -264,7 +265,7 @@ PackageInfo *parse_manifest(const char *file)
                 return NULL;
             }
         } else {
-            fprintf(stderr, "unknown key: %s\n", key);
+            xpt_print_warn("unknown key: %s\n", key);
             continue;
         }
     }

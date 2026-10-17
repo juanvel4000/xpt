@@ -1,4 +1,5 @@
 #include "config.h"
+#include <internal/colorize.h>
 #include <stdio.h>
 #include <stdlib.h>
 #include <unistd.h>
@@ -11,7 +12,7 @@
 #if XPT_DISABLE_NETWORKING
 static int no_networking_error(void)
 {
-    fprintf(stderr, "libxpt has been built without networking support.\n");
+    xpt_print_err("libxpt has been built without networking support.\n");
     return XPT_EX_USAGE;
 }
 #endif
@@ -30,7 +31,7 @@ typedef enum {
 static int action_set(xpt_action_t *action, xpt_action_t new_action)
 {
     if (*action != ACTION_NONE) {
-        fprintf(stderr, "only one action can be given\n");
+        xpt_print_err("only one action can be given\n");
         return XPT_EX_USAGE;
     }
 
@@ -80,7 +81,7 @@ static int lock_init(const char *destdir)
 {
     int lockfd = xpt_lock_acquire(destdir);
     if (lockfd < 0) {
-        fprintf(stderr, "error: could not acquire the lock.\n");
+        xpt_print_err("error: could not acquire the lock.\n");
         return -1;
     }
 
@@ -170,8 +171,7 @@ int main(int argc, char **argv)
             return XPT_EX_NOPERM;
 
         if (filename && netpkg) {
-            fprintf(
-                stderr,
+            xpt_print_err(
                 "specify either a filename (-f) or package (-n), not both\n");
             lock_close(lockfd);
             return XPT_EX_USAGE;
@@ -187,7 +187,7 @@ int main(int argc, char **argv)
             res = xpt_package_install_from_repo(netpkg, destdir, loglevel);
 #endif
         } else {
-            fprintf(stderr, "specify a package with -f <file> or -n <pkg>\n");
+            xpt_print_err("specify a package with -f <file> or -n <pkg>\n");
             res = XPT_EX_USAGE;
         }
 
@@ -198,7 +198,7 @@ int main(int argc, char **argv)
             return XPT_EX_NOPERM;
 
         if (pkgname == NULL) {
-            fprintf(stderr, "specify a package with -p <pkg>\n");
+            xpt_print_err("specify a package with -p <pkg>\n");
             res = XPT_EX_USAGE;
         } else {
             res = xpt_package_remove(pkgname, destdir, loglevel);
@@ -207,13 +207,13 @@ int main(int argc, char **argv)
         return res;
     case ACTION_GETVER:
         if (pkgname == NULL) {
-            fprintf(stderr, "specify a package with -p <pkg>\n");
+            xpt_print_err("specify a package with -p <pkg>\n");
             return XPT_EX_USAGE;
         }
 
         version = xpt_package_getversion(pkgname, destdir);
         if (!version) {
-            fprintf(stderr, "package not found\n");
+            xpt_print_err("package not found\n");
             return XPT_EX_NOINPUT;
         }
 
@@ -224,7 +224,7 @@ int main(int argc, char **argv)
         return xpt_package_list(destdir);
     case ACTION_TREE:
         if (pkgname == NULL) {
-            fprintf(stderr, "specify a package with -p <pkg>\n");
+            xpt_print_err("specify a package with -p <pkg>\n");
             return XPT_EX_USAGE;
         }
 
@@ -241,15 +241,14 @@ int main(int argc, char **argv)
 #endif
     case ACTION_QUERY:
         if (pkgname && netpkg) {
-            fprintf(stderr,
-                    "specify a package with either -n or -p, not both\n");
+            xpt_print_err("specify a package with either -n or -p, not both\n");
             return XPT_EX_USAGE;
         }
 
         if (pkgname) {
             res = xpt_package_printinfo(pkgname, destdir);
             if (res == XPT_EX_NOINPUT) {
-                fprintf(stderr, "package not found\n");
+                xpt_print_err("package not found\n");
                 return XPT_EX_NOINPUT;
             }
         } else if (netpkg) {
@@ -259,15 +258,15 @@ int main(int argc, char **argv)
             return xpt_repos_getpkginfo(netpkg, destdir);
 #endif
         } else {
-            fprintf(stderr, "specify a package with -n or -p\n");
+            xpt_print_err("specify a package with -n or -p\n");
             return XPT_EX_USAGE;
         }
 
         return res;
 
     case ACTION_NONE:
-        fprintf(stderr, "no action specified\n");
-        fprintf(stderr, "view 'xpt -h' for a list of actions\n");
+        xpt_print_err("no action specified\n");
+        xpt_print_info("view 'xpt -h' for a list of actions\n");
         return XPT_EX_USAGE;
     }
 

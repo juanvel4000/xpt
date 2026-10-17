@@ -1,5 +1,6 @@
 #include "config.h"
 #include <ctype.h>
+#include <internal/colorize.h>
 #include <internal/common.h>
 #include <internal/repo.h>
 #include <libfetch/fetch.h>
@@ -108,7 +109,7 @@ RepoPackage *repo_index_lookup(const char *indexfile, const char *name)
             fields[i] = cursor;
             if (pipe == NULL) {
                 if (i < 5) {
-                    fprintf(stderr, "malformed index line: '%s'\n", line);
+                    xpt_print_err("malformed index line: '%s'\n", line);
                     fields[0] = NULL;
                 }
                 break;
@@ -156,7 +157,7 @@ RepoPackage *repo_index_lookup(const char *indexfile, const char *name)
     }
 
     fclose(fp);
-    fprintf(stderr, "package %s not found in %s\n", name, indexfile);
+    xpt_print_err("package %s not found in %s\n", name, indexfile);
     return NULL;
 }
 
@@ -169,7 +170,7 @@ int repo_download(const char *url, const char *dest)
 
     src = fetchXGetURL(url, NULL, "");
     if (!src) {
-        fprintf(stderr, "download failed: %d\n", fetchLastErrCode.code);
+        xpt_print_err("download failed: %d\n", fetchLastErrCode.code);
         return 6;
     }
 
@@ -195,7 +196,7 @@ int repo_fetch_index(const char *base_url, const char *cachefile)
     int ret = snprintf(url, sizeof(url), "%s/xpt.index", base_url);
 
     if (ret < 0 || (size_t)ret >= sizeof(url)) {
-        fprintf(stderr, "repo url too long: %s\n", base_url);
+        xpt_print_err("repo url too long: %s\n", base_url);
         return 1;
     }
 
@@ -245,7 +246,7 @@ int xpt_repos_sync(const char *destdir)
         snprintf(tmpfile, sizeof(tmpfile), "%s.tmp", cachefile);
 
         if (repo_fetch_index(line, tmpfile) != 0) {
-            fprintf(stderr, "warning: could not fetch index from %s\n", line);
+            xpt_print_warn("could not fetch index from %s\n", line);
             had_error = 1;
             continue;
         }
@@ -313,7 +314,7 @@ int xpt_repos_getpkginfo(const char *name, const char *destdir)
 
     rp = repo_index_lookup(cachefile, name);
     if (rp == NULL) {
-        fprintf(stderr, "package not found: %s\n", name);
+        xpt_print_err("package not found: %s\n", name);
         repo_package_free(rp);
         return XPT_EX_NOINPUT;
     }

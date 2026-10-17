@@ -1,3 +1,4 @@
+#include <internal/colorize.h>
 #include <internal/common.h>
 #include <internal/database.h>
 #include <internal/manifests.h>
@@ -112,12 +113,12 @@ int resolve_package(NodeContainer *container, const char *name,
             if (netinstall_deps) {
                 if (xpt_package_install_from_repo(pkg->depends[i], destdir,
                                                   log) != 0) {
-                    fprintf(stderr, "failed to install dependency: %s\n",
-                            pkg->depends[i]);
+                    xpt_print_err("failed to install dependency: %s\n",
+                                  pkg->depends[i]);
                     return 1;
                 }
             } else {
-                fprintf(stderr, "missing dependency: %s\n", pkg->depends[i]);
+                xpt_print_err("missing dependency: %s\n", pkg->depends[i]);
                 return 1;
             }
         }

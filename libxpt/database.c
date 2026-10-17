@@ -1,4 +1,5 @@
 #include "config.h"
+#include <internal/colorize.h>
 #include <internal/common.h>
 #include <internal/database.h>
 #include <internal/manifests.h>
@@ -81,7 +82,7 @@ static sqlite3 *open_db(const char *destdir)
         return NULL;
 
     if (sqlite3_open(db, &conn) != SQLITE_OK) {
-        fprintf(stderr, "could not open database: %s\n", sqlite3_errmsg(conn));
+        xpt_print_err("could not open database: %s\n", sqlite3_errmsg(conn));
         return NULL;
     }
 
@@ -90,7 +91,7 @@ static sqlite3 *open_db(const char *destdir)
     for (i = 0; i < sizeof(schema) / sizeof(schema[0]); i++) {
         errmsg = NULL;
         if (sqlite3_exec(conn, schema[i], NULL, NULL, &errmsg) != SQLITE_OK) {
-            fprintf(stderr, "could not create schema: %s\n", errmsg);
+            xpt_print_err("could not create schema: %s\n", errmsg);
             sqlite3_free(errmsg);
             sqlite3_close(conn);
             return NULL;
@@ -141,8 +142,8 @@ int database_add(PackageInfo *pi, const char *destdir)
           "arch, license, homepage, build_epoch) VALUES (?, ?, ?, "
           "?, ?, ?, ?, ?);";
     if (sqlite3_prepare_v2(conn, sql, -1, &stmt, NULL) != SQLITE_OK) {
-        fprintf(stderr, "could not add package to database: %s\n",
-                sqlite3_errmsg(conn));
+        xpt_print_err("could not add package to database: %s\n",
+                      sqlite3_errmsg(conn));
 
         trollback(conn);
         sqlite3_close(conn);
@@ -168,8 +169,8 @@ int database_add(PackageInfo *pi, const char *destdir)
     sqlite3_bind_int64(stmt, 8, pi->build_epoch);
 
     if (sqlite3_step(stmt) != SQLITE_DONE) {
-        fprintf(stderr, "could not add package to database: %s\n",
-                sqlite3_errmsg(conn));
+        xpt_print_err("could not add package to database: %s\n",
+                      sqlite3_errmsg(conn));
 
         trollback(conn);
         sqlite3_finalize(stmt);
@@ -227,7 +228,7 @@ int database_delete(const char *package, const char *destdir)
     tbegin(conn);
     sql = "DELETE FROM packages WHERE name = ?;";
     if (sqlite3_prepare_v2(conn, sql, -1, &stmt, NULL) != SQLITE_OK) {
-        fprintf(stderr, "could not delete package: %s\n", sqlite3_errmsg(conn));
+        xpt_print_err("could not delete package: %s\n", sqlite3_errmsg(conn));
         trollback(conn);
         sqlite3_close(conn);
         return 1;
@@ -236,7 +237,7 @@ int database_delete(const char *package, const char *destdir)
     sqlite3_bind_text(stmt, 1, package, -1, SQLITE_STATIC);
 
     if (sqlite3_step(stmt) != SQLITE_DONE) {
-        fprintf(stderr, "could not delete package: %s\n", sqlite3_errmsg(conn));
+        xpt_print_err("could not delete package: %s\n", sqlite3_errmsg(conn));
 
         trollback(conn);
         sqlite3_finalize(stmt);
@@ -283,7 +284,7 @@ int xpt_package_list(const char *destdir)
 
     sqlite3_finalize(stmt);
     sqlite3_close(conn);
-    printf("\n%d packages installed\n", pkgcount);
+    xpt_print_info("\n%d packages installed\n", pkgcount);
     return XPT_EX_OK;
 }
 
@@ -384,8 +385,8 @@ int database_files_add(const char *pkgname, const char *treefile,
         sqlite3_bind_text(stmt, 2, pkgname, -1, SQLITE_TRANSIENT);
 
         if (sqlite3_step(stmt) != SQLITE_DONE) {
-            fprintf(stderr, "failed to save %s (%s): %s\n", line, pkgname,
-                    sqlite3_errmsg(conn));
+            xpt_print_err("failed to save %s (%s): %s\n", line, pkgname,
+                          sqlite3_errmsg(conn));
             trollback(conn);
             sqlite3_finalize(stmt);
             fclose(fp);
@@ -535,8 +536,8 @@ int database_provides_add(const char *pkgname, char *const *capabilities,
         sqlite3_bind_text(stmt, 2, pkgname, -1, SQLITE_TRANSIENT);
 
         if (sqlite3_step(stmt) != SQLITE_DONE) {
-            fprintf(stderr, " failed to save capability %s (%s): %s\n",
-                    capability, pkgname, sqlite3_errmsg(conn));
+            xpt_print_err(" failed to save capability %s (%s): %s\n",
+                          capability, pkgname, sqlite3_errmsg(conn));
             trollback(conn);
             sqlite3_finalize(stmt);
             sqlite3_close(conn);

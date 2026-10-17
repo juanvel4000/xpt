@@ -1,4 +1,5 @@
 #include "config.h"
+#include <internal/colorize.h>
 #include <limits.h>
 #include <stdio.h>
 #include <stdlib.h>
@@ -18,14 +19,13 @@ int xpt_run_triggers(const char *destdir, char **names, size_t count, int log)
         name = names[i];
 
         if (log == XPT_LOG_OK)
-            printf("running trigger: %s\n", name);
+            xpt_print_info("running trigger: %s\n", name);
 
         snprintf(path, sizeof(path), "%s%s/xpt/triggers/%s", destdir,
                  XPT_DATADIR, name);
 
         if (access(path, X_OK) != 0) {
-            fprintf(stderr, "warning: trigger %s not found or not executable\n",
-                    name);
+            xpt_print_warn("trigger %s not found or not executable\n", name);
             continue;
         }
 
@@ -48,7 +48,7 @@ int xpt_run_triggers(const char *destdir, char **names, size_t count, int log)
         }
 
         if (!WIFEXITED(status) || WEXITSTATUS(status) != 0)
-            fprintf(stderr, "warning: trigger %s failed\n", name);
+            xpt_print_warn("trigger %s failed\n", name);
     }
 
     return XPT_EX_OK;
