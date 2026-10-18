@@ -8,6 +8,10 @@
 
 set -eu
 
+umask 022
+TZ=UTC
+export TZ
+
 if (set -o pipefail) 2>/dev/null; then
     set -o pipefail
 fi
@@ -84,7 +88,7 @@ createTreefile() {
         tmpd=$(mktemp)
         mv "$dir/xpt.manifest" "$tmpd"
     fi
-    tree=$(cd "$dir" && find . \( -type f -o -type l \) | sed 's|^\./||')
+    tree=$(cd "$dir" && find . \( -type f -o -type l \) | sed 's|^\./||' | LC_ALL=C sort)
     echo "$tree" >"$dir/xpt.tree"
     if [ -n "$tmpd" ] && [ -f "$tmpd" ]; then
         mv "$tmpd" "$dir/xpt.manifest"
@@ -102,32 +106,19 @@ extract_source() {
     archive)
         case "$archive" in
         *.tar.gz | *.tgz)
-            command -v tar >/dev/null 2>&1 || {
-                echo "! tar not found"
-                exit 1
-            }
-            tar -xzf "$archive" -C "$builddir"
+            decomp="gzip"
             ;;
         *.tar.xz)
-            command -v tar >/dev/null 2>&1 || {
-                echo "! tar not found"
-                exit 1
-            }
-            tar -xJf "$archive" -C "$builddir"
+            decomp="xz"
             ;;
         *.tar.bz2)
-            command -v tar >/dev/null 2>&1 || {
-                echo "! tar not found"
-                exit 1
-            }
-            tar -xjf "$archive" -C "$builddir"
+            decomp="bzip2"
             ;;
         *.tar.zst)
-            command -v tar >/dev/null 2>&1 || {
-                echo "! tar not found"
-                exit 1
-            }
-            tar --zstd -xf "$archive" -C "$builddir"
+            decomp="zstd"
+            ;;
+        *.tar)
+            tar -xf "$archive"
             ;;
         *.zip)
             command -v unzip >/dev/null 2>&1 || {
@@ -135,15 +126,29 @@ extract_source() {
                 exit 1
             }
             unzip "$archive" -d "$builddir"
+            return
             ;;
         *)
             echo "! unsupported archive format: $archive"
             exit 1
             ;;
         esac
+        command -v tar >/dev/null 2>&1 || {
+            echo "! tar not found"
+            exit 1
+        }
+        command -v "${decomp}" >/dev/null 2>&1 || {
+            echo "! ${decomp} not found"
+            exit 1
+        }
+        (cd "$builddir" && "$decomp" -dc "$archive" | tar -xf -) || {
+            echo "! failed to extract $archive" >&2
+            exit 1
+        }
         ;;
     *)
         cp "$archive" "$builddir/$(basename $archive)"
+        return
         ;;
     esac
 }
