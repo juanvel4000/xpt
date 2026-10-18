@@ -5,12 +5,13 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
-## [Unreleased]
+## [0.13.1] - 2026-10-18
 
 ### Changed
 
 - update the hello formula to 0.1.5
 - use `--strict` when verifying checksums in ebs
+- expand checksum algorithm support list in ebs
 
 ### Fixed
 
