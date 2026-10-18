@@ -260,8 +260,8 @@ build_formula() {
             algo="${pkgchecksum%%:*}"
             sum="${pkgchecksum#*:}"
             case "$algo" in
-            sha256) cmd=sha256sum ;;
-            sha512) cmd=sha512sum ;;
+            sha256) cmd=sha256sum --strict ;;
+            sha512) cmd=sha512sum --strict ;;
             *)
                 echo "! unknown checksum algorithm: $algo"
                 exit 1
