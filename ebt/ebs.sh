@@ -260,15 +260,19 @@ build_formula() {
             algo="${pkgchecksum%%:*}"
             sum="${pkgchecksum#*:}"
             case "$algo" in
-            sha256) cmd=sha256sum --strict ;;
-            sha512) cmd=sha512sum --strict ;;
+            sha256) cmd=sha256sum ;;
+            sha512) cmd=sha512sum ;;
+            md5) cmd=md5sum ;;
+            sha1) cmd=sha1sum ;;
+            sha224) cmd=sha224sum ;;
+            sha384) cmd=sha384sum ;;
             *)
                 echo "! unknown checksum algorithm: $algo"
                 exit 1
                 ;;
             esac
 
-            printf '%s  %s\n' "$sum" "$srcfile" | "$cmd" -c - || {
+            printf '%s  %s\n' "$sum" "$srcfile" | "$cmd" --strict -c - || {
                 echo "! checksum mismatch"
                 exit 1
             }
