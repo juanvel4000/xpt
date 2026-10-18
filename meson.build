@@ -15,7 +15,7 @@ project(
 
 inc = include_directories('include')
 
-xpt_c_args = ['-D_XOPEN_SOURCE=700', '-D_DEFAULT_SOURCE']
+xpt_c_args = ['-D_DEFAULT_SOURCE']
 
 ebt_only = get_option('ebt_only')
 ebt = get_option('ebt')

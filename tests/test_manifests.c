@@ -22,13 +22,13 @@ static void test_manifest_parsing(void)
     return;
 }
 
-static void test_parse_nonexistent_manifest()
+static void test_parse_nonexistent_manifest(void)
 {
     PackageInfo *pi = parse_manifest("fixtures/does-not-exist.xpt.manifest");
     assert(pi == NULL);
 }
 
-static void test_parse_invalid_manifest()
+static void test_parse_invalid_manifest(void)
 {
     PackageInfo *pi = parse_manifest("fixtures/invalid.xpt.manifest");
     assert(pi == NULL);

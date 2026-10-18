@@ -228,7 +228,7 @@ static void prune_empty_dirs(const char *file_path, const char *root_dir)
 
     snprintf(path_buf, sizeof(path_buf), "%s", file_path);
 
-    dir = dirname(path_buf);
+    dir = (dirname)(path_buf);
 
     while (dir != NULL && strcmp(dir, ".") != 0 && strcmp(dir, "/") != 0) {
         if (strcmp(dir, root_dir) == 0)
@@ -237,7 +237,7 @@ static void prune_empty_dirs(const char *file_path, const char *root_dir)
         if (rmdir(dir) != 0) {
             break;
         }
-        dir = dirname(dir);
+        dir = (dirname)(dir);
     }
 }
 
@@ -346,7 +346,7 @@ int xpt_package_install_from_repo(const char *name, const char *destdir,
 
     snprintf(destdir_copy, sizeof(destdir_copy), "%s", destfile);
 
-    if (mkdir_p(dirname(destdir_copy)) != 0) {
+    if (mkdir_p((dirname)(destdir_copy)) != 0) {
         xpt_print_err("could not create cache directory for %s\n", destfile);
         repo_package_free(rp);
         return XPT_EX_CANTCREAT;
