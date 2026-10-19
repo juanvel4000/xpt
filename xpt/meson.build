@@ -16,8 +16,4 @@ executable(
     install: true,
 )
 
-install_emptydir(join_paths(get_option('localstatedir'), 'lib', 'xpt'))
 install_emptydir(join_paths(get_option('sysconfdir'), 'xpt.d'))
-install_emptydir(
-    join_paths(get_option('localstatedir'), 'cache', 'xpt.packages'),
-)
