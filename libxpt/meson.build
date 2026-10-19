@@ -10,8 +10,16 @@ libxpt_sources = files(
     'triggers.c',
 )
 
-sqlite3 = dependency('sqlite3', static: get_option('static'), include_type: 'system')
-libarchive = dependency('libarchive', static: get_option('static'), include_type: 'system')
+sqlite3 = dependency(
+    'sqlite3',
+    static: get_option('static'),
+    include_type: 'system',
+)
+libarchive = dependency(
+    'libarchive',
+    static: get_option('static'),
+    include_type: 'system',
+)
 
 libxpt_deps = [
     sqlite3,
@@ -20,7 +28,11 @@ libxpt_deps = [
 
 networking_opt = get_option('networking')
 if not networking_opt.disabled()
-    openssl = dependency('openssl', static: get_option('static'), include_type: 'system')
+    openssl = dependency(
+        'openssl',
+        static: get_option('static'),
+        include_type: 'system',
+    )
     libxpt_sources += files('repo.c')
     libxpt_deps += [openssl, libfetch_dep]
 endif

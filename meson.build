@@ -1,16 +1,16 @@
 project(
-  'xpt',
-  'c',
-  version: files('VERSION'),
-  default_options: [
-    'warning_level=3',
-    'c_std=c89',
-    'werror=true',
-    'c_args=-Wall -Wextra',
-  ],
-  license: 'BSD-3-Clause',
-  license_files: ['LICENSE', 'THIRD-PARTY-LICENSES'],
-  meson_version: '>=1.12',
+    'xpt',
+    'c',
+    version: files('VERSION'),
+    default_options: [
+        'warning_level=3',
+        'c_std=c89',
+        'werror=true',
+        'c_args=-Wall -Wextra',
+    ],
+    license: 'BSD-3-Clause',
+    license_files: ['LICENSE', 'THIRD-PARTY-LICENSES'],
+    meson_version: '>=1.12',
 )
 
 inc = include_directories('include')
@@ -26,87 +26,87 @@ doc = get_option('doc')
 tests = get_option('tests')
 
 if ebt_only.enabled() and ebt.disabled()
-  error('ebt_only requires ebt to not be disabled')
+    error('ebt_only requires ebt to not be disabled')
 endif
 
 if xpt.enabled() and libxpt.disabled()
-  error('xpt requires libxpt')
+    error('xpt requires libxpt')
 endif
 
 if ebt_only.disabled()
-  if networking.enabled()
-    subdir('libfetch')
-  endif
-  if libxpt.enabled()
-    subdir('libxpt')
-    subdir('include')
-  endif
-  if xpt.enabled()
-    subdir('xpt')
-  endif
+    if networking.enabled()
+        subdir('libfetch')
+    endif
+    if libxpt.enabled()
+        subdir('libxpt')
+        subdir('include')
+    endif
+    if xpt.enabled()
+        subdir('xpt')
+    endif
 endif
 if doc.enabled()
-  subdir('doc')
+    subdir('doc')
 endif
 if ebt.enabled()
-  subdir('ebt')
+    subdir('ebt')
 endif
 if tests.enabled()
-  subdir('tests')
+    subdir('tests')
 endif
 
 install_data(
-  'LICENSE',
-  'THIRD-PARTY-LICENSES',
-  install_dir: get_option('datadir') / 'licenses' / 'xpt',
+    'LICENSE',
+    'THIRD-PARTY-LICENSES',
+    install_dir: get_option('datadir') / 'licenses' / 'xpt',
 )
 
 install_data(
-  'README.md',
-  'CHANGELOG.md',
-  install_dir: get_option('datadir') / 'doc' / 'xpt',
+    'README.md',
+    'CHANGELOG.md',
+    install_dir: get_option('datadir') / 'doc' / 'xpt',
 )
 
 if get_option('shell_completions').enabled()
-  subdir('completions')
+    subdir('completions')
 endif
 
 if not get_option('doxygen').disabled()
-  doxygen = find_program(
-    'doxygen',
-    required: get_option('doxygen'),
-  )
-
-  if doxygen.found()
-    config = configuration_data()
-    config.set(
-      'SOURCE_ROOT',
-      meson.project_source_root(),
+    doxygen = find_program(
+        'doxygen',
+        required: get_option('doxygen'),
     )
 
-    config.set(
-      'BUILD_ROOT',
-      meson.project_build_root(),
-    )
+    if doxygen.found()
+        config = configuration_data()
+        config.set(
+            'SOURCE_ROOT',
+            meson.project_source_root(),
+        )
 
-    config.set(
-      'PROJECT_VERSION',
-      meson.project_version(),
-    )
+        config.set(
+            'BUILD_ROOT',
+            meson.project_build_root(),
+        )
 
-    doxyfile = configure_file(
-      input: 'Doxyfile.in',
-      output: 'Doxyfile',
-      configuration: config,
-    )
+        config.set(
+            'PROJECT_VERSION',
+            meson.project_version(),
+        )
 
-    custom_target(
-      'docs',
-      output: 'html',
-      command: [doxygen, doxyfile],
-      depends: [],
-      install: true,
-      install_dir: get_option('datadir') / 'doc' / 'xpt',
-    )
-  endif
+        doxyfile = configure_file(
+            input: 'Doxyfile.in',
+            output: 'Doxyfile',
+            configuration: config,
+        )
+
+        custom_target(
+            'docs',
+            output: 'html',
+            command: [doxygen, doxyfile],
+            depends: [],
+            install: true,
+            install_dir: get_option('datadir') / 'doc' / 'xpt',
+        )
+    endif
 endif
