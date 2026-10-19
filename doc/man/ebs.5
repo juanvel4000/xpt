@@ -1,4 +1,4 @@
-.Dd August 7, 2026
+.Dd October 18, 2026
 .Dt EBS 5
 .Os
 .Sh NAME
@@ -35,12 +35,25 @@ optionally, a formula can also define the following attributes
 comma-separated list of runtime package dependencies.
 .It Va pkgsrc
 a URL to a downloadable source.
-if the source is a tar archive, it is extracted using
-.Xr tar 1 .
-if the source is a zip archive, it is extracted using
+.Nm
+will extract the source if
+.Va pkgsrcformat
+is
+.Sq archive ,
+using
+.Xr gzip 1 ,
+.Xr xz 1 ,
+.Xr zstd 1 ,
+.Xr bzip2 1 ,
+or
 .Xr unzip 1 .
 .It Va pkgchecksum
-sha256 or sha512 checksum used to verify the downloaded source, required if
+the checksum of the source, in the form
+.Ar algo Ns : Ns Ar hex ,
+where
+.Ar algo
+is one of sha256, sha1, sha224, sha384, sha512, or md5.
+required if
 .Va pkgsrc
 is set.
 .It Va pkglicense
@@ -58,41 +71,70 @@ if another package already provides a listed capability,
 will prompt to replace it.
 .It Va pkgtriggers
 comma-separated list of post-install triggers.
+.It Va pkgsrcformat
+controls where the
+.Va pkgsrc
+will be extracted.
+if set to any value other than
+.Sq archive ,
+.Nm
+will not extract the source.
+.It Va pkgarch
+the architecture the built package will run on.
+defaults to the output of uname -m.
 .El
 .Pp
 a formula must also define the following functions:
 .Bl -tag -width Ds
 .It Fn build
 compiles or packages the source.
+.Pp
+.Fn build
+runs in the extracted source directory. if the archive
+contains a single top-level directory, that directory
+is used instead. with
+.Va pkgsrcformat
+set to anything other than
+.Sq archive ,
+the source is copied unextracted and
+.Fn build
+runs in the directory containing the copy.
 .It Fn package
 installs the package to the
 .Va pkgdir
 staging directory.
-it is highly recommended that the
+.Nm
+provides the executable for
 .Xr fakeroot 1
-utility is used when performing filesystem-related actions.
+as the first argument to the function.
+.El
+.Pp
+optionally, a formula can also define the following functions
+.Bl -tag -width Ds
 .It Fn install_to_toolchain
-optionally installs the built software into
-.Ev TOOLCHAIN_DIR .
+optionally installs the built package into a
+toolchain directory defined by the first argument.
 this function is called by
 .Nm ebs
 when
 .Cm buildt
 is used.
-.El
-.Pp
-optionally, a formula can also define the following functions
-.Bl -tag -width Ds
 .It Fn prepare
-executed before
-.Fn build ,
-.Fn prepare
-is intended to be used to modify the source files or configuring them.
+intended to modify or prepare the source files before building.
 .It Fn check
-intended to run the package test suites.
+intended to run several checks or the package's test suite.
 the attribute
 .Va pkgcheck
-can be used to enable or disable these.
+can be used to disable these.
+.Pp
+if the environment variable
+.Ev EBS_SKIP_CHECK
+is set to any value other than
+.Sq false ,
+.Nm
+will skip the
+.Fn check
+execution.
 .El
 .Sh SEE ALSO
 .Xr mkfhs 1 ,
