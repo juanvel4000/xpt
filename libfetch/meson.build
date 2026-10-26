@@ -5,7 +5,7 @@ openssl = dependency('openssl', static: get_option('static'))
 libfetch = static_library(
     'fetch',
     libfetch_sources,
-    c_args: ['-D_DEFAULT_SOURCE'],
+    c_args: ['-D_DEFAULT_SOURCE', '-D_XOPEN_SOURCE=700'],
     include_directories: inc,
     dependencies: [openssl],
     install: false,

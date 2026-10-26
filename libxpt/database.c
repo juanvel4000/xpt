@@ -381,6 +381,9 @@ int database_files_add(const char *pkgname, const char *treefile,
         if (line[0] == '\0')
             continue;
 
+        if (strcmp(line, "xpt.manifest") == 0 || strcmp(line, "xpt.tree") == 0)
+            continue;
+
         sqlite3_bind_text(stmt, 1, line, -1, SQLITE_TRANSIENT);
         sqlite3_bind_text(stmt, 2, pkgname, -1, SQLITE_TRANSIENT);
 
