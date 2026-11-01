@@ -187,6 +187,10 @@ build_formula() {
         exit 1
     fi
 
+    formuladir="$(cd "$(dirname "$formula_path")" && pwd)"
+    filesdir="$formuladir/files"
+    export formuladir filesdir
+
     . "$formula_path"
     [ -n "${ebsver:-}" ] || {
         echo "! ebsver not set in $formula_script"
