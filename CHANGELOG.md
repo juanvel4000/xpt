@@ -7,6 +7,12 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+### Added
+
+- add support for a `files/` directory in ebs
+- add opt-out libtool cleanup in ebs
+- add `rswc` support in `ebs.sh`
+
 ### Fixed
 
 - prevent `xpt.manifest` and `xpt.tree` from being inserted in the database

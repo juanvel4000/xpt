@@ -48,8 +48,13 @@ download() {
             echo "! curl failed" >&2
             return 1
         }
+    elif command -v rswc >/dev/null 2>&1; then
+        rswc -T 60 -o "$2" "$1" || {
+            echo "! rswc failed" >&2
+            return 1
+        }
     else
-        echo "! no URL transfer program found (tried aria2c, wget, curl)" >&2
+        echo "! no URL transfer program found (tried aria2c, wget, curl, rswc)" >&2
         return 1
     fi
 }
@@ -322,6 +327,10 @@ build_formula() {
         echo "! error packaging the package"
         exit 1
     }
+
+    if [ "${EBS_NO_CLEAN_LIBTOOL:-0}" -ne 1 ]; then
+        find "$pkgdir" -name '*.la' -exec rm -f {} +
+    fi
 
     createTreefile "$pkgdir"
 
