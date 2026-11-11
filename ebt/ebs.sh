@@ -22,8 +22,8 @@ else
     FAKEROOT=
 fi
 
-command -v tar >/dev/null 2>&1 || {
-    echo "! tar not found" >&2
+command -v bsdtar >/dev/null 2>&1 || {
+    echo "! bsdtar not found" >&2
     exit 1
 }
 
@@ -281,7 +281,7 @@ build_formula() {
                 ;;
             esac
 
-            printf '%s  %s\n' "$sum" "$srcfile" | "$cmd" --strict -c - || {
+            printf '%s  %s\n' "$sum" "$srcfile" | "$cmd" -c - || {
                 echo "! checksum mismatch"
                 exit 1
             }
@@ -381,7 +381,9 @@ EOF
         echo "* installed to toolchain at $TOOLCHAIN_DIR"
     fi
 
-    if ! tar -cf - -C "$pkgdir" . | zstd -T0 -o "$output_path"; then
+    chmod 755 "$pkgdir"
+
+    if ! bsdtar --uid 0 --gid 0 --numeric-owner -cf - -C "$pkgdir" . | zstd -T0 -f -o "$output_path"; then
         echo "! failed to create archive"
         exit 1
     fi
