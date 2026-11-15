@@ -22,6 +22,10 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 - prevent `xpt.manifest` and `xpt.tree` from being inserted in the database
 
+### Removed
+
+- do not print a warning when a trigger is not found
+
 ## [0.13.2] - 2026-10-18
 
 ### Added

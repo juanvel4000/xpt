@@ -18,16 +18,14 @@ int xpt_run_triggers(const char *destdir, char **names, size_t count, int log)
     for (i = 0; i < count; i++) {
         name = names[i];
 
-        if (log == XPT_LOG_OK)
-            xpt_print_info("running trigger: %s\n", name);
-
         snprintf(path, sizeof(path), "%s%s/xpt/triggers/%s", destdir,
                  XPT_DATADIR, name);
 
-        if (access(path, X_OK) != 0) {
-            xpt_print_warn("trigger %s not found or not executable\n", name);
+        if (access(path, X_OK) != 0)
             continue;
-        }
+
+        if (log == XPT_LOG_OK)
+            xpt_print_info("running trigger: %s\n", name);
 
         fflush(stdout);
         proc = fork();
