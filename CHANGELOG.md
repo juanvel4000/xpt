@@ -12,11 +12,15 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - add support for a `files/` directory in `ebs.sh`
 - add opt-out libtool cleanup in `ebs.sh`
 - add `rswc` support in `ebs.sh`
+- mount `efivarfs` if available in `ecw.sh`
+
+### Changed
+
+- use `bsdtar` and set `uid` and `gid` to 0 when creating archives in `ebs.sh`
 
 ### Fixed
 
 - prevent `xpt.manifest` and `xpt.tree` from being inserted in the database
-- use `bsdtar` and set `uid` and `gid` to 0 when creating archives in `ebs.sh`
 
 ## [0.13.2] - 2026-10-18
 

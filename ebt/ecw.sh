@@ -43,6 +43,11 @@ do_chroot() {
     }
     mount_bind "/dev" "$1/dev"
     mount_bind "/sys" "$1/sys"
+
+    if [ -d "/sys/firmware/efi/efivars" ]; then
+        mount -t efivarfs efivarfs "$1/sys/firmware/efi/efivars"
+    fi
+
     mount_bind "/tmp" "$1/tmp"
     mount_bind "/run" "$1/run"
     mount -t proc proc "$1/proc"
