@@ -15,7 +15,6 @@
 is a package-management utility designed to install, remove and administer
 .Pa .xpt
 packages.
-it is designed as both a high-level and a medium-level interface for package management.
 .Sh COMMANDS
 .Bl -tag -width Ds
 .It Fl V
@@ -56,42 +55,38 @@ specify a package from one of the repositories.
 .It Fl q
 make the output of most operations quiet (doesn't hide errors).
 .El
-.Sh SEE ALSO
-.Xr mkfhs 1 ,
-.Xr ebs 5 ,
-.Xr ecw 8 ,
-.Xr rig 1 ,
-.Xr libxpt 3 ,
-.Xr xpt.manifest 5 ,
-.Xr xpt.tree 5 ,
-.Xr xpt.index 5 ,
-.Xr ebs 1
 .Sh EXAMPLES
 .Ss display package information
-.Pp
 display information about an installed package:
 .Bd -literal -offset indent
 xpt -Qp hello
 .Ed
 .Ss install a package
-.Pp
 install a package archive:
 .Bd -literal -offset indent
 xpt -if ./hello-0.1.3.xpt
 .Ed
 .Ss uninstall a package
-.Pp
 uninstall a package from the system:
 .Bd -literal -offset indent
 xpt -rp hello
 .Ed
 .Ss get a package version
-.Pp
 get the version of an installed package
 .Bd -literal -offset indent
 xpt -gp hello
 .Ed
+.Sh SEE ALSO
+.Xr ebs 1 ,
+.Xr mkfhs 1 ,
+.Xr rig 1 ,
+.Xr libxpt 3 ,
+.Xr ebs 5 ,
+.Xr xpt.index 5 ,
+.Xr xpt.manifest 5 ,
+.Xr xpt.tree 5 ,
+.Xr ecw 8
 .Sh LICENSE
 BSD-3-Clause, see the source code for details.
 .Sh AUTHORS
-.An juanvel400
+.An juanvel400 Aq me@juanvel400.com

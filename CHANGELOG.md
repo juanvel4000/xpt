@@ -14,6 +14,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - add `rswc` support in `ebs.sh`
 - mount `efivarfs` if available in `ecw.sh`
 - add an `-f` flag to `rig.sh`
+- improve `SEE ALSO` ordering in all manual pages
 
 ### Changed
 

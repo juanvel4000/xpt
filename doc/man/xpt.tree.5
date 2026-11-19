@@ -11,9 +11,11 @@ is a plain text file listing the files installed by an
 package, one path per line.
 .Pp
 .Nm
-is read by
 .Xr xpt 8
-and its paths recorded into the package database, associating each file with the owning package.
+reads
+.Nm
+and records its paths in the package database,
+mapping each file to its owning package.
 blank files are ignored
 .Pp
 example:
@@ -31,16 +33,16 @@ as part of building an
 package alongside
 .Xr xpt.manifest 5
 .Sh SEE ALSO
+.Xr ebs 1 ,
 .Xr mkfhs 1 ,
-.Xr ebs 5 ,
-.Xr ecw 8 ,
 .Xr rig 1 ,
 .Xr libxpt 3 ,
-.Xr ebs 1 ,
-.Xr xpt.manifest 5 ,
+.Xr ebs 5 ,
 .Xr xpt.index 5 ,
+.Xr xpt.manifest 5 ,
+.Xr ecw 8 ,
 .Xr xpt 8
 .Sh LICENSE
 BSD-3-Clause, see the source code for details.
 .Sh AUTHORS
-.An juanvel400
+.An juanvel400 Aq me@juanvel400.com

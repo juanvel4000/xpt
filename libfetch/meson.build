@@ -8,6 +8,7 @@ libfetch = static_library(
     c_args: ['-D_DEFAULT_SOURCE', '-D_XOPEN_SOURCE=700'],
     include_directories: inc,
     dependencies: [openssl],
+    override_options: ['werror=false'],
     install: false,
 )
 
