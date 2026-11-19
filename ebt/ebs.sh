@@ -383,7 +383,7 @@ EOF
 
     chmod 755 "$pkgdir"
 
-    if ! bsdtar --uid 0 --gid 0 --numeric-owner -cf - -C "$pkgdir" . | zstd -T0 -f -o "$output_path"; then
+    if ! bsdtar --mtime '@1767225600' --uid 0 --gid 0 --numeric-owner -cf - -C "$pkgdir" . | zstd -T0 -f -o "$output_path"; then
         echo "! failed to create archive"
         exit 1
     fi

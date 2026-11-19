@@ -13,6 +13,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - add opt-out libtool cleanup in `ebs.sh`
 - add `rswc` support in `ebs.sh`
 - mount `efivarfs` if available in `ecw.sh`
+- add an `-f` flag to `rig.sh`
 
 ### Changed
 

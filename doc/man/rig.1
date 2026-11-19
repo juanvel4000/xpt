@@ -1,4 +1,4 @@
-.Dd August 9, 2026
+.Dd November 19, 2026
 .Dt RIG 1
 .Os
 .Sh NAME
@@ -6,7 +6,7 @@
 .Nd xpt.index file generator
 .Sh SYNOPSIS
 .Nm
-.Op Fl hqr
+.Op Fl hqrf
 .Op Fl d Ar directory
 .Op Fl u Ar url
 .Op Fl o Ar output
@@ -28,6 +28,10 @@ make the output of most operations quiet (doesn't hide errors)
 find
 .Xr xpt 8
 packages in subdirectories.
+.It Fl f
+if
+.Ar output
+exists, remove it.
 .It Fl d Ar directory
 specify the directory containing the
 .Xr xpt 8

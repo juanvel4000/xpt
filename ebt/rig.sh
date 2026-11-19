@@ -1,16 +1,17 @@
 #!/bin/sh
-# rig: repository index generator
-# generate xpt.index files from a directory
 
 set -eu
 
+# rig: repository index generator
+# generate xpt.index files from a directory
 # shellcheck disable=SC3040
+
 if (set -o pipefail) 2>/dev/null; then
     set -o pipefail
 fi
 
 print_usage() {
-    echo "usage: rig [-hqr] [-d directory] [-u url] [-o output]"
+    echo "usage: rig [-fhqr] [-d directory] [-u url] [-o output]"
 }
 
 url="https://example.com/xpt"
@@ -18,6 +19,7 @@ directory="."
 quiet="false"
 recursive="false"
 output="xpt.index"
+force="false"
 
 safe_print() {
     if [ "${quiet:-false}" = "false" ]; then
@@ -42,6 +44,9 @@ while getopts "hqru:d:o:" opt; do
     d)
         directory="${OPTARG}"
         ;;
+    f)
+        force=true
+        ;;
     h)
         echo "rig"
         print_usage
@@ -55,6 +60,7 @@ while getopts "hqru:d:o:" opt; do
         echo "  -r              enable recursive mode"
         echo "  -q              enable quiet mode"
         echo "  -h              show this message"
+        echo "  -f              force"
         echo ""
         echo "if -o is set as -, the final index will be printed to stdout."
         echo "part of ebt build tools"
@@ -72,8 +78,12 @@ if [ "${output}" = "-" ]; then
     output="/dev/stdout"
 else
     if [ -f "${output}" ]; then
-        echo "! ${output} already exists"
-        exit 1
+        if [ "${force:-}" = "true" ]; then
+            rm -f "${output}"
+        else
+            echo "! ${output} already exists"
+            exit 1
+        fi
     fi
     safe_print "saving to ${output}"
 fi
