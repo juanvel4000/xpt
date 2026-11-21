@@ -55,17 +55,21 @@ static void print_help(void)
            "both a high-level and a medium-level interface for package\n"
            "management.\n\n");
     printf("commands:\n");
-    printf("  %-10s %s\n", "-i", "install a package");
-    printf("  %-10s %s\n", "-r", "remove a package");
-    printf("  %-10s %s\n", "-g", "get a package's version");
-    printf("  %-10s %s\n", "-l", "list installed packages");
-    printf("  %-10s %s\n", "-t", "list files from a package");
-    printf("  %-10s %s\n", "-Q", "query a package");
+    printf(" package-management:\n");
+    printf("   %-10s %s\n", "-i", "install a package");
+    printf("   %-10s %s\n", "-r", "remove a package");
+    printf("   %-10s %s\n", "-g", "get a package's version");
+    printf("   %-10s %s\n", "-l", "list installed packages");
+    printf("   %-10s %s\n", "-t", "list files from a package");
+    printf("   %-10s %s\n", "-Q", "query a package");
 #if !XPT_DISABLE_NETWORKING
-    printf("  %-10s %s\n", "-s", "synchronize network repositories");
+    printf("   %-10s %s\n", "-s", "synchronize network repositories");
 #endif
-    printf("\n  %-10s %s\n", "-h", "show this message");
-    printf("  %-10s %s\n", "-V", "show the xpt version");
+
+    printf("\n information:");
+    printf("\n   %-10s %s\n", "-h", "show this message");
+    printf("   %-10s %s\n", "-B", "show build information");
+    printf("   %-10s %s\n", "-V", "show the xpt version");
     printf("\noptions:\n");
     printf("  %-10s %s\n", "-f <file>", "operate on a file");
     printf("  %-10s %s\n", "-p <pkg>", "operate on an installed package");
@@ -74,7 +78,7 @@ static void print_help(void)
 #endif
     printf("  %-10s %s\n\n", "-q", "hide all output except errors");
     printf("view xpt(8) for more information about the available "
-           "commands and options\n");
+           "commands and options.\n");
 }
 
 static int lock_init(const char *destdir)
