@@ -33,28 +33,23 @@ command -v zstd >/dev/null 2>&1 || {
 }
 
 download() {
-    if command -v aria2c >/dev/null 2>&1; then
-        aria2c --dir="$(dirname "$2")" --out="$(basename "$1")" "$1" || {
-            echo "! aria2c failed" >&2
-            return 1
-        }
-    elif command -v wget >/dev/null 2>&1; then
-        wget -O "$2" "$1" || {
-            echo "! wget failed" >&2
-            return 1
-        }
-    elif command -v curl >/dev/null 2>&1; then
-        curl -fL -o "$2" "$1" --progress-bar || {
-            echo "! curl failed" >&2
-            return 1
-        }
-    elif command -v rswc >/dev/null 2>&1; then
+    if command -v rswc >/dev/null 2>&1; then
         rswc -T 60 -o "$2" "$1" || {
             echo "! rswc failed" >&2
             return 1
         }
+    elif command -v curl >/dev/null 2>&1; then
+        curl -fsSL -o "$2" "$1" --progress-bar || {
+            echo "! curl failed" >&2
+            return 1
+        }
+    elif command -v wget >/dev/null 2>&1; then
+        wget -qO "$2" "$1" || {
+            echo "! wget failed" >&2
+            return 1
+        }
     else
-        echo "! no URL transfer program found (tried aria2c, wget, curl, rswc)" >&2
+        echo "! no URL transfer program found (tried rswc, curl, wget)" >&2
         return 1
     fi
 }

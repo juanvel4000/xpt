@@ -1,4 +1,5 @@
 #!/bin/sh
+
 # ecw chroot wrapper
 # a script to chroot safely to a directory
 
@@ -51,7 +52,7 @@ do_chroot() {
     mount_bind "/tmp" "$1/tmp"
     mount_bind "/run" "$1/run"
     mount -t proc proc "$1/proc"
-    trap 'safe_umount $1' HUP INT TERM
+    trap 'safe_umount $1' HUP INT TERM EXIT
     chroot "$1" "$ecw_shell" || {
         echo "! chroot exited"
         safe_umount "$1"

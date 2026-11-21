@@ -14,7 +14,6 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - add `rswc` support in `ebs.sh`
 - mount `efivarfs` if available in `ecw.sh`
 - add an `-f` flag to `rig.sh`
-- improve `SEE ALSO` ordering in all manual pages
 
 ### Changed
 
@@ -23,10 +22,12 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ### Fixed
 
 - prevent `xpt.manifest` and `xpt.tree` from being inserted in the database
+- improve `SEE ALSO` ordering in all manual pages
 
 ### Removed
 
 - do not print a warning when a trigger is not found
+- remove `aria2c` support from `ebs(1)`
 
 ## [0.13.2] - 2026-10-18
 
