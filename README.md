@@ -4,39 +4,38 @@
 
 a package-management suite for `.xpt` packages.
 
-xpt consists of the `libxpt(3)` package-management library, the `xpt(8)` command-line frontend, and the `ebt` build suite.
-
 ## features
 
 - install/remove/list packages, dependency resolution, repo sync
-- lightweight libfetch implementation derived from NetBSD
+- lightweight `libfetch` implementation derived from NetBSD
 - sqlite3-backed local database storage
 - simple zstd-based package format
+- simple `key=value` package manifests
 - POSIX `sh`-based post-install triggers
 - virtual packages
 
 ## quick start
 
 ```sh
-meson setup build --prefix=/usr --sysconfdir=/etc --localstatedir=/var --buildtype=release # setup the project
-meson compile -C build # compile xpt, libxpt
-meson test -C build # run the test suite
-meson install -C build # install xpt, libxpt, ebt, and documentation
+meson setup build --prefix=/usr --sysconfdir=/etc --localstatedir=/var --buildtype=release
+meson compile -C build
+meson test -C build
+meson install -C build --strip
 ```
 
 ## dependencies
 
 build-time dependencies include
 
-- Meson
-- Ninja
+- meson
+- a meson backend (e.g. ninja)
 - libc
 - a C compiler
 - pkg-config
-- SQLite3
+- sqlite3
 - libarchive (with zstd and tar support)
 - zstd
-- OpenSSL (if networking is enabled)
+- openssl (if networking is enabled)
 
 > libfetch is built as part of the project when networking support is enabled.
 >
@@ -62,7 +61,9 @@ xpt exposes several meson build-time options
 > set with, e.g.:
 >
 > ```sh
-> meson setup build -Dstatic=true -Dnetworking=disabled
+> meson setup build -Dstatic=true -Dnetworking=disabled \
+>     -Debt=enabled -Ddoc=enabled -Debt_only=disabled \
+>     -Dtests=enabled -Ddoxygen=disabled -Dshell_completions=enabled
 > ```
 
 ### testing
@@ -199,8 +200,7 @@ meson install -C build
 - [VERSION](VERSION): [SemVer](https://semver.org/spec/v2.0.0.html)
 - `xpt(8)`: [POSIX.1-2008 Utility Conventions](https://pubs.opengroup.org/onlinepubs/9699919799/basedefs/V1_chap12.html)
 - `libxpt(3)`, `xpt(8)`: [NO_COLOR](https://no-color.org)
-- `mkfhs(1)`: [FHS 3.0](https://refspecs.linuxfoundation.org/FHS_3.0/fhs/index.html)
-- `mkfhs(1)`: [usr-merge](https://wiki.debian.org/UsrMerge)
+- `mkfhs(1)`: [FHS 3.0](https://refspecs.linuxfoundation.org/FHS_3.0/fhs/index.html) and [usr-merge](https://wiki.debian.org/UsrMerge)
 
 ## known limitations
 
@@ -212,8 +212,8 @@ meson install -C build
 
 xpt is in active development. while functional, it is **not yet production-ready** for real-world usage. known limitations are documented above.
 
-- [CHANGELOG.md](CHANGELOG.md) -- release history
-- [CONTRIBUTING.md](CONTRIBUTING.md) -- how to report bugs and send patches
+- [CHANGELOG.md](CHANGELOG.md) — release history
+- [CONTRIBUTING.md](CONTRIBUTING.md) — how to report bugs and send patches
 
 ## license
 
