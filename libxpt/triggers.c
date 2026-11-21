@@ -1,4 +1,5 @@
 #include "config.h"
+#include <fcntl.h>
 #include <internal/colorize.h>
 #include <limits.h>
 #include <stdio.h>
@@ -14,6 +15,7 @@ int xpt_run_triggers(const char *destdir, char **names, size_t count, int log)
     size_t i;
     pid_t proc;
     int status;
+    int fd;
 
     for (i = 0; i < count; i++) {
         name = names[i];
@@ -35,6 +37,16 @@ int xpt_run_triggers(const char *destdir, char **names, size_t count, int log)
         }
 
         if (proc == 0) {
+            fd = open("/dev/null", O_WRONLY);
+            if (fd == -1)
+                _exit(127);
+
+            dup2(fd, STDOUT_FILENO);
+            dup2(fd, STDERR_FILENO);
+
+            if (fd > STDERR_FILENO)
+                close(fd);
+
             setenv("XPT_ROOT", destdir, 1);
             execl(path, path, (char *)NULL);
             _exit(127);
