@@ -352,11 +352,15 @@ int xpt_package_install_from_repo(const char *name, const char *destdir,
         return XPT_EX_CANTCREAT;
     }
 
+    if (log == XPT_LOG_OK)
+        xpt_print_info("downloading package: %s@%s\n", rp->name, rp->version);
+
     if (repo_download(rp->url, destfile) != 0) {
         xpt_print_err("could not download %s\n", rp->url);
         repo_package_free(rp);
         return XPT_EX_TEMPFAIL;
     }
+
     if (verify_sha256(destfile, rp->sha256) != 0) {
         xpt_print_err("checksum mismatch for %s\n", destfile);
         remove(destfile);
