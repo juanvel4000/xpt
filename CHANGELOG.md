@@ -26,6 +26,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - prevent `xpt.manifest` and `xpt.tree` from being inserted in the database
 - improve `SEE ALSO` ordering in all manual pages
 - redirect `stderr` and `stdout` of triggers to `/dev/null`
+- do not print an error in `repo_index_lookup`
 
 ### Removed
 

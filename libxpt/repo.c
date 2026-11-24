@@ -157,7 +157,6 @@ RepoPackage *repo_index_lookup(const char *indexfile, const char *name)
     }
 
     fclose(fp);
-    xpt_print_err("package %s not found in %s\n", name, indexfile);
     return NULL;
 }
 
