@@ -10,7 +10,8 @@ set -eu
 
 umask 022
 TZ=UTC
-export TZ
+LC_ALL=C
+export TZ LC_ALL
 
 if (set -o pipefail) 2>/dev/null; then
     set -o pipefail
@@ -118,27 +119,28 @@ extract_source() {
             decomp="zstd"
             ;;
         *.tar)
-            tar -xf "$archive"
+            tar -xf "$archive" -C "$builddir"
+            return
             ;;
         *.zip)
             command -v unzip >/dev/null 2>&1 || {
-                echo "! unzip not found"
+                echo "! unzip not found" >&2
                 exit 1
             }
             unzip "$archive" -d "$builddir"
             return
             ;;
         *)
-            echo "! unsupported archive format: $archive"
+            echo "! unsupported archive format: $archive" >&2
             exit 1
             ;;
         esac
         command -v tar >/dev/null 2>&1 || {
-            echo "! tar not found"
+            echo "! tar not found" >&2
             exit 1
         }
         command -v "${decomp}" >/dev/null 2>&1 || {
-            echo "! ${decomp} not found"
+            echo "! ${decomp} not found" >&2
             exit 1
         }
         (cd "$builddir" && "$decomp" -dc "$archive" | tar -xf -) || {
@@ -183,7 +185,7 @@ build_formula() {
     esac
 
     if ! [ -f "${formula_path:-}" ]; then
-        echo "! formula $formula_path does not exist"
+        echo "! formula $formula_path does not exist" >&2
         exit 1
     fi
 
@@ -193,55 +195,53 @@ build_formula() {
 
     . "$formula_path"
     [ -n "${ebsver:-}" ] || {
-        echo "! ebsver not set in $formula_script"
+        echo "! ebsver not set in $formula_script" >&2
         exit 1
     }
 
     case "$ebsver" in
     1) ;;
     *)
-        echo "! incompatible ebs formula version"
+        echo "! incompatible ebs formula version" >&2
         exit 1
         ;;
     esac
 
-    echo "* validating formula"
+    echo "> validating formula"
 
     type build >/dev/null 2>&1 || {
-        echo "! function 'build()' not found"
+        echo "! function 'build()' not found" >&2
         exit 1
     }
 
     type package >/dev/null 2>&1 || {
-        echo "! function 'package()' not found"
+        echo "! function 'package()' not found" >&2
         exit 1
     }
 
     [ -n "${pkgname:-}" ] || {
-        echo "! attribute 'pkgname=' not set in $formula_script"
+        echo "! attribute 'pkgname=' not set in $formula_script" >&2
         exit 1
     }
 
     [ -n "${pkgver:-}" ] || {
-        echo "! attribute 'pkgver=' not set in $formula_script"
+        echo "! attribute 'pkgver=' not set in $formula_script" >&2
         exit 1
     }
 
     [ -n "${pkgmaintainer:-}" ] || {
-        echo "! attribute 'pkgmaintainer=' not set in $formula_script "
+        echo "! attribute 'pkgmaintainer=' not set in $formula_script " >&2
         exit 1
     }
 
     [ -n "${pkgdesc:-}" ] || {
-        echo "! attribute 'pkgdesc=' not set in $formula_script"
+        echo "! attribute 'pkgdesc=' not set in $formula_script" >&2
         exit 1
     }
 
-    echo "* formula is valid"
-
     pkgdir=$(mktemp -d)
     if ! [ -d "${pkgdir:-}" ]; then
-        echo "! $pkgdir does not exist"
+        echo "! $pkgdir does not exist" >&2
         exit 1
     fi
 
@@ -250,16 +250,16 @@ build_formula() {
     if [ -z "${EBS_RESUME:-}" ] || [ -n "${EBS_FORCE_DOWNLOAD:-}" ]; then
         if [ -n "${pkgsrc:-}" ]; then
             [ -n "${pkgchecksum:-}" ] || {
-                echo "! attribute 'pkgchecksum=' not set in $formula_script"
+                echo "! attribute 'pkgchecksum=' not set in $formula_script" >&2
                 exit 1
             }
-            echo "* downloading $pkgsrc"
+            echo "> downloading $pkgsrc"
 
             sourcedir="$(mktemp -d)"
             srcfile="$sourcedir/$(basename "${pkgsrc%%\?*}")"
             download "$pkgsrc" "$srcfile" || exit 1
 
-            echo "* verifying source"
+            echo "> verifying source"
 
             algo="${pkgchecksum%%:*}"
             sum="${pkgchecksum#*:}"
@@ -271,17 +271,17 @@ build_formula() {
             sha224) cmd=sha224sum ;;
             sha384) cmd=sha384sum ;;
             *)
-                echo "! unknown checksum algorithm: $algo"
+                echo "! unknown checksum algorithm: $algo" >&2
                 exit 1
                 ;;
             esac
 
             printf '%s  %s\n' "$sum" "$srcfile" | "$cmd" -c - || {
-                echo "! checksum mismatch"
+                echo "! checksum mismatch" >&2
                 exit 1
             }
 
-            echo "* extracting source"
+            echo "> extracting source"
             extract_source "$srcfile" "$buildroot"
         fi
     fi
@@ -294,32 +294,32 @@ build_formula() {
     fi
 
     if type prepare >/dev/null 2>&1; then
-        echo "* preparing the package | prepare()"
+        echo "> preparing the package 'prepare()'"
         prepare || {
-            echo "! failed preparing the package"
+            echo "! failed preparing the package" >&2
             exit 1
         }
     fi
 
-    echo "* building $pkgname@$pkgver | build()"
+    echo "> building $pkgname@$pkgver 'build()'"
     build || {
-        echo "! failed building the package"
+        echo "! failed building the package" >&2
         exit 1
     }
 
     if [ "${EBS_SKIP_CHECK:-false}" = "false" ]; then
         if type check >/dev/null 2>&1; then
-            echo "* running checks | check()"
+            echo "> running checks 'check()'"
             check || {
-                echo "! check() failed"
+                echo "! check() failed" >&2
                 exit 1
             }
         fi
     fi
 
-    echo "* packaging $pkgname | package()"
+    echo "> packaging $pkgname 'package()'"
     package "$FAKEROOT" || {
-        echo "! error packaging the package"
+        echo "! error packaging the package" >&2
         exit 1
     }
 
@@ -329,7 +329,7 @@ build_formula() {
 
     createTreefile "$pkgdir"
 
-    echo "* compressing the package"
+    echo "> compressing the package"
 
     case "$output_file" in
     ebs.auto) output_file="$pkgname-$pkgver.xpt" ;;
@@ -354,16 +354,11 @@ provides=${pkgprovides:-}
 triggers=${pkgtriggers:-}
 EOF
 
-    if [ "${pkglicense:-""}" != "" ]; then
-        echo "license=${pkglicense}" >>"$pkgdir/xpt.manifest"
-    fi
-
-    if [ "${pkghomepage:-""}" != "" ]; then
-        echo "homepage=${pkghomepage}" >>"$pkgdir/xpt.manifest"
-    fi
+    [ "${pkglicense:-""}" != "" ] && echo "license=${pkglicense}" >>"$pkgdir/xpt.manifest"
+    [ "${pkghomepage:-""}" != "" ] && echo "homepage=${pkghomepage}" >>"$pkgdir/xpt.manifest"
 
     if [ "${build_mode:-}" = 'install_to_toolchain' ]; then
-        echo "* attempting to install to toolchain"
+        echo "> attempting to install to toolchain"
         if [ -z "${TOOLCHAIN_DIR:-}" ]; then
             echo "! toolchain dir not found"
             exit 1
@@ -373,16 +368,17 @@ EOF
             exit 1
         }
         install_to_toolchain "$TOOLCHAIN_DIR" "$FAKEROOT"
-        echo "* installed to toolchain at $TOOLCHAIN_DIR"
+        echo "> installed to toolchain at $TOOLCHAIN_DIR"
     fi
 
     chmod 755 "$pkgdir"
 
-    if ! bsdtar --mtime '@1767225600' --uid 0 --gid 0 --numeric-owner -cf - -C "$pkgdir" . | zstd -T0 -f -o "$output_path"; then
-        echo "! failed to create archive"
+    if ! bsdtar --mtime "@$SOURCE_DATE_EPOCH" --uid 0 --gid 0 --numeric-owner -cf - -C "$pkgdir" . | zstd -T0 -f -o "$output_path"; then
+        echo "! failed to create archive" >&2
         exit 1
     fi
-    echo "* $output_path is ready."
+
+    echo "> $output_path is ready."
 }
 
 case "${1:-}" in
@@ -400,7 +396,7 @@ buildt | -t | t)
     ;;
 
 *)
-    echo "invalid option: '$1'"
+    echo "! invalid option: '$1'" >&2
     exit 1
     ;;
 esac
