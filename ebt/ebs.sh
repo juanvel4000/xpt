@@ -308,7 +308,7 @@ build_formula() {
     }
 
     if [ "${EBS_SKIP_CHECK:-false}" = "false" ]; then
-        if [ "${pkgcheck:-true}" = "true" ] && type check >/dev/null 2>&1; then
+        if type check >/dev/null 2>&1; then
             echo "* running checks | check()"
             check || {
                 echo "! check() failed"

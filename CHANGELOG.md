@@ -33,6 +33,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 - do not print a warning when a trigger is not found
 - remove `aria2c` support from `ebs(1)`
+- drop `pkgcheck=` from `ebs(1)`
 
 ## [0.13.2] - 2026-10-18
 
