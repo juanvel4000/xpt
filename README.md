@@ -182,7 +182,7 @@ ebt bundles a set of tools written in POSIX `sh` for building `.xpt` packages fr
 
 - `mkfhs(1)`: creates a `hier(7)` directory tree in the specified directory
 - `ecw(8)`: a wrapper around `chroot(8)` with better shell detection and proper bind mounting
-- `ebs(1)`: a build system for `ebs(5)` formulae, producing zstd-based `.xpt` packages
+- `ebs(1)`: a build system for `ebs(5)` formulae, producing `.xpt` packages
 - `rig(1)`: a `xpt.index(5)` repository index generator
 
 ### installation

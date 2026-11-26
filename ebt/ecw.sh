@@ -1,85 +1,93 @@
 #!/bin/sh
 
+set -eu
+
 # ecw chroot wrapper
 # a script to chroot safely to a directory
 
 mount_bind() {
     [ -d "$2" ] || mkdir -p "$2"
     mount --rbind "$1" "$2" || {
-        echo "cannnot mount $1 to $2"
+        echo "! cannot mount '$1' to '$2'" >&2
         exit 1
     }
-    mount --make-rslave "$2"
-}
 
-safe_umount() {
-    umount -R "$1/dev" || {
-        echo "! error umounting /dev"
-        exit 1
-    }
-    umount -R "$1/proc" || {
-        echo "! error umounting /proc"
-        exit 1
-    }
-    umount -R "$1/sys" || {
-        echo "! error umounting /sys"
-        exit 1
-    }
-    umount -R "$1/tmp" || {
-        echo "! error umounting /tmp"
-        exit 1
-    }
-    umount -R "$1/run" || {
-        echo "! error umounting /run"
+    mount --make-rslave "$2" || {
+        echo "! cannot make '$2' recursively slave" >&2
         exit 1
     }
 }
 
-do_chroot() {
-    [ -d "$1" ] || mkdir -p "$1"
-    ecw_shell="${2:-/bin/sh}"
-    [ -f "$1/$ecw_shell" ] || {
-        echo "! $1/$ecw_shell does not exist"
+unmount() {
+    umount -R "$1" || {
+        echo "! error unmounting '/$(basename "$1")'" >&2
         exit 1
     }
+}
+
+unmount_all() {
+    unmount "$1/run"
+    unmount "$1/tmp"
+    unmount "$1/sys"
+    unmount "$1/proc"
+    unmount "$1/dev"
+}
+
+mount_all() {
     mount_bind "/dev" "$1/dev"
     mount_bind "/sys" "$1/sys"
 
-    if [ -d "/sys/firmware/efi/efivars" ]; then
-        mount -t efivarfs efivarfs "$1/sys/firmware/efi/efivars"
-    fi
-
-    mount_bind "/tmp" "$1/tmp"
-    mount_bind "/run" "$1/run"
+    mount -t tmpfs tmpfs "$1/tmp"
+    mount -t tmpfs tmpfs "$1/run"
     mount -t proc proc "$1/proc"
-    trap 'safe_umount $1' HUP INT TERM EXIT
-    chroot "$1" "$ecw_shell" || {
-        echo "! chroot exited"
-        safe_umount "$1"
-        exit 1
+
+    [ -d "/sys/firmware/efi/efivars" ] && {
+        mkdir -p "$1/sys/firmware/efi/efivars"
+        mount -t efivarfs efivarfs "$1/sys/firmware/efi/efivars"
     }
 }
+do_chroot() {
+    [ -d "$1" ] || mkdir -p "$1"
+
+    ecw_shell="${2:-/bin/sh}"
+
+    [ -f "$1/$ecw_shell" ] || {
+        echo "! '$1/${ecw_shell#/}' does not exist" >&2
+        exit 1
+    }
+
+    chroot_dir="$1"
+    trap 'unmount_all "$chroot_dir"' EXIT
+    trap 'exit 1' HUP INT TERM
+
+    mount_all "$1"
+
+    chroot "$1" "$ecw_shell"
+}
+
 [ -n "$1" ] || {
     echo "usage: ecw [command] <chroot>"
     exit 1
 }
-case "$1" in
-help | -h | --help | h)
-    echo "ecw"
-    echo "usage: ecw [command] <chroot> [shell]"
-    echo ""
-    echo "safely chroot to a directory."
-    echo ""
-    echo "if no command is provided but a chroot is provided, it will open the chroot."
-    echo "part of ebt build tools"
-    echo "see ecw(8) for more information"
-    ;;
+
+case "${1:-}" in
 *)
-    [ -d "$1" ] || {
-        echo "$1 does not exist"
+    [ "$(id -u)" -ne 0 ] && {
+        echo "! run as root" >&2
         exit 1
     }
-    if ! [ -n "$2" ]; then
+
+    [ -n "${1:-}" ] || {
+        echo "usage: ecw chroot [shell]" >&2
+        exit 1
+    }
+
+    [ -d "$1" ] || {
+        echo "'$1' does not exist" >&2
+        exit 1
+    }
+
+    if [ -z "${2:-}" ]; then
         for shell in \
             /bin/sh /usr/bin/sh /bin/bash /usr/bin/bash \
             /bin/dash /usr/bin/dash /bin/zsh /usr/bin/zsh \
@@ -94,15 +102,16 @@ help | -h | --help | h)
                 break
             fi
         done
-        [ -n "$ecw_shell" ] || {
-            echo "! no shell found"
+
+        [ -n "${ecw_shell:-}" ] || {
+            echo "! no shell found in '$2'" >&2
             exit 1
         }
     else
         if [ -f "$1/$2" ]; then
             ecw_shell="$2"
         else
-            echo "! shell $2 not found in $1"
+            echo "! shell '$2' not found in '$1'" >&2
             exit 1
         fi
     fi
