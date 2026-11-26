@@ -1,32 +1,23 @@
 #!/bin/sh
-# mkfhs: create a layout compliant with
+
+set -eu
+
+# mkfhs: create a filesystem layout compliant with
 #
 # usr-merge: https://wiki.debian.org/UsrMerge
 # FHS: https://specifications.freedesktop.org/fhs/latest/
-set -e
 
-ROOTFS=${1:-$(pwd)}
-TARGETARCH=${2:-$(uname -m)}
-if [ "$ROOTFS" = 'help' ]; then
-    echo "mkfhs"
-    echo "usage: mkfhs [rootfs] [arch]"
-    echo ""
-    echo "create a FHS-compliant usr-merge directory tree in [rootfs]"
-    echo ""
-    echo "  rootfs      defaults to '.'"
-    echo "  arch        defaults to $(uname -m)"
-    echo ""
-    echo "if [arch] is 'x86_64', then a lib64 directory will be created."
-    echo ""
-    echo "part of ebt build tools"
-    echo "see mkfhs(1) for more information."
-    exit 0
-fi
+ROOTFS=${1:-}
 
-echo "* creating a $TARGETARCH structure on $ROOTFS"
+[ "$#" -gt 1 ] && {
+    echo "usage: mkfhs rootfs" >&2
+    exit 1
+}
+
+echo "> creating a filesystem layout on '$ROOTFS'"
 mkdir -p "$ROOTFS"
 
-# create core structure
+echo "> creating base directories"
 mkdir -p "$ROOTFS/boot" "$ROOTFS/dev" "$ROOTFS/etc" "$ROOTFS/etc/opt" \
     "$ROOTFS/etc/X11" "$ROOTFS/etc/xml" "$ROOTFS/etc/skel" \
     "$ROOTFS/home" "$ROOTFS/media" "$ROOTFS/mnt" "$ROOTFS/opt" \
@@ -57,14 +48,7 @@ mkdir -p "$ROOTFS/boot" "$ROOTFS/dev" "$ROOTFS/etc" "$ROOTFS/etc/opt" \
 
 [ -e "$ROOTFS/var/run" ] || [ -L "$ROOTFS/var/run" ] || ln -s ../run "$ROOTFS/var/run"
 
-case "$TARGETARCH" in
-x86_64)
-    echo "* creating lib64"
-    mkdir -p "$ROOTFS/usr/lib64" "$ROOTFS/usr/local/lib64"
-    [ -e "$ROOTFS/lib64" ] || [ -L "$ROOTFS/lib64" ] || ln -s usr/lib64 "$ROOTFS/lib64"
-    ;;
-esac
-echo "* symlinking sbin, bin and lib to usr"
+echo "> linking sbin, bin and lib to usr"
 (
     cd "$ROOTFS"
     [ -e bin ] || [ -L bin ] || ln -s usr/bin bin
@@ -72,8 +56,8 @@ echo "* symlinking sbin, bin and lib to usr"
     [ -e lib ] || [ -L lib ] || ln -s usr/lib lib
 )
 
-echo "* setting permissions"
+echo "> setting permissions"
 chmod 1777 "$ROOTFS/tmp" "$ROOTFS/var/tmp"
 chmod 0700 "$ROOTFS/root"
 
-echo "successfully created an FHS usr-merge tree in $ROOTFS for $TARGETARCH"
+echo "> successfully created a filesystem tree in $ROOTFS"
