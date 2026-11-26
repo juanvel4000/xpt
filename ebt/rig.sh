@@ -42,23 +42,20 @@ while getopts "hqru:d:o:" opt; do
         force=true
         ;;
     h)
-        echo "rig"
+        printf "%s\n" 'rig index generator'
         print_usage
-        echo ""
-        echo "generate xpt.index files from a directory"
-        echo ""
-        echo "options"
-        echo "  -d <directory>  set a directory to find the xpt packages (default .)"
-        echo "  -u <url>        specify an url to use as prefix"
-        echo "  -o <output>     specify an output file"
-        echo "  -r              enable recursive mode"
-        echo "  -q              enable quiet mode"
-        echo "  -h              show this message"
-        echo "  -f              force"
-        echo ""
-        echo "if -o is set as -, the final index will be printed to stdout."
-        echo "part of ebt build tools"
-        echo "see rig(1) for more information."
+        printf "%s\n\n" 'generate xpt.index files from a directory'
+        printf "%s\n" 'options:'
+        printf " %-10s %s\n" '-d <directory>' 'set a directory to find the xpt packages (default .)'
+        printf " %-10s %s\n" '-u <url>' 'specify an url to use as prefix'
+        printf " %-10s %s\n" '-o <output>' 'specify an output file'
+        printf " %-10s %s\n" '-r' 'enable recursive mode'
+        printf " %-10s %s\n" '-q' 'enable quiet mode'
+        printf " %-10s %s\n" '-h' 'show this message'
+        printf " %-10s %s\n\n" '-f' 'force'
+
+        printf " %s\n\n" 'if -o is set as -, the final index will be printed to stdout.'
+        printf "%s\n" "see rig(1) for more information."
         exit 0
         ;;
     *)

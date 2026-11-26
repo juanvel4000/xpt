@@ -42,7 +42,7 @@ static int action_set(xpt_action_t *action, xpt_action_t new_action)
 static void print_usage(void) { printf("usage: xpt action [options]\n"); }
 static void print_version(void)
 {
-    printf("xpt package tool %s (%s)\n", XPT_VERSION, XPT_ARCH);
+    printf("xpt %s (%s)\n", XPT_VERSION, XPT_ARCH);
 }
 
 static void print_help(void)
