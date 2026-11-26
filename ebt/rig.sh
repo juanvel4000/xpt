@@ -5,7 +5,7 @@ set -eu
 # rig (repository index generator): generate xpt.index files from a directory
 
 print_usage() {
-    echo "usage: rig [-fhqr] [-d directory] [-u url] [-o output]"
+    echo "usage: rig [-fhqr] [-d directory] [-u url] [-o output]" >&2
 }
 
 url="https://example.com/xpt"
@@ -15,7 +15,7 @@ recursive="false"
 output="xpt.index"
 force="false"
 
-safe_print() {
+qprint() {
     if [ "${quiet:-false}" = "false" ]; then
         printf "%s\n" "$*"
     fi
@@ -46,13 +46,13 @@ while getopts "hqru:d:o:" opt; do
         print_usage
         printf "%s\n\n" 'generate xpt.index files from a directory'
         printf "%s\n" 'options:'
-        printf " %-10s %s\n" '-d <directory>' 'set a directory to find the xpt packages (default .)'
-        printf " %-10s %s\n" '-u <url>' 'specify an url to use as prefix'
-        printf " %-10s %s\n" '-o <output>' 'specify an output file'
-        printf " %-10s %s\n" '-r' 'enable recursive mode'
-        printf " %-10s %s\n" '-q' 'enable quiet mode'
-        printf " %-10s %s\n" '-h' 'show this message'
-        printf " %-10s %s\n\n" '-f' 'force'
+        printf " %-15s %s\n" '-d <directory>' 'set a directory to find the xpt packages (default .)'
+        printf " %-15s %s\n" '-u <url>' 'specify an url to use as prefix'
+        printf " %-15s %s\n" '-o <output>' 'specify an output file'
+        printf " %-15s %s\n" '-r' 'enable recursive mode'
+        printf " %-15s %s\n" '-q' 'enable quiet mode'
+        printf " %-15s %s\n" '-h' 'show this message'
+        printf " %-15s %s\n\n" '-f' 'force'
 
         printf " %s\n\n" 'if -o is set as -, the final index will be printed to stdout.'
         printf "%s\n" "see rig(1) for more information."
@@ -72,11 +72,11 @@ else
         if [ "${force:-}" = "true" ]; then
             rm -f "${output}"
         else
-            echo "! ${output} already exists"
+            echo "! ${output} already exists" >&2
             exit 1
         fi
     fi
-    safe_print "saving to ${output}"
+    qprint "> saving to ${output}" >&2
 fi
 
 pkglist=$(find "${directory:-.}" -type f -name '*.xpt' | awk -v root="${directory:-.}" '
@@ -90,7 +90,7 @@ if [ "${recursive:-false}" = "true" ]; then
 fi
 
 if [ -z "${pkglist:-}" ]; then
-    echo "! no packages found"
+    echo "! no packages found" >&2
     exit 1
 fi
 
@@ -101,12 +101,12 @@ fi
 printf "%s\n" "${pkglist}" |
     while IFS= read -r pkg; do
         if ! [ -f "${pkg}" ]; then
-            safe_print "warning: ${pkg} not found"
+            qprint "* ${pkg} not found" >&2
             continue
         fi
 
         manifest=$(tar -xOf "${pkg}" ./xpt.manifest) || {
-            safe_print "warning: could not read manifest from ${pkg}"
+            qprint "* could not read manifest from ${pkg}" >&2
             continue
         }
 
@@ -115,7 +115,7 @@ printf "%s\n" "${pkglist}" |
         arch=$(printf '%s\n' "${manifest}" | awk -F= '/^arch[ \t]*=/ {gsub(/^[ \t]+|[ \t]+$/, "", $2); print $2}')
 
         if [ -z "${name}" ] || [ -z "${version}" ] || [ -z "${arch}" ]; then
-            safe_print "warning: incomplete manifest in ${pkg}"
+            qprint "* incomplete manifest in ${pkg}" >&2
             continue
         fi
 
@@ -123,7 +123,7 @@ printf "%s\n" "${pkglist}" |
         sha256sum="$(sha256sum "${pkg}" | awk '{ print $1}')"
         pkgurl="${url}/${pkg#"$directory"/}"
 
-        safe_print "found ${name}@${version} (${arch})"
+        qprint "> found ${name}@${version} (${arch})" >&2
         entry="${name}|${version}|${arch}|${depends}|${pkgurl}|${sha256sum}"
 
         echo "${entry}" >>"${output}"

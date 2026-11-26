@@ -22,8 +22,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - use `bsdtar` and set `uid` and `gid` to 0 when creating archives in `ebs.sh`
 - improve prose in `README.md`
 - polish the `xpt(8)` help message
-- clean up and improve `ecw(8)`'s architecture
-- clean up and improve `mkfhs(1)`'s architecture
+- clean up and improve `ecw(8)`, `mkfhs(1)`, and `rig(1)`
 
 ### Fixed
 
