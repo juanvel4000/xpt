@@ -1,4 +1,5 @@
 #include "config.h"
+#include <errno.h>
 #include <internal/colorize.h>
 #include <internal/common.h>
 #include <internal/database.h>
@@ -361,7 +362,8 @@ int database_files_add(const char *pkgname, const char *treefile,
 
     fp = fopen(treefile, "r");
     if (!fp) {
-        perror("fopen");
+        if (log == XPT_LOG_OK)
+            xpt_print_err("error opening database: %s\n", strerror(errno));
         sqlite3_close(conn);
         return 1;
     }

@@ -1,5 +1,6 @@
 #include <archive.h>
 #include <archive_entry.h>
+#include <errno.h>
 #include <internal/colorize.h>
 #include <internal/common.h>
 #include <internal/database.h>
@@ -44,7 +45,7 @@ int extract_member(const char *file, const char *member, char *tmppath)
 
         fd = mkstemp(tmppath);
         if (fd < 0) {
-            perror("mkstemp");
+            xpt_print_err("cannot extract file: %s\n", strerror(errno));
             break;
         }
 

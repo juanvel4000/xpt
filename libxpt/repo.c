@@ -1,5 +1,6 @@
 #include "config.h"
 #include <ctype.h>
+#include <errno.h>
 #include <internal/colorize.h>
 #include <internal/common.h>
 #include <internal/repo.h>
@@ -90,7 +91,7 @@ RepoPackage *repo_index_lookup(const char *indexfile, const char *name)
 
     fp = fopen(indexfile, "r");
     if (!fp) {
-        perror("fopen");
+        xpt_print_err("cannot look up index: %s\n", strerror(errno));
         return NULL;
     }
 
@@ -126,7 +127,7 @@ RepoPackage *repo_index_lookup(const char *indexfile, const char *name)
 
         rp = malloc(sizeof(RepoPackage));
         if (!rp) {
-            perror("malloc");
+            xpt_print_err("cannot look up index: %s\n", strerror(errno));
             fclose(fp);
             return NULL;
         }
@@ -140,7 +141,7 @@ RepoPackage *repo_index_lookup(const char *indexfile, const char *name)
         rp->sha256 = strdup(fields[5]);
 
         if (!rp->name || !rp->version || !rp->arch || !rp->url || !rp->sha256) {
-            perror("strdup");
+            xpt_print_err("cannot look up index: %s\n", strerror(errno));
             fclose(fp);
             repo_package_free(rp);
             return NULL;
@@ -175,7 +176,7 @@ int repo_download(const char *url, const char *dest)
 
     dst = fopen(dest, "wb");
     if (!dst) {
-        perror("fopen");
+        xpt_print_err("cannot look up index: %s\n", strerror(errno));
         fetchIO_close(src);
         return XPT_EX_IOERR;
     }
@@ -219,13 +220,13 @@ int xpt_repos_sync(const char *destdir)
 
     fp = fopen(indexfile, "r");
     if (!fp) {
-        perror("fopen");
+        xpt_print_err("cannot look up index: %s\n", strerror(errno));
         return 1;
     }
 
     out = fopen(cachefile, "w");
     if (!out) {
-        perror("fopen");
+        xpt_print_err("cannot look up index: %s\n", strerror(errno));
         fclose(fp);
         return 1;
     }
@@ -282,7 +283,7 @@ int verify_sha256(const char *file, const char *expected_hex)
 
     fp = fopen(file, "rb");
     if (!fp) {
-        perror("fopen");
+        xpt_print_err("cannot look up index: %s\n", strerror(errno));
         return 1;
     }
 

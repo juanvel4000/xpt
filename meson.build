@@ -8,7 +8,7 @@ project(
     ],
     license: 'BSD-3-Clause',
     license_files: ['LICENSE', 'THIRD-PARTY-LICENSES'],
-    meson_version: '>=1.12',
+    meson_version: '>=1.1',
 )
 
 inc = include_directories('include')

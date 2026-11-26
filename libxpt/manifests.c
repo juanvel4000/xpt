@@ -113,7 +113,7 @@ static int safe_strdup(char **dst, const char *src)
 {
     *dst = strdup(src);
     if (!*dst) {
-        perror("strdup");
+        xpt_print_err("cannot parse manifest: %s\n", strerror(errno));
         return 1;
     }
     return XPT_EX_OK;
@@ -163,14 +163,14 @@ PackageInfo *parse_manifest(const char *file)
 
     pi = malloc(sizeof(PackageInfo));
     if (!pi) {
-        perror("malloc");
+        xpt_print_err("cannot parse manifest: %s\n", strerror(errno));
         return NULL;
     }
     memset(pi, 0, sizeof(PackageInfo));
 
     fp = fopen(file, "r");
     if (!fp) {
-        perror("fopen");
+        xpt_print_err("cannot parse manifest: %s\n", strerror(errno));
         delete_package_info(pi);
         return NULL;
     }

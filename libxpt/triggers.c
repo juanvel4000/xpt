@@ -1,9 +1,11 @@
 #include "config.h"
+#include <errno.h>
 #include <fcntl.h>
 #include <internal/colorize.h>
 #include <limits.h>
 #include <stdio.h>
 #include <stdlib.h>
+#include <string.h>
 #include <sys/wait.h>
 #include <unistd.h>
 #include <xpt/status.h>
@@ -32,7 +34,7 @@ int xpt_run_triggers(const char *destdir, char **names, size_t count, int log)
         fflush(stdout);
         proc = fork();
         if (proc == -1) {
-            perror("fork");
+            xpt_print_err("cannot run trigger: %s\n", strerror(errno));
             continue;
         }
 
@@ -53,7 +55,7 @@ int xpt_run_triggers(const char *destdir, char **names, size_t count, int log)
         }
 
         if (waitpid(proc, &status, 0) == -1) {
-            perror("waitpid");
+            xpt_print_err("%s\n", strerror(errno));
             continue;
         }
 

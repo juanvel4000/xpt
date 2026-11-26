@@ -23,6 +23,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - improve prose in `README.md`
 - polish the `xpt(8)` help message
 - clean up and improve `ecw(8)`, `mkfhs(1)`, and `rig(1)`
+- replace `perror` calls with `strerror`
 
 ### Fixed
 
