@@ -2,7 +2,7 @@
 
 set -eu
 
-# mkfhs: create a filesystem layout compliant with
+# mkfhs (make filesystem hierarchy): create a filesystem layout compliant with
 #
 # usr-merge: https://wiki.debian.org/UsrMerge
 # FHS: https://specifications.freedesktop.org/fhs/latest/

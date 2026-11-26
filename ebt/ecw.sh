@@ -2,8 +2,7 @@
 
 set -eu
 
-# ecw chroot wrapper
-# a script to chroot safely to a directory
+# ecw (ecw chroot wrapper): a script to chroot safely to a directory
 
 mount_bind() {
     [ -d "$2" ] || mkdir -p "$2"

@@ -1,10 +1,6 @@
 #!/bin/sh
 
-#shellcheck disable=SC1090
-#shellcheck disable=SC3040
-
-# ebs build system
-# build xpt packages from ebs.formula
+# ebs (ebs build system): build xpt packages from ebs.formula
 
 set -eu
 
@@ -12,10 +8,6 @@ umask 022
 TZ=UTC
 LC_ALL=C
 export TZ LC_ALL
-
-if (set -o pipefail) 2>/dev/null; then
-    set -o pipefail
-fi
 
 if command -v fakeroot >/dev/null 2>&1; then
     FAKEROOT="fakeroot"
@@ -316,7 +308,7 @@ build_formula() {
     fi
 
     echo "> packaging $pkgname 'package()'"
-    package "$FAKEROOT" || {
+    "$FAKEROOT" package || {
         echo "! error packaging the package" >&2
         exit 1
     }

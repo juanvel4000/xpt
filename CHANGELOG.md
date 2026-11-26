@@ -15,6 +15,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - mount `efivarfs` if available in `ecw.sh`
 - add an `-f` flag to `rig.sh`
 - show a message when downloading in `xpt_package_install_from_repo`
+- add a `.shellcheckrc` file
 
 ### Changed
 

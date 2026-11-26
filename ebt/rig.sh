@@ -2,13 +2,7 @@
 
 set -eu
 
-# rig: repository index generator
-# generate xpt.index files from a directory
-# shellcheck disable=SC3040
-
-if (set -o pipefail) 2>/dev/null; then
-    set -o pipefail
-fi
+# rig (repository index generator): generate xpt.index files from a directory
 
 print_usage() {
     echo "usage: rig [-fhqr] [-d directory] [-u url] [-o output]"
