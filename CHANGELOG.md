@@ -28,12 +28,14 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - improve `SEE ALSO` ordering in all manual pages
 - redirect `stderr` and `stdout` of triggers to `/dev/null`
 - do not print an error in `repo_index_lookup`
+- improve build reproducibility in `ebs.sh`
 
 ### Removed
 
 - do not print a warning when a trigger is not found
 - remove `aria2c` support from `ebs(1)`
 - drop `pkgcheck=` from `ebs(1)`
+- drop the `install_to_toolchain` functionality from `ebs(1)` and `ebs(5)`
 
 ## [0.13.2] - 2026-10-18
 

@@ -111,30 +111,11 @@ as the first argument to the function.
 .Pp
 optionally, a formula can also define the following functions
 .Bl -tag -width Ds
-.It Fn install_to_toolchain
-optionally installs the built package into a
-toolchain directory defined by the first argument.
-this function is called by
-.Nm ebs
-when
-.Cm buildt
-is used.
 .It Fn prepare
 intended to modify or prepare the source files before building.
 .It Fn check
 intended to run several checks or the package's test suite.
 the attribute
-.Va pkgcheck
-can be used to disable these.
-.Pp
-if the environment variable
-.Ev EBS_SKIP_CHECK
-is set to any value other than
-.Sq false ,
-.Nm
-will skip the
-.Fn check
-execution.
 .El
 .Sh SEE ALSO
 .Xr ebs 1 ,

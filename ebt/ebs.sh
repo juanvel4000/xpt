@@ -69,7 +69,6 @@ print_ebs_help() {
     echo "commands:"
     echo "  help    show this message"
     echo "  build   build from an ebs formula"
-    echo "  buildt  build from an ebs formula and install to the toolchain specified in \$TOOLCHAIN_DIR"
     echo ""
     echo "part of ebt build tools"
     echo "see ebs(1) for more information about the available commands and ebs(5) for the formulae specification"
@@ -172,7 +171,6 @@ build_formula() {
 
     formula_script=${1:-ebs.formula}
     output_file=${2:-ebs.auto}
-    build_mode=${3:-}
 
     SOURCE_DATE_EPOCH=${SOURCE_DATE_EPOCH:-0}
     export SOURCE_DATE_EPOCH
@@ -331,9 +329,9 @@ build_formula() {
 
     echo "> compressing the package"
 
-    case "$output_file" in
-    ebs.auto) output_file="$pkgname-$pkgver.xpt" ;;
-    esac
+    if [ -z "${2:-}" ]; then
+        output_file="$pkgname-$pkgver.xpt"
+    fi
 
     case "$output_file" in
     /*) output_path=$output_file ;;
@@ -357,20 +355,6 @@ EOF
     [ "${pkglicense:-""}" != "" ] && echo "license=${pkglicense}" >>"$pkgdir/xpt.manifest"
     [ "${pkghomepage:-""}" != "" ] && echo "homepage=${pkghomepage}" >>"$pkgdir/xpt.manifest"
 
-    if [ "${build_mode:-}" = 'install_to_toolchain' ]; then
-        echo "> attempting to install to toolchain"
-        if [ -z "${TOOLCHAIN_DIR:-}" ]; then
-            echo "! toolchain dir not found"
-            exit 1
-        fi
-        command -v install_to_toolchain >/dev/null 2>&1 || {
-            echo "! install_to_toolchain not found in $formula_script"
-            exit 1
-        }
-        install_to_toolchain "$TOOLCHAIN_DIR" "$FAKEROOT"
-        echo "> installed to toolchain at $TOOLCHAIN_DIR"
-    fi
-
     chmod 755 "$pkgdir"
 
     if ! bsdtar --mtime "@$SOURCE_DATE_EPOCH" --uid 0 --gid 0 --numeric-owner -cf - -C "$pkgdir" . | zstd -T0 -f -o "$output_path"; then
@@ -382,17 +366,13 @@ EOF
 }
 
 case "${1:-}" in
-help | -h | h)
+help)
     print_ebs_help
     exit 0
     ;;
 
-build | -b | b)
-    build_formula "${2:-./ebs.formula}" "${3:-ebs.auto}"
-    ;;
-
-buildt | -t | t)
-    build_formula "${2:-./ebs.formula}" "${3:-ebs.auto}" "install_to_toolchain"
+build)
+    build_formula "${2:-./ebs.formula}" "${3:-}"
     ;;
 
 *)

@@ -6,8 +6,8 @@
 .Nd build .xpt packages from ebs formulae
 .Sh SYNOPSIS
 .Nm
-.Aq Ar COMMAND
-.Op Ar arguments
+.Aq Ar command
+.Op Ar args
 .Sh DESCRIPTION
 .Nm
 is a shell script that parses
@@ -29,11 +29,6 @@ build an
 package from a
 .Xr ebs 5
 formula.
-.It Cm buildt
-same as
-.Cm build
-but also installs to the toolchain specified in
-.Ev TOOLCHAIN_DIR .
 .El
 .Sh SEE ALSO
 .Xr mkfhs 1 ,
