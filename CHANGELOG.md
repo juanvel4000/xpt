@@ -33,6 +33,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - do not print an error in `repo_index_lookup`
 - improve build reproducibility in `ebs.sh`
 - improve the `ebs(1)` and `rig(1)` help messages
+- fix the `-l` package table in `database.c`
 
 ### Removed
 

@@ -272,20 +272,20 @@ int xpt_package_list(const char *destdir)
         return XPT_EX_IOERR;
     }
 
-    printf("%-20s %s\n", "package", "version");
+    printf("%-20s %s\n", "PACKAGE", "VERSION");
     printf("------------------------------\n");
     pkgcount = 0;
 
     while (sqlite3_step(stmt) == SQLITE_ROW) {
         name = sqlite3_column_text(stmt, 0);
         version = sqlite3_column_text(stmt, 1);
-        printf("%-20s %s\n", name, version);
+        printf(" %-20s %s\n", name, version);
         pkgcount++;
     }
 
     sqlite3_finalize(stmt);
     sqlite3_close(conn);
-    xpt_print_info("\n%d packages installed\n", pkgcount);
+    xpt_print_info("%d packages installed\n", pkgcount);
     return XPT_EX_OK;
 }
 
@@ -362,8 +362,7 @@ int database_files_add(const char *pkgname, const char *treefile,
 
     fp = fopen(treefile, "r");
     if (!fp) {
-        if (log == XPT_LOG_OK)
-            xpt_print_err("error opening database: %s\n", strerror(errno));
+        xpt_print_err("error opening database: %s\n", strerror(errno));
         sqlite3_close(conn);
         return 1;
     }
