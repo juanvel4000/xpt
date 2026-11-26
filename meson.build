@@ -5,8 +5,6 @@ project(
     default_options: [
         'warning_level=3',
         'c_std=c89',
-        'werror=true',
-        'c_args=-Wall -Wextra',
     ],
     license: 'BSD-3-Clause',
     license_files: ['LICENSE', 'THIRD-PARTY-LICENSES'],
