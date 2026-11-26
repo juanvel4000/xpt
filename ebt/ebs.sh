@@ -48,22 +48,19 @@ download() {
 }
 
 if [ "${1:-}" = "" ]; then
-    echo "! usage: ebs <command> [arguments]"
+    echo "usage: ebs <command> [arguments]"
     exit 1
 fi
 
 print_ebs_help() {
-    echo "ebs"
-    echo "usage: ebs <command> [arguments]"
-    echo ""
-    echo "build xpt packages from ebs formulae"
-    echo ""
-    echo "commands:"
-    echo "  help    show this message"
-    echo "  build   build from an ebs formula"
-    echo ""
-    echo "part of ebt build tools"
-    echo "see ebs(1) for more information about the available commands and ebs(5) for the formulae specification"
+    printf "%s\n" 'the ebs build system'
+    printf "%s\n\n" 'usage: ebs <command> [arguments]'
+    printf "%s\n\n" 'build .xpt packages from ebs formulae'
+    printf "%s\n" 'commands:'
+    printf " %-10s %s\n" 'build' 'build from an ebs formula'
+    printf " %-10s %s\n" 'help' 'show this message'
+    printf "\n%s\n" 'view ebs(1) for more information on the available commands,'
+    printf "%s\n" 'and ebs(5) for more information on the formula format.'
 }
 
 createTreefile() {
@@ -254,17 +251,22 @@ build_formula() {
             algo="${pkgchecksum%%:*}"
             sum="${pkgchecksum#*:}"
             case "$algo" in
-            sha256) cmd=sha256sum ;;
-            sha512) cmd=sha512sum ;;
             md5) cmd=md5sum ;;
             sha1) cmd=sha1sum ;;
             sha224) cmd=sha224sum ;;
+            sha256) cmd=sha256sum ;;
             sha384) cmd=sha384sum ;;
+            sha512) cmd=sha512sum ;;
             *)
                 echo "! unknown checksum algorithm: $algo" >&2
                 exit 1
                 ;;
             esac
+
+            command -v "$cmd" >/dev/null 2>&1 || {
+                echo "! '$cmd' not found" >&2
+                exit 1
+            }
 
             printf '%s  %s\n' "$sum" "$srcfile" | "$cmd" -c - || {
                 echo "! checksum mismatch" >&2
@@ -308,7 +310,7 @@ build_formula() {
     fi
 
     echo "> packaging $pkgname 'package()'"
-    "$FAKEROOT" package || {
+    package "$FAKEROOT" || {
         echo "! error packaging the package" >&2
         exit 1
     }
